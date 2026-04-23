@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Project {
+  id             String   @id @default(cuid())
+  name           String
+  code           String
+  client         String?
+  contractType   String?
+  preparedBy     String?
+  contractSum    Float    @default(0)
+  approvedVars   Float    @default(0)
+  originalBudget Float    @default(0)
+  originalMargin Float    @default(0)
+  contractStart  DateTime?
+  contractFinish DateTime?
+  revisedStart   DateTime?
+  revisedFinish  DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  costCodes      CostCode[]
+  trades         Trade[]
+  costLines      CostLine[]
+  committedLines CommittedLine[]
+  forecastLines  ForecastLine[]
+  valuePeriods   ValuePeriod[]
+  periods        ReportPeriod[]
+  sCurveRows     SCurveRow[]
+}
+
+model CostCode {
+  id          String  @id @default(cuid())
+  projectId   String
+  code        String
+  description String
+  trade       String
+  category    String
+  notes       String?
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  costLines      CostLine[]
+  committedLines CommittedLine[]
+  forecastLines  ForecastLine[]
+
+  @@unique([projectId, code])
+}
+
+model Trade {
+  id              String  @id @default(cuid())
+  projectId       String
+  name            String
+  codePrefix      String?
+  sortOrder       Int     @default(0)
+  valueCertified  Float   @default(0)
+  varsNotAgreed   Float   @default(0)
+  adjustments     Float   @default(0)
+  project         Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, name])
+}
+
+model CostLine {
+  id          String  @id @default(cuid())
+  projectId   String
+  periodId    String?
+  costCodeId  String
+  postedCost  Float   @default(0)
+  accruals    Float   @default(0)
+  subRecon    Float   @default(0)
+  notes       String?
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  costCode    CostCode     @relation(fields: [costCodeId], references: [id])
+  period      ReportPeriod? @relation(fields: [periodId], references: [id])
+}
+
+model CommittedLine {
+  id          String  @id @default(cuid())
+  projectId   String
+  costCodeId  String
+  supplier    String?
+  description String?
+  status      String  @default("Placed")
+  quantity    Float?
+  unit        String?
+  unitRate    Float?
+  total       Float   @default(0)
+  notes       String?
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  costCode    CostCode @relation(fields: [costCodeId], references: [id])
+}
+
+model ForecastLine {
+  id          String  @id @default(cuid())
+  projectId   String
+  costCodeId  String
+  parentId    String?
+  sortOrder   Int     @default(0)
+  supplier    String?
+  status      String  @default("Estimate")
+  factor      Float?
+  quantity    Float?
+  unit        String?
+  rate        Float?
+  total       Float   @default(0)
+  comment     String?
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  costCode    CostCode     @relation(fields: [costCodeId], references: [id])
+  parent      ForecastLine?  @relation("ForecastNested", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children    ForecastLine[] @relation("ForecastNested")
+}
+
+model ValuePeriod {
+  id               String  @id @default(cuid())
+  projectId        String
+  periodId         String?
+  cumulClaimed     Float   @default(0)
+  cumulCertified   Float   @default(0)
+  frontLoading     Float   @default(0)
+  unapprovedClaims Float   @default(0)
+  otherAdjustments Float   @default(0)
+  revenuReceived   Float   @default(0)
+  totalPaid        Float   @default(0)
+  riskValue        Float   @default(0)
+  opportunityValue Float   @default(0)
+  project          Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  period           ReportPeriod? @relation(fields: [periodId], references: [id])
+}
+
+model ReportPeriod {
+  id          String    @id @default(cuid())
+  projectId   String
+  label       String
+  periodDate  DateTime
+  isCurrent   Boolean   @default(false)
+  lockedAt    DateTime?
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  costLines   CostLine[]
+  valuePeriods ValuePeriod[]
+  snapshot    PeriodSnapshot?
+}
+
+model PeriodSnapshot {
+  id             String  @id @default(cuid())
+  periodId       String  @unique
+  efc            Float
+  forecastMargin Float
+  totalCTD       Float
+  totalClaimed   Float
+  cashPosition   Float
+  overUnderClaim Float
+  tradePL        String  // JSON
+  period         ReportPeriod @relation(fields: [periodId], references: [id])
+}
+
+model SCurveRow {
+  id            String  @id @default(cuid())
+  projectId     String
+  monthLabel    String
+  monthDate     DateTime
+  sortOrder     Int
+  cumulClaimed  Float   @default(0)
+  cumulCertified Float  @default(0)
+  cumulCost     Float   @default(0)
+  project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
