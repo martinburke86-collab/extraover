@@ -1,4 +1,4 @@
-import type { DashboardKPIs, TradeSummary } from './calculations'
+import type { DashboardKPIs, TradeSummary, VariationCodedSummary } from './calculations'
 
 export type Severity = 'error' | 'warning' | 'info'
 
@@ -14,7 +14,11 @@ export function runHealthChecks(
   kpis: DashboardKPIs,
   trades: TradeSummary[],
   projectId: string,
-  extras?: { gifa?: number; lockedPeriods?: number; variationCount?: number }
+  extras?: {
+    gifa?: number; lockedPeriods?: number; variationCount?: number
+    variationsCoded?: VariationCodedSummary[]
+    prelims?: { detailBudget: number; detailPFC: number; tradeMethod: string | null }
+  }
 ): HealthIssue[] {
   const issues: HealthIssue[] = []
   const adj = kpis.contractSum + kpis.approvedVars
@@ -108,6 +112,70 @@ export function runHealthChecks(
       title: `Forecast margin of ${(kpis.forecastMarginPct * 100).toFixed(1)}% seems high`,
       detail: 'Check that all costs have been entered and forecasts are realistic.',
       href: 'trade',
+    })
+  }
+
+  // ── RECONCILIATION ────────────────────────────────────────────────────────
+  // These checks tie the sheets together so every headline figure is auditable.
+
+  // Element budgets vs original budget
+  const elementBudgetTotal = trades.reduce((s, t) => s + t.budget, 0)
+  if (kpis.originalBudget > 0 && elementBudgetTotal > 0) {
+    const gap = elementBudgetTotal - kpis.originalBudget
+    if (Math.abs(gap) > Math.max(1000, kpis.originalBudget * 0.005)) {
+      issues.push({
+        id: 'element-budget-mismatch', severity: 'warning',
+        title: `Element budgets ${gap > 0 ? 'exceed' : 'fall short of'} original budget by €${Math.round(Math.abs(gap)).toLocaleString('en-IE')}`,
+        detail: `Element budgets total €${Math.round(elementBudgetTotal).toLocaleString('en-IE')} vs original budget €${Math.round(kpis.originalBudget).toLocaleString('en-IE')}. Reconcile on the Budget page or update Settings.`,
+        href: 'budget',
+      })
+    }
+  }
+
+  // Impossible forecasts: EFC below cost already incurred
+  const impossibleTrades = trades.filter(t => t.efc > 0 && t.totalCTD > t.efc + 1)
+  if (impossibleTrades.length > 0) {
+    issues.push({
+      id: 'efc-below-ctd', severity: 'error',
+      title: `EFC is below cost to date on ${impossibleTrades.length} element${impossibleTrades.length > 1 ? 's' : ''}`,
+      detail: impossibleTrades.slice(0, 3).map(t => t.trade).join(', ') + (impossibleTrades.length > 3 ? ` +${impossibleTrades.length - 3} more` : '') + '. A final cost cannot be less than cost already incurred, review the forecast method or hard key.',
+      href: 'forecast',
+    })
+  }
+
+  // Approved variations with an estimate but no coded cost lines
+  const coded = extras?.variationsCoded ?? []
+  const uncodedApproved = coded.filter(v => v.status === 'Approved' && v.cost_estimate > 0 && v.coded_cost === 0)
+  if (uncodedApproved.length > 0) {
+    const est = uncodedApproved.reduce((s, v) => s + v.cost_estimate, 0)
+    issues.push({
+      id: 'vars-uncoded-cost', severity: 'warning',
+      title: `${uncodedApproved.length} approved variation${uncodedApproved.length > 1 ? 's have' : ' has'} no coded cost`,
+      detail: uncodedApproved.slice(0, 4).map(v => v.ref).join(', ') + ` carry €${Math.round(est).toLocaleString('en-IE')} of estimated cost that is not tagged to any cost, committed or forecast line, so the outturn may be understated. Tag the lines to the VO on the input sheets.`,
+      href: 'variations',
+    })
+  }
+
+  // Coded cost drifting well past the estimate
+  const drifted = coded.filter(v => v.status !== 'Rejected' && v.cost_estimate > 0 && v.coded_cost > 0
+    && (v.coded_cost - v.cost_estimate) > Math.max(5000, v.cost_estimate * 0.25))
+  if (drifted.length > 0) {
+    issues.push({
+      id: 'vars-cost-drift', severity: 'info',
+      title: `Coded cost exceeds estimate on ${drifted.length} variation${drifted.length > 1 ? 's' : ''}`,
+      detail: drifted.slice(0, 4).map(v => `${v.ref} (est €${Math.round(v.cost_estimate).toLocaleString('en-IE')}, coded €${Math.round(v.coded_cost).toLocaleString('en-IE')})`).join(', ') + '. Update the estimate or review the coding.',
+      href: 'variations',
+    })
+  }
+
+  // Prelims detail exists but the Preliminaries element is not driven by it
+  if (extras?.prelims && extras.prelims.detailPFC > 0
+      && extras.prelims.tradeMethod !== null && extras.prelims.tradeMethod !== 'prelims') {
+    issues.push({
+      id: 'prelims-not-linked', severity: 'warning',
+      title: 'Preliminaries element is not driven by the prelims sheet',
+      detail: `The prelims detail projects €${Math.round(extras.prelims.detailPFC).toLocaleString('en-IE')} final cost, but the Preliminaries element uses the '${extras.prelims.tradeMethod}' forecast method, so the two can diverge. Set the element's forecast method to 'prelims' so the detail sheet is the single source.`,
+      href: 'prelims',
     })
   }
 

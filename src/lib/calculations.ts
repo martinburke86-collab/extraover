@@ -36,6 +36,12 @@ export interface DashboardKPIs {
   prevEfc: number; prevForecastMargin: number; prevTotalClaimed: number
   prevCashPosition: number; prevOverUnder: number
   approvedVarsIncome: number; submittedVarsIncome: number; totalVarsCostEst: number
+  revisedStart: string | null; revisedFinish: string | null
+}
+
+export interface VariationCodedSummary {
+  id: string; ref: string; status: string
+  cost_estimate: number; coded_cost: number
 }
 
 // ── Core prelim amount formula ────────────────────────────────────────────
@@ -267,5 +273,36 @@ export async function getDashboardKPIs(projectId: string): Promise<DashboardKPIs
     prevCashPosition:   Number(snap?.cash_position)   || 0,
     prevOverUnder:      Number(snap?.over_under_claim)|| 0,
     approvedVarsIncome, submittedVarsIncome, totalVarsCostEst,
+    revisedStart:  p.revised_start  ? String(p.revised_start)  : null,
+    revisedFinish: p.revised_finish ? String(p.revised_finish) : null,
   }
+}
+
+// -- Variation coded-cost summaries (for register, checks and reconciliation) --
+export async function getVariationCodedSummaries(projectId: string): Promise<VariationCodedSummary[]> {
+  const [varsR, ctdR, commR, fcstR] = await Promise.all([
+    db.execute({ sql: `SELECT id, ref, status, cost_estimate FROM variations WHERE project_id=?`, args: [projectId] }),
+    db.execute({
+      sql: `SELECT variation_id, SUM(posted_cost + accruals + sub_recon) as amt
+            FROM cost_lines WHERE project_id=? AND variation_id IS NOT NULL GROUP BY variation_id`,
+      args: [projectId],
+    }),
+    db.execute({
+      sql: `SELECT variation_id, SUM(total) as amt
+            FROM committed_lines WHERE project_id=? AND variation_id IS NOT NULL GROUP BY variation_id`,
+      args: [projectId],
+    }),
+    db.execute({
+      sql: `SELECT variation_id, SUM(total) as amt
+            FROM forecast_lines WHERE project_id=? AND variation_id IS NOT NULL GROUP BY variation_id`,
+      args: [projectId],
+    }),
+  ])
+  const toMap = (rows: any[]) => Object.fromEntries(rows.map(r => [r.variation_id, Number(r.amt) || 0]))
+  const a = toMap(ctdR.rows as any[]), c = toMap(commR.rows as any[]), f = toMap(fcstR.rows as any[])
+  return (varsR.rows as any[]).map(v => ({
+    id: String(v.id), ref: String(v.ref), status: String(v.status || ''),
+    cost_estimate: Number(v.cost_estimate) || 0,
+    coded_cost: (a[v.id] || 0) + (c[v.id] || 0) + (f[v.id] || 0),
+  }))
 }

@@ -7,11 +7,12 @@ export const dynamic = 'force-dynamic'
 export default async function ForecastPage({ params }: { params: { id: string } }) {
   await requireProjectRole(params.id, 'editor')
   await initDB()
-  const [linesResult, codesResult] = await Promise.all([
+  const [linesResult, codesResult, varsResult] = await Promise.all([
     db.execute({
-      sql: `SELECT f.*, cc.code as cc_code, cc.description as cc_desc, cc.trade, cc.category
+      sql: `SELECT f.*, cc.code as cc_code, cc.description as cc_desc, cc.trade, cc.category, v.ref as variation_ref
             FROM forecast_lines f
             JOIN cost_codes cc ON f.cost_code_id = cc.id
+            LEFT JOIN variations v ON f.variation_id = v.id
             WHERE f.project_id = ? ORDER BY f.sort_order, f.id`,
       args: [params.id],
     }),
@@ -19,11 +20,16 @@ export default async function ForecastPage({ params }: { params: { id: string } 
       sql: `SELECT code, description, trade, category FROM cost_codes WHERE project_id = ? ORDER BY code`,
       args: [params.id],
     }),
+    db.execute({
+      sql: `SELECT id, ref, description FROM variations WHERE project_id=? ORDER BY ref`,
+      args: [params.id],
+    }),
   ])
   return (
     <ForecastClient
       lines={linesResult.rows as any[]}
       costCodes={codesResult.rows as any[]}
+      variations={varsResult.rows as any[]}
       projectId={params.id}
     />
   )

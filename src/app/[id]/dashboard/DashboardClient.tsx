@@ -515,12 +515,23 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
               <div className="p-4">
                 <SectionTitle>Programme</SectionTitle>
                 <div className="grid grid-cols-2 gap-3">
-                  {[
-                    ['Revised Start',  '03-Jul-26'],
-                    ['Revised Finish', '30-Sep-27'],
-                    ['Wks Elapsed',    '0'],
-                    ['Wks Remaining',  '65'],
-                  ].map(([label, value]) => (
+                  {(() => {
+                    const fmtDate = (d: string | null) => d
+                      ? new Date(d).toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: '2-digit' }).replace(/ /g, '-')
+                      : '\u2013'
+                    const wk = 7 * 24 * 60 * 60 * 1000
+                    const now = Date.now()
+                    const start  = kpis.revisedStart  ? new Date(kpis.revisedStart).getTime()  : null
+                    const finish = kpis.revisedFinish ? new Date(kpis.revisedFinish).getTime() : null
+                    const elapsed   = start  !== null ? Math.max(0, Math.floor((now - start) / wk))    : null
+                    const remaining = finish !== null ? Math.max(0, Math.ceil((finish - now) / wk))    : null
+                    return [
+                      ['Revised Start',  fmtDate(kpis.revisedStart)],
+                      ['Revised Finish', fmtDate(kpis.revisedFinish)],
+                      ['Wks Elapsed',    elapsed   !== null ? String(elapsed)   : '\u2013'],
+                      ['Wks Remaining',  remaining !== null ? String(remaining) : '\u2013'],
+                    ]
+                  })().map(([label, value]) => (
                     <div key={label}>
                       <div className="text-[9px] uppercase font-bold text-on-surface-variant tracking-wide">{label}</div>
                       <div className="text-sm font-black text-on-surface mt-0.5">{value}</div>

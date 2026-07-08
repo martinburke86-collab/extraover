@@ -13,15 +13,17 @@ type FLine = {
   supplier: string; status: string; factor: number | null; quantity: number | null
   unit: string | null; rate: number | null; total: number; comment: string | null
   cc_code: string; cc_desc: string; trade: string; category: string
+  variation_id: string | null; variation_ref: string | null
 }
 type CostCode = { code: string; description: string; trade: string; category: string }
+type VO = { id: string; ref: string; description: string }
 
-interface Props { lines: FLine[]; costCodes: CostCode[]; projectId: string }
+interface Props { lines: FLine[]; costCodes: CostCode[]; variations: VO[]; projectId: string }
 
 const STATUSES = ['Estimate','Quote','Final','Variation - Recoverable','Variation - Non Recoverable','Contingency']
 const TRADES   = ['All Trades','Preliminaries','Design','Civil Works','Electrical Works','Mechanical Works','Commissioning','Other / Contingency']
 
-export default function ForecastClient({ lines, costCodes, projectId }: Props) {
+export default function ForecastClient({ lines, costCodes, variations, projectId }: Props) {
   const router = useRouter()
   const [, startTransition] = useTransition()
   const [expanded, setExpanded]       = useState<Set<string>>(new Set())
@@ -85,7 +87,7 @@ export default function ForecastClient({ lines, costCodes, projectId }: Props) {
   async function submitForm(parentId?: string) {
     if (!form.code && !editingId) { alert('Select a cost code before adding a forecast line'); return }
     const total = calcTotal(form)
-    const payload = { ...form, total, parentId: parentId ?? null }
+    const payload = { ...form, total, parentId: parentId ?? null, variationId: (form as any).variation_id || null }
     const method  = editingId ? 'PATCH' : 'POST'
     const body    = editingId ? { ...payload, lineId: editingId } : payload
 
@@ -160,6 +162,15 @@ export default function ForecastClient({ lines, costCodes, projectId }: Props) {
             className="w-28 border rounded px-2 py-1 text-xs text-right focus:outline-none" />
         </td>
         <td className="px-3 py-1.5 text-right text-xs font-bold tabular-nums">{fmt(calcTotal(form))}</td>
+        <td className="px-2 py-1.5">
+          <select value={(form as any).variation_id ?? ''}
+            onChange={e => setForm(p => ({ ...p, variation_id: e.target.value || null } as any))}
+            title="Tag this forecast line to a variation"
+            className="border rounded px-1.5 py-1 text-xs focus:outline-none w-20">
+            <option value="">{'\u2013'}</option>
+            {variations.map(v => <option key={v.id} value={v.id}>{v.ref}</option>)}
+          </select>
+        </td>
         <td className="px-2 py-1.5">
           <input placeholder="Comment" value={form.comment ?? ''}
             onChange={e => setForm(p => ({ ...p, comment: e.target.value }))}
@@ -241,6 +252,12 @@ export default function ForecastClient({ lines, costCodes, projectId }: Props) {
                 parentLabel={`${l.cc_code} — ${l.cc_desc}`}
                 value={hasChildren ? totalIncChildren : l.total}
                 onSave={v => {}} width="w-24" />
+            </td>
+            <td className="px-2 py-1.5 text-center">
+              {l.variation_ref
+                ? <span className="px-1.5 py-0.5 rounded text-[10px] font-bold" style={{ background: '#EAF3DE', color: '#27500A' }}
+                    title="Tagged to a variation, edit via the pencil">{l.variation_ref}</span>
+                : <span className="text-xs text-gray-300">{'\u2013'}</span>}
             </td>
             <td className="px-3 py-1.5 text-xs text-gray-400 max-w-[140px]">
               <div className="truncate">{l.comment || ''}</div>
@@ -335,6 +352,7 @@ export default function ForecastClient({ lines, costCodes, projectId }: Props) {
                 ['Unit',        'center', 60],
                 ['Rate / Lump', 'right',  120],
                 ['Total',       'right',  120],
+                ['VO',          'center', 80],
                 ['Comment',     'left',   140],
                 ['',            'center', 40],
               ].map(([label, align, width], i) => (
@@ -345,7 +363,7 @@ export default function ForecastClient({ lines, costCodes, projectId }: Props) {
           <tbody>
             {addingTo === 'root' && !editingId && <FormRow />}
             {filtered.length === 0 ? (
-              <tr><td colSpan={12} className="px-4 py-12 text-center text-gray-400">No forecast lines match the current filters.</td></tr>
+              <tr><td colSpan={13} className="px-4 py-12 text-center text-gray-400">No forecast lines match the current filters.</td></tr>
             ) : (
               filtered.map(l => renderLine(l))
             )}

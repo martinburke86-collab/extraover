@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState, useTransition } from 'react'
+import { useRef, useState, useTransition, useEffect } from 'react'
 import { fmt, pct } from '@/lib/utils'
 import { PageHeader } from '@/components/ui'
 import { useGridNav } from '@/lib/tableUtils'
@@ -44,6 +44,8 @@ export default function BudgetClient({
 
   const localVals = useRef<Record<string, number>>({})
   const [rows, setRows]       = useState<Row[]>(initial)
+  // Keep local rows in sync when the server component refreshes (e.g. after CSV import)
+  useEffect(() => { setRows(initial) }, [initial])
   const [tick, setTick]       = useState(0)
   const [adding, setAdding]   = useState(false)
   const [newName, setNewName] = useState('')

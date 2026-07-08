@@ -16,6 +16,7 @@ type Variation = {
   date_instructed: string | null; date_submitted: string | null; date_approved: string | null
   income_value: number; cost_estimate: number; cost_actual: number
   pct_complete: number; notes: string | null
+  coded_cost: number
 }
 
 const STATUSES = ['Instructed','Submitted','Under Review','Approved','Rejected','On Hold'] as const
@@ -230,6 +231,7 @@ export default function VariationsClient({ variations: initial, projectId, role 
               <th style={{ width: 95,  textAlign: 'center' }}>Date appr.</th>
               <th style={{ width: 110, textAlign: 'right' }}>Income value</th>
               <th style={{ width: 110, textAlign: 'right' }}>Cost est.</th>
+              <th style={{ width: 110, textAlign: 'right' }} title="Derived from cost, committed and forecast lines tagged to this VO. Read-only.">Coded cost</th>
               <th style={{ width: 80,  textAlign: 'right' }}>% Complete</th>
               <th style={{ width: 110, textAlign: 'right' }}>Margin</th>
               <th style={{ minWidth: 150, textAlign: 'left' }}>Notes</th>
@@ -272,6 +274,7 @@ export default function VariationsClient({ variations: initial, projectId, role 
                 <td /><td />
                 <td data-col={1}><GridInput value={0} onSave={v => setNewRow(p => ({ ...p, income_value: v }))} /></td>
                 <td data-col={2}><GridInput value={0} onSave={v => setNewRow(p => ({ ...p, cost_estimate: v }))} /></td>
+                <td><div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#9ca3af' }}>{'\u2014'}</div></td>
                 <td data-col={3}><GridInput value={0} onSave={v => setNewRow(p => ({ ...p, pct_complete: v }))} /></td>
                 <td />
                 <td style={{ padding: '3px 4px' }}>
@@ -294,7 +297,7 @@ export default function VariationsClient({ variations: initial, projectId, role 
             )}
 
             {filtered.length === 0 && !adding && (
-              <tr><td colSpan={15} style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>
+              <tr><td colSpan={16} style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>
                 No variations{statusFilter !== 'All' ? ` with status "${statusFilter}"` : ''}. Click Add Variation to get started.
               </td></tr>
             )}
@@ -302,7 +305,10 @@ export default function VariationsClient({ variations: initial, projectId, role 
             {filtered.map((v, idx) => {
               const income   = getVal(v.id, 'income_value')  ?? v.income_value
               const costEst  = getVal(v.id, 'cost_estimate') ?? v.cost_estimate
-              const margin   = income - costEst
+              const coded    = v.coded_cost || 0
+              // Margin uses coded cost once lines are tagged, falling back to the estimate
+              const margin   = income - (coded > 0 ? coded : costEst)
+              const codedGap = coded > 0 && costEst > 0 ? coded - costEst : 0
               const status   = getVal(v.id, 'status') ?? v.status
 
               return (
@@ -351,6 +357,15 @@ export default function VariationsClient({ variations: initial, projectId, role 
                   </td>
                   <td data-col={2}><GridInput value={v.income_value}  onSave={v2 => saveCell(v.id, 'income_value',  v2)} /></td>
                   <td data-col={3}><GridInput value={v.cost_estimate} onSave={v2 => saveCell(v.id, 'cost_estimate', v2)} /></td>
+                  <td>
+                    <div className="ss-cell-ro ss-cell-ro-r"
+                      title={coded > 0
+                        ? `Sum of lines tagged to ${v.ref} on Cost to Date, Committed and Forecast.${codedGap !== 0 ? ` ${codedGap > 0 ? '+' : ''}${Math.round(codedGap).toLocaleString('en-IE')} vs estimate.` : ''}`
+                        : `No lines tagged to ${v.ref} yet. Tag lines on the Cost to Date, Committed or Forecast sheets.`}
+                      style={{ fontVariantNumeric: 'tabular-nums', color: coded === 0 ? '#9ca3af' : (codedGap > 0 ? '#991B1B' : '#1e3a5f'), fontWeight: 600 }}>
+                      {coded > 0 ? fmt(coded) : '\u2014'}
+                    </div>
+                  </td>
                   <td data-col={4}><GridInput value={v.pct_complete ?? 0} onSave={v2 => saveCell(v.id, 'pct_complete', v2)} /></td>
                   <td>
                     <div className="ss-cell-ro ss-cell-ro-r font-bold"
@@ -384,6 +399,9 @@ export default function VariationsClient({ variations: initial, projectId, role 
                 </td>
                 <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#565e74' }}>
                   {fmt(filtered.reduce((s, v) => s + (getVal(v.id, 'cost_estimate') ?? v.cost_estimate), 0))}
+                </td>
+                <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#1e3a5f' }}>
+                  {fmt(filtered.reduce((s, v) => s + (v.coded_cost || 0), 0))}
                 </td>
                 <td />
                 <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>

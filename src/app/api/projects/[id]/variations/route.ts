@@ -9,7 +9,36 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     sql: `SELECT * FROM variations WHERE project_id=? ORDER BY ref`,
     args: [params.id],
   })
-  return NextResponse.json(r.rows)
+
+  // Coded cost per variation, derived from tagged lines on the three cost ledgers.
+  // coded_actual    = posted + accruals + sub recon on cost_lines tagged to the VO
+  // coded_committed = order totals on committed_lines tagged to the VO
+  // coded_forecast  = forecast line totals tagged to the VO (cost still to come)
+  const [ctdR, commR, fcstR] = await Promise.all([
+    db.execute({
+      sql: `SELECT variation_id, SUM(posted_cost + accruals + sub_recon) as amt
+            FROM cost_lines WHERE project_id=? AND variation_id IS NOT NULL GROUP BY variation_id`,
+      args: [params.id],
+    }),
+    db.execute({
+      sql: `SELECT variation_id, SUM(total) as amt
+            FROM committed_lines WHERE project_id=? AND variation_id IS NOT NULL GROUP BY variation_id`,
+      args: [params.id],
+    }),
+    db.execute({
+      sql: `SELECT variation_id, SUM(total) as amt
+            FROM forecast_lines WHERE project_id=? AND variation_id IS NOT NULL GROUP BY variation_id`,
+      args: [params.id],
+    }),
+  ])
+  const sum = (rows: any[]) => Object.fromEntries(rows.map(r => [r.variation_id, Number(r.amt) || 0]))
+  const actual = sum(ctdR.rows as any[]), committed = sum(commR.rows as any[]), forecast = sum(fcstR.rows as any[])
+
+  const enriched = (r.rows as any[]).map(v => {
+    const a = actual[v.id] || 0, c = committed[v.id] || 0, f = forecast[v.id] || 0
+    return { ...v, coded_actual: a, coded_committed: c, coded_forecast: f, coded_cost: a + c + f }
+  })
+  return NextResponse.json(enriched)
 }
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {

@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 export default async function CTDPage({ params }: { params: { id: string } }) {
   await requireProjectRole(params.id, 'editor')
   await initDB()
-  const [linesResult, codesResult] = await Promise.all([
+  const [linesResult, codesResult, varsResult] = await Promise.all([
     db.execute({
       sql: `SELECT cl.*, cc.code, cc.description, cc.trade, cc.category
             FROM cost_lines cl JOIN cost_codes cc ON cl.cost_code_id = cc.id
@@ -17,6 +17,11 @@ export default async function CTDPage({ params }: { params: { id: string } }) {
       sql: `SELECT code, description, trade, category FROM cost_codes WHERE project_id=? ORDER BY code`,
       args: [params.id],
     }),
+    db.execute({
+      sql: `SELECT id, ref, description FROM variations WHERE project_id=? ORDER BY ref`,
+      args: [params.id],
+    }),
   ])
-  return <CTDClient lines={linesResult.rows as any[]} costCodes={codesResult.rows as any[]} projectId={params.id} />
+  return <CTDClient lines={linesResult.rows as any[]} costCodes={codesResult.rows as any[]}
+    variations={varsResult.rows as any[]} projectId={params.id} />
 }

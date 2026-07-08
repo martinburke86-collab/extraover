@@ -6,9 +6,10 @@ import { writeAudit, auditChanges, auditMoney } from '@/lib/audit'
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   await initDB()
   const result = await db.execute({
-    sql: `SELECT c.*, cc.code, cc.description, cc.trade, cc.category
+    sql: `SELECT c.*, cc.code, cc.description, cc.trade, cc.category, v.ref as variation_ref
           FROM committed_lines c
           JOIN cost_codes cc ON c.cost_code_id = cc.id
+          LEFT JOIN variations v ON c.variation_id = v.id
           WHERE c.project_id = ?
           ORDER BY cc.trade, cc.code`,
     args: [params.id],
@@ -28,9 +29,11 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const total = b.quantity && b.unitRate ? b.quantity * b.unitRate : (b.total ?? 0)
   const id = cuid()
   await db.execute({
-    sql: `INSERT INTO committed_lines VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+    sql: `INSERT INTO committed_lines
+            (id, project_id, cost_code_id, supplier, description, status, quantity, unit, unit_rate, total, notes, variation_id)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
     args: [id, params.id, cc.id, b.supplier ?? null, b.description ?? null,
-           b.status ?? 'Placed', b.quantity ?? null, b.unit ?? null, b.unitRate ?? null, total, b.notes ?? null],
+           b.status ?? 'Placed', b.quantity ?? null, b.unit ?? null, b.unitRate ?? null, total, b.notes ?? null, b.variationId ?? null],
   })
   await writeAudit(params.id, 'Committed', 'Created',
     `${cc.code} · ${b.supplier || b.description || ''}`, 'Total', null, auditMoney(total))
@@ -43,18 +46,20 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const total = b.quantity && b.unitRate ? b.quantity * b.unitRate : (b.total ?? 0)
 
   const old = await db.execute({
-    sql: `SELECT c.total, c.status, c.supplier, cc.code, cc.description
+    sql: `SELECT c.total, c.status, c.supplier, c.variation_id, cc.code, cc.description
           FROM committed_lines c JOIN cost_codes cc ON c.cost_code_id=cc.id
           WHERE c.id=? AND c.project_id=?`,
     args: [b.lineId, params.id],
   })
   const o = old.rows[0] as any
 
+  const variationId = b.variationId === undefined ? (o?.variation_id ?? null) : (b.variationId || null)
+
   await db.execute({
-    sql: `UPDATE committed_lines SET supplier=?, description=?, status=?, quantity=?, unit=?, unit_rate=?, total=?, notes=?
+    sql: `UPDATE committed_lines SET supplier=?, description=?, status=?, quantity=?, unit=?, unit_rate=?, total=?, notes=?, variation_id=?
           WHERE id=? AND project_id=?`,
     args: [b.supplier ?? null, b.description ?? null, b.status, b.quantity ?? null,
-           b.unit ?? null, b.unitRate ?? null, total, b.notes ?? null, b.lineId, params.id],
+           b.unit ?? null, b.unitRate ?? null, total, b.notes ?? null, variationId, b.lineId, params.id],
   })
 
   if (o) {

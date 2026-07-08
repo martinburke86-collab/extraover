@@ -12,11 +12,12 @@ import ImportModal from '@/components/ImportModal'
 type Line = {
   id: string; cost_code_id: string; posted_cost: number; accruals: number
   sub_recon: number; notes: string | null; code: string; description: string
-  trade: string; category: string
+  trade: string; category: string; variation_id: string | null
 }
 type CC = { code: string; description: string; trade: string; category: string }
+type VO = { id: string; ref: string; description: string }
 
-export default function CTDClient({ lines, costCodes, projectId }: { lines: Line[]; costCodes: CC[]; projectId: string }) {
+export default function CTDClient({ lines, costCodes, variations, projectId }: { lines: Line[]; costCodes: CC[]; variations: VO[]; projectId: string }) {
   const router = useRouter()
   const [, startTransition] = useTransition()
   const { toast } = useToast()
@@ -31,6 +32,14 @@ export default function CTDClient({ lines, costCodes, projectId }: { lines: Line
     return key in localVals.current
       ? localVals.current[key]
       : Number((lines.find(l => l.id === id) as any)?.[field] ?? 0)
+  }
+
+  // VO tags kept in a ref store, same pattern as money cells
+  const localVO = useRef<Record<string, string>>({})
+  function getVO(id: string): string {
+    return id in localVO.current
+      ? localVO.current[id]
+      : String(lines.find(l => l.id === id)?.variation_id ?? '')
   }
 
   // Fire-and-forget save — NO router.refresh(), NO blocking setState
@@ -48,6 +57,24 @@ export default function CTDClient({ lines, costCodes, projectId }: { lines: Line
         accruals:   field === 'accruals'    ? value : getVal(lineId, 'accruals'),
         subRecon:   field === 'sub_recon'   ? value : getVal(lineId, 'sub_recon'),
         notes: lines.find(l => l.id === lineId)?.notes ?? null,
+        variationId: getVO(lineId) || null,
+      }),
+    }).catch(() => toast('Save failed', 'error'))
+  }
+
+  function saveVO(lineId: string, voId: string) {
+    localVO.current[lineId] = voId
+    setTick(t => t + 1)
+    fetch(`/api/projects/${projectId}/cost-to-date`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lineId,
+        postedCost: getVal(lineId, 'posted_cost'),
+        accruals:   getVal(lineId, 'accruals'),
+        subRecon:   getVal(lineId, 'sub_recon'),
+        notes: lines.find(l => l.id === lineId)?.notes ?? null,
+        variationId: voId || null,
       }),
     }).catch(() => toast('Save failed', 'error'))
   }
@@ -170,6 +197,7 @@ export default function CTDClient({ lines, costCodes, projectId }: { lines: Line
               <th style={{ width: 120, textAlign: 'right' }}>Accruals</th>
               <th style={{ width: 120, textAlign: 'right' }}>Sub recon</th>
               <th style={{ width: 130, textAlign: 'right' }}>Total CTD</th>
+              <th style={{ width: 90, textAlign: 'center' }} title="Tag this line to a variation. Tagged lines drive the Coded cost column on the Variations register.">VO</th>
               <th style={{ width: 40 }}></th>
             </tr>
           </thead>
@@ -196,6 +224,7 @@ export default function CTDClient({ lines, costCodes, projectId }: { lines: Line
                   <GridInput value={newLine.subRecon} onSave={v => setNewLine(p => ({ ...p, subRecon: v }))} />
                 </td>
                 <td />
+                <td />
                 <td style={{ padding: '4px 6px' }}>
                   <div className="flex gap-1">
                     <button onClick={addLine} className="px-2 py-1 rounded text-white text-[11px] font-bold" style={{ background: '#456919' }}>Add</button>
@@ -206,7 +235,7 @@ export default function CTDClient({ lines, costCodes, projectId }: { lines: Line
             )}
 
             {filtered.length === 0 && !adding && (
-              <tr><td colSpan={9} style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>
+              <tr><td colSpan={10} style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>
                 No cost lines yet. Click "Add Line" to start entering costs.
               </td></tr>
             )}
@@ -251,6 +280,15 @@ export default function CTDClient({ lines, costCodes, projectId }: { lines: Line
                   <td>
                     <div className="ss-cell-total">{total ? fmt(total) : '—'}</div>
                   </td>
+                  <td style={{ padding: '2px 4px' }}>
+                    <select value={getVO(l.id)} onChange={e => saveVO(l.id, e.target.value)}
+                      title={getVO(l.id) ? 'Line tagged to a variation' : 'No variation tag'}
+                      className="w-full text-[10px] focus:outline-none focus:ring-1 focus:ring-primary rounded px-1 py-1"
+                      style={{ background: getVO(l.id) ? '#EEF6E7' : '#fff', border: '0.5px solid #e5e7eb', color: getVO(l.id) ? '#27500A' : '#9ca3af', fontWeight: 600 }}>
+                      <option value="">{'\u2013'}</option>
+                      {variations.map(v => <option key={v.id} value={v.id}>{v.ref}</option>)}
+                    </select>
+                  </td>
                   <td style={{ textAlign: 'center', padding: '0 4px' }}>
                     <button onClick={() => deleteLine(l.id)}
                       className="p-1 rounded text-red-200 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
@@ -270,6 +308,7 @@ export default function CTDClient({ lines, costCodes, projectId }: { lines: Line
                 <td style={{ textAlign: 'right' }}>{fmt(filtered.reduce((s, l) => s + getVal(l.id, 'accruals'), 0))}</td>
                 <td style={{ textAlign: 'right' }}>{fmt(filtered.reduce((s, l) => s + getVal(l.id, 'sub_recon'), 0))}</td>
                 <td style={{ textAlign: 'right' }}>{fmt(filtered.reduce((s, l) => s + getVal(l.id, 'posted_cost') + getVal(l.id, 'accruals') + getVal(l.id, 'sub_recon'), 0))}</td>
+                <td />
                 <td />
               </tr>
             </tfoot>

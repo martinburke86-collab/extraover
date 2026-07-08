@@ -6,9 +6,10 @@ import { writeAudit, auditChanges, auditMoney } from '@/lib/audit'
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   await initDB()
   const result = await db.execute({
-    sql: `SELECT f.*, cc.code, cc.description, cc.trade, cc.category
+    sql: `SELECT f.*, cc.code, cc.description, cc.trade, cc.category, v.ref as variation_ref
           FROM forecast_lines f
           JOIN cost_codes cc ON f.cost_code_id = cc.id
+          LEFT JOIN variations v ON f.variation_id = v.id
           WHERE f.project_id = ?
           ORDER BY f.sort_order, f.id`,
     args: [params.id],
@@ -36,10 +37,12 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const total = calcTotal(b.factor, b.quantity, b.rate)
   const id = cuid()
   await db.execute({
-    sql: `INSERT INTO forecast_lines VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    sql: `INSERT INTO forecast_lines
+            (id, project_id, cost_code_id, parent_id, sort_order, supplier, status, factor, quantity, unit, rate, total, comment, variation_id)
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     args: [id, params.id, cc.id, b.parentId ?? null, nextOrder,
            b.supplier ?? null, b.status ?? 'Estimate',
-           b.factor ?? null, b.quantity ?? null, b.unit ?? null, b.rate ?? null, total, b.comment ?? null],
+           b.factor ?? null, b.quantity ?? null, b.unit ?? null, b.rate ?? null, total, b.comment ?? null, b.variationId ?? null],
   })
 
   await writeAudit(params.id, 'Forecast', 'Created',
@@ -56,18 +59,20 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
   // Read old values
   const old = await db.execute({
-    sql: `SELECT f.total, f.status, f.supplier, cc.code, cc.description
+    sql: `SELECT f.total, f.status, f.supplier, f.variation_id, cc.code, cc.description
           FROM forecast_lines f JOIN cost_codes cc ON f.cost_code_id=cc.id
           WHERE f.id=? AND f.project_id=?`,
     args: [b.lineId, params.id],
   })
   const o = old.rows[0] as any
 
+  const variationId = b.variationId === undefined ? (o?.variation_id ?? null) : (b.variationId || null)
+
   await db.execute({
-    sql: `UPDATE forecast_lines SET supplier=?, status=?, factor=?, quantity=?, unit=?, rate=?, total=?, comment=?
+    sql: `UPDATE forecast_lines SET supplier=?, status=?, factor=?, quantity=?, unit=?, rate=?, total=?, comment=?, variation_id=?
           WHERE id=? AND project_id=?`,
     args: [b.supplier ?? null, b.status, b.factor ?? null, b.quantity ?? null,
-           b.unit ?? null, b.rate ?? null, total, b.comment ?? null, b.lineId, params.id],
+           b.unit ?? null, b.rate ?? null, total, b.comment ?? null, variationId, b.lineId, params.id],
   })
 
   if (o) {

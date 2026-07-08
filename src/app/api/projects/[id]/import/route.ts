@@ -96,7 +96,9 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
       try {
         await db.execute({
-          sql:  `INSERT INTO committed_lines VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+          sql:  `INSERT INTO committed_lines
+                   (id, project_id, cost_code_id, supplier, description, status, quantity, unit, unit_rate, total, notes)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
           args: [cuid(), pid, ccId,
                  String(r.supplier ?? r.vendor ?? '').trim() || null,
                  String(r.description ?? r.item ?? r.desc ?? '').trim() || null,
@@ -140,7 +142,9 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
       try {
         await db.execute({
-          sql:  `INSERT INTO forecast_lines VALUES (?,?,?,NULL,?,?,?,?,?,?,?,?,?)`,
+          sql:  `INSERT INTO forecast_lines
+                   (id, project_id, cost_code_id, parent_id, sort_order, supplier, status, factor, quantity, unit, rate, total, comment)
+                 VALUES (?,?,?,NULL,?,?,?,?,?,?,?,?,?)`,
           args: [cuid(), pid, ccId, sortOrder++,
                  String(r.supplier ?? '').trim() || null,
                  status, factor, qty,

@@ -74,6 +74,7 @@ export async function initDB() {
       accruals REAL DEFAULT 0,
       sub_recon REAL DEFAULT 0,
       notes TEXT,
+      variation_id TEXT,
       FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
       FOREIGN KEY (cost_code_id) REFERENCES cost_codes(id)
     );
@@ -90,6 +91,7 @@ export async function initDB() {
       unit_rate REAL,
       total REAL DEFAULT 0,
       notes TEXT,
+      variation_id TEXT,
       FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
       FOREIGN KEY (cost_code_id) REFERENCES cost_codes(id)
     );
@@ -108,6 +110,7 @@ export async function initDB() {
       rate REAL,
       total REAL DEFAULT 0,
       comment TEXT,
+      variation_id TEXT,
       FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
       FOREIGN KEY (cost_code_id) REFERENCES cost_codes(id),
       FOREIGN KEY (parent_id) REFERENCES forecast_lines(id)
@@ -273,6 +276,9 @@ export function cuid(): string {
 // Run lightweight column migrations on every cold start
 export async function runMigrations() {
   const cols = [
+    `ALTER TABLE cost_lines ADD COLUMN variation_id TEXT`,
+    `ALTER TABLE committed_lines ADD COLUMN variation_id TEXT`,
+    `ALTER TABLE forecast_lines ADD COLUMN variation_id TEXT`,
     `ALTER TABLE projects ADD COLUMN gifa REAL DEFAULT 0`,
     `ALTER TABLE variations ADD COLUMN instructed_by TEXT`,
     `ALTER TABLE variations ADD COLUMN category TEXT`,

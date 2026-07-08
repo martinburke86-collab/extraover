@@ -407,7 +407,9 @@ async function seed() {
   for (const [code, posted, acc] of ctdLines) {
     if (!cm[code]) continue
     await db.execute({
-      sql: 'INSERT INTO cost_lines VALUES (?,?,?,?,?,?,?,NULL)',
+      sql: `INSERT INTO cost_lines
+              (id, project_id, period_id, cost_code_id, posted_cost, accruals, sub_recon, notes)
+            VALUES (?,?,?,?,?,?,?,NULL)`,
       args: [cuid(), projectId, periodId, cm[code], posted, acc, 0],
     })
   }
@@ -434,7 +436,9 @@ async function seed() {
   for (const [code, supplier, desc, status, qty, unit, total] of committedLines) {
     if (!cm[code]) continue
     await db.execute({
-      sql: 'INSERT INTO committed_lines VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+      sql: `INSERT INTO committed_lines
+              (id, project_id, cost_code_id, supplier, description, status, quantity, unit, unit_rate, total, notes)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
       args: [cuid(), projectId, cm[code], supplier, desc, status, qty, unit, null, total, null],
     })
   }
@@ -474,7 +478,9 @@ async function seed() {
   for (const [code, supplier, status, total] of forecastLines) {
     if (!cm[code]) continue
     await db.execute({
-      sql: 'INSERT INTO forecast_lines VALUES (?,?,?,NULL,?,?,?,?,?,?,?,?,NULL)',
+      sql: `INSERT INTO forecast_lines
+              (id, project_id, cost_code_id, parent_id, sort_order, supplier, status, factor, quantity, unit, rate, total, comment)
+            VALUES (?,?,?,NULL,?,?,?,?,?,?,?,?,NULL)`,
       args: [cuid(), projectId, cm[code], fSort++, supplier, status, null, null, null, null, total],
     })
   }

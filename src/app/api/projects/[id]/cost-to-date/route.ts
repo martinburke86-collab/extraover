@@ -6,9 +6,10 @@ import { writeAudit, auditChanges, auditMoney } from '@/lib/audit'
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   await initDB()
   const result = await db.execute({
-    sql: `SELECT cl.*, cc.code, cc.description, cc.trade, cc.category
+    sql: `SELECT cl.*, cc.code, cc.description, cc.trade, cc.category, v.ref as variation_ref
           FROM cost_lines cl
           JOIN cost_codes cc ON cl.cost_code_id = cc.id
+          LEFT JOIN variations v ON cl.variation_id = v.id
           WHERE cl.project_id = ?
           ORDER BY cc.trade, cc.code`,
     args: [params.id],
@@ -27,8 +28,10 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   if (!cc) return NextResponse.json({ error: 'Cost code not found' }, { status: 400 })
   const id = cuid()
   await db.execute({
-    sql: `INSERT INTO cost_lines VALUES (?,?,?,?,?,?,?,?)`,
-    args: [id, params.id, b.periodId ?? null, cc.id, b.postedCost ?? 0, b.accruals ?? 0, b.subRecon ?? 0, b.notes ?? null],
+    sql: `INSERT INTO cost_lines
+            (id, project_id, period_id, cost_code_id, posted_cost, accruals, sub_recon, notes, variation_id)
+          VALUES (?,?,?,?,?,?,?,?,?)`,
+    args: [id, params.id, b.periodId ?? null, cc.id, b.postedCost ?? 0, b.accruals ?? 0, b.subRecon ?? 0, b.notes ?? null, b.variationId ?? null],
   })
   await writeAudit(params.id, 'CTD', 'Created', `${cc.code} · ${cc.description}`,
     'Total', null, auditMoney((b.postedCost ?? 0) + (b.accruals ?? 0) + (b.subRecon ?? 0)))
@@ -41,16 +44,19 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
   // Read old values for audit
   const old = await db.execute({
-    sql: `SELECT cl.posted_cost, cl.accruals, cl.sub_recon, cc.code, cc.description
+    sql: `SELECT cl.posted_cost, cl.accruals, cl.sub_recon, cl.variation_id, cc.code, cc.description
           FROM cost_lines cl JOIN cost_codes cc ON cl.cost_code_id=cc.id
           WHERE cl.id=? AND cl.project_id=?`,
     args: [b.lineId, params.id],
   })
   const o = old.rows[0] as any
 
+  // variationId: undefined = leave unchanged, null = clear, string = set
+  const variationId = b.variationId === undefined ? (o?.variation_id ?? null) : (b.variationId || null)
+
   await db.execute({
-    sql: `UPDATE cost_lines SET posted_cost=?, accruals=?, sub_recon=?, notes=? WHERE id=? AND project_id=?`,
-    args: [b.postedCost ?? 0, b.accruals ?? 0, b.subRecon ?? 0, b.notes ?? null, b.lineId, params.id],
+    sql: `UPDATE cost_lines SET posted_cost=?, accruals=?, sub_recon=?, notes=?, variation_id=? WHERE id=? AND project_id=?`,
+    args: [b.postedCost ?? 0, b.accruals ?? 0, b.subRecon ?? 0, b.notes ?? null, variationId, b.lineId, params.id],
   })
 
   if (o) {

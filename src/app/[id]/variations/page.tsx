@@ -1,4 +1,5 @@
 import { initDB, db } from '@/lib/db'
+import { getVariationCodedSummaries } from '@/lib/calculations'
 import VariationsClient from './VariationsClient'
 import { requireProjectRole } from '@/lib/pageAuth'
 export const dynamic = 'force-dynamic'
@@ -10,6 +11,8 @@ export default async function VariationsPage({ params }: { params: { id: string 
     sql: `SELECT * FROM variations WHERE project_id=? ORDER BY ref`,
     args: [params.id],
   })
+  const codedList = await getVariationCodedSummaries(params.id)
+  const codedMap = Object.fromEntries(codedList.map(c => [c.id, c.coded_cost]))
   const vars = (r.rows as any[]).map(v => ({
     id:              String(v.id),
     ref:             String(v.ref),
@@ -25,6 +28,7 @@ export default async function VariationsPage({ params }: { params: { id: string 
     cost_actual:     Number(v.cost_actual)   || 0,
     pct_complete:    Number(v.pct_complete)  || 0,
     notes:           v.notes ? String(v.notes) : null,
+    coded_cost:      codedMap[String(v.id)] || 0,
   }))
   return <VariationsClient variations={vars} projectId={params.id} role={role} />
 }

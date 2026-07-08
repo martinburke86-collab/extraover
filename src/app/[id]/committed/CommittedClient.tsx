@@ -13,8 +13,10 @@ type Line = {
   id: string; supplier: string | null; description: string | null; status: string
   quantity: number | null; unit: string | null; unit_rate: number | null; total: number
   notes: string | null; code: string; trade: string; category: string
+  variation_id: string | null
 }
 type CC = { code: string; description: string; trade: string; category: string }
+type VO = { id: string; ref: string; description: string }
 const STATUSES = ['Placed','Pending','Provisional','Forecast','On Hold','Cancelled']
 
 const STATUS_CFG: Record<string, { bg: string; text: string }> = {
@@ -26,7 +28,7 @@ const STATUS_CFG: Record<string, { bg: string; text: string }> = {
   Cancelled:    { bg: '#FEE2E2', text: '#991B1B' },
 }
 
-export default function CommittedClient({ lines, costCodes, projectId }: { lines: Line[]; costCodes: CC[]; projectId: string }) {
+export default function CommittedClient({ lines, costCodes, variations, projectId }: { lines: Line[]; costCodes: CC[]; variations: VO[]; projectId: string }) {
   const router = useRouter()
   const [, startTransition] = useTransition()
   const { toast } = useToast()
@@ -61,6 +63,7 @@ export default function CommittedClient({ lines, costCodes, projectId }: { lines
         quantity: qty, unit: getVal(lineId, 'unit') ?? l.unit,
         unitRate: rate, total,
         notes: getVal(lineId, 'notes') ?? l.notes,
+        variationId: (field === 'variation_id' ? value : (getVal(lineId, 'variation_id') ?? l.variation_id)) || null,
       }),
     }).catch(() => toast('Save failed', 'error'))
   }
@@ -177,6 +180,7 @@ export default function CommittedClient({ lines, costCodes, projectId }: { lines
               <th style={{ width: 60,  textAlign: 'center' }}>Unit</th>
               <th style={{ width: 120, textAlign: 'right' }}>Unit rate</th>
               <th style={{ width: 130, textAlign: 'right' }}>Total</th>
+              <th style={{ width: 90, textAlign: 'center' }} title="Tag this order to a variation. Tagged lines drive the Coded cost column on the Variations register.">VO</th>
               <th style={{ width: 40 }}></th>
             </tr>
           </thead>
@@ -231,7 +235,7 @@ export default function CommittedClient({ lines, costCodes, projectId }: { lines
             )}
 
             {filtered.length === 0 && !adding && (
-              <tr><td colSpan={11} style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>
+              <tr><td colSpan={12} style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>
                 No commitments match current filters.
               </td></tr>
             )}
@@ -295,6 +299,16 @@ export default function CommittedClient({ lines, costCodes, projectId }: { lines
                   </td>
                   <td data-col={4}><GridInput value={Number(rate) || 0} onSave={v => saveCell(l.id, 'unit_rate', v)} /></td>
                   <td><div className="ss-cell-total">{total ? fmt(total) : '—'}</div></td>
+                  <td style={{ padding: '2px 4px' }}>
+                    {(() => { const vo = String(getVal(l.id, 'variation_id') ?? l.variation_id ?? ''); return (
+                      <select value={vo} onChange={e => saveCell(l.id, 'variation_id', e.target.value)}
+                        className="w-full text-[10px] focus:outline-none focus:ring-1 focus:ring-primary rounded px-1 py-1"
+                        style={{ background: vo ? '#EAF3DE' : '#fff', border: '0.5px solid #e5e7eb', color: vo ? '#27500A' : '#9ca3af', fontWeight: 600 }}>
+                        <option value="">{'\u2013'}</option>
+                        {variations.map(v => <option key={v.id} value={v.id}>{v.ref}</option>)}
+                      </select>
+                    )})()}
+                  </td>
                   <td style={{ textAlign: 'center', padding: '0 4px' }}>
                     <button onClick={() => del(l.id)}
                       className="p-1 rounded text-red-200 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
@@ -317,6 +331,7 @@ export default function CommittedClient({ lines, costCodes, projectId }: { lines
                     return s + (qty && rate ? qty * rate : (getVal(l.id, 'total') ?? l.total))
                   }, 0))}
                 </td>
+                <td />
                 <td />
               </tr>
             </tfoot>

@@ -1,4 +1,4 @@
-import { getDashboardKPIs, getTradeSummaries } from '@/lib/calculations'
+import { getDashboardKPIs, getTradeSummaries, getVariationCodedSummaries, getPrelimItems } from '@/lib/calculations'
 import { initDB, db } from '@/lib/db'
 import { runHealthChecks } from '@/lib/healthCheck'
 import DashboardClient from './DashboardClient'
@@ -29,7 +29,18 @@ export default async function DashboardPage({ params }: { params: { id: string }
   })
   const variationCount = Number((varsR.rows[0] as any)?.n) || 0
 
-  const healthIssues = runHealthChecks(kpis, trades, params.id, { gifa, lockedPeriods, variationCount })
+  // Reconciliation extras: coded variation costs and prelims linkage
+  const variationsCoded = await getVariationCodedSummaries(params.id)
+  const prelimItems = await getPrelimItems(params.id)
+  const prelimsTrade = trades.find(t => t.trade.toLowerCase().startsWith('prelim'))
+  const prelims = {
+    detailBudget: prelimItems.reduce((s, i) => s + i.budget, 0),
+    detailPFC:    prelimItems.reduce((s, i) => s + i.projected_final_cost, 0),
+    tradeMethod:  prelimsTrade ? prelimsTrade.forecastMethod : null,
+  }
+
+  const healthIssues = runHealthChecks(kpis, trades, params.id,
+    { gifa, lockedPeriods, variationCount, variationsCoded, prelims })
 
   // All locked period snapshots for trend chart — ordered oldest first
   const trendR = await db.execute({
