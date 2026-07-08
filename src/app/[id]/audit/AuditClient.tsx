@@ -16,15 +16,15 @@ type Entry = {
 }
 
 const ACTION_STYLES: Record<string, { bg: string; text: string }> = {
-  Created: { bg: '#EAF3DE', text: '#27500A' },
+  Created: { bg: '#e7f6ee', text: '#0a6e44' },
   Updated: { bg: '#E6F1FB', text: '#0C447C' },
   Deleted: { bg: '#FCEBEB', text: '#791F1F' },
 }
 
 const CATEGORY_COLOURS: Record<string, string> = {
-  'CTD':       '#565e74',
+  'CTD':       '#5b626e',
   'Committed': '#856c0b',
-  'Forecast':  '#456919',
+  'Forecast':  '#0a8a54',
   'CVR Trade': '#185FA5',
   'Settings':  '#444441',
   'Variation': '#993556',
@@ -113,7 +113,7 @@ export default function AuditClient({ entries, projectId }: { entries: Entry[]; 
                   ['New value',  'right', 'w-32'],
                 ].map(([h, align, w]) => (
                   <th key={h} className={clx(
-                    'px-4 py-2.5 text-[10px] font-bold text-white bg-[#565e74] uppercase tracking-wide',
+                    'px-4 py-2.5 text-[10px] font-bold text-white bg-[#5b626e] uppercase tracking-wide',
                     w, `text-${align}`
                   )}>{h}</th>
                 ))}
@@ -161,14 +161,14 @@ export default function AuditClient({ entries, projectId }: { entries: Entry[]; 
                     </td>
                     <td className="px-4 py-2 text-right">
                       {e.oldValue ? (
-                        <span className="text-xs font-mono text-[#9f403d] bg-[#FCEBEB] px-1.5 py-0.5 rounded">
+                        <span className="text-xs font-mono text-[#c8412a] bg-[#FCEBEB] px-1.5 py-0.5 rounded">
                           {e.oldValue}
                         </span>
                       ) : <span className="text-on-surface-variant/30 text-xs">—</span>}
                     </td>
                     <td className="px-4 py-2 text-right">
                       {e.newValue ? (
-                        <span className="text-xs font-mono text-[#27500A] bg-[#EAF3DE] px-1.5 py-0.5 rounded">
+                        <span className="text-xs font-mono text-[#0a6e44] bg-[#e7f6ee] px-1.5 py-0.5 rounded">
                           {e.newValue}
                         </span>
                       ) : <span className="text-on-surface-variant/30 text-xs">—</span>}

@@ -20,12 +20,12 @@ type VO = { id: string; ref: string; description: string }
 const STATUSES = ['Placed','Pending','Provisional','Forecast','On Hold','Cancelled']
 
 const STATUS_CFG: Record<string, { bg: string; text: string }> = {
-  Placed:       { bg: '#EAF3DE', text: '#27500A' },
-  Pending:      { bg: '#FEF9C3', text: '#78350f' },
-  Provisional:  { bg: '#EEF2FF', text: '#3730a3' },
-  Forecast:     { bg: '#F0F9FF', text: '#0369a1' },
-  'On Hold':    { bg: '#F3F4F6', text: '#4B5563' },
-  Cancelled:    { bg: '#FEE2E2', text: '#991B1B' },
+  Placed:       { bg: '#e7f6ee', text: '#0a6e44' },
+  Pending:      { bg: '#fcf2e2', text: '#b6740a' },
+  Provisional:  { bg: '#eef2ff', text: '#1a45c0' },
+  Forecast:     { bg: '#eef2ff', text: '#1a45c0' },
+  'On Hold':    { bg: '#f1f2f5', text: '#5b626e' },
+  Cancelled:    { bg: '#fbeae6', text: '#a23015' },
 }
 
 export default function CommittedClient({ lines, costCodes, variations, projectId }: { lines: Line[]; costCodes: CC[]; variations: VO[]; projectId: string }) {
@@ -121,7 +121,7 @@ export default function CommittedClient({ lines, costCodes, variations, projectI
         actions={
           <div className="flex items-center gap-2">
             <button onClick={() => setShowUpload(true)}
-              className="border border-[#565e74] text-[#565e74] px-3 py-1.5 rounded text-xs flex items-center gap-1.5 hover:bg-[#E8EDF7]">
+              className="border border-[#5b626e] text-[#5b626e] px-3 py-1.5 rounded text-xs flex items-center gap-1.5 hover:bg-[#E8EDF7]">
               <Upload size={13} /> Import Excel
             </button>
             <button onClick={() => setAdding(true)}
@@ -133,9 +133,9 @@ export default function CommittedClient({ lines, costCodes, variations, projectI
       />
 
       {/* Summary strip */}
-      <div className="bg-[#1e3a5f] px-6 py-2.5 flex items-center gap-8 flex-shrink-0">
+      <div className="bg-[#1a1d23] px-6 py-2.5 flex items-center gap-8 flex-shrink-0">
         {[
-          { label: 'Total committed', val: fmt(grandTotal), col: '#ccd4ee' },
+          { label: 'Total committed', val: fmt(grandTotal), col: '#9aa3b2' },
           { label: 'Placed orders',   val: fmt(placedTotal), col: '#DEE5B5' },
           ...(['Pending','Provisional'] as string[]).map(s => ({
             label: s,
@@ -144,7 +144,7 @@ export default function CommittedClient({ lines, costCodes, variations, projectI
           })).filter(k => lines.some(l => l.status === k.label)),
         ].map(k => (
           <div key={k.label} className="flex-shrink-0">
-            <div className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: 'rgba(168,196,224,0.55)' }}>{k.label}</div>
+            <div className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: '#6f7787' }}>{k.label}</div>
             <div className="text-sm font-bold tabular-nums" style={{ color: k.col }}>{k.val}</div>
           </div>
         ))}
@@ -193,25 +193,25 @@ export default function CommittedClient({ lines, costCodes, variations, projectI
                   <input value={newLine.code ?? ''} list="cc-committed" placeholder="Code" autoFocus
                     onChange={e => setNewLine((p: any) => ({ ...p, code: e.target.value }))}
                     className="w-full border rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-                    style={{ background: '#FFFFC7' }} />
+                    style={{ background: '#eef2ff' }} />
                   <datalist id="cc-committed">{costCodes.map(c => <option key={c.code} value={c.code}>{c.description}</option>)}</datalist>
                 </td>
-                <td style={{ padding: '4px 6px', fontSize: 11, color: '#6b7280' }}>
+                <td style={{ padding: '4px 6px', fontSize: 11, color: '#5b626e' }}>
                   {costCodes.find(c => c.code === newLine.code)?.trade || '—'}
                 </td>
                 <td style={{ padding: '4px 6px' }}>
                   <input value={newLine.supplier ?? ''} onChange={e => setNewLine((p: any) => ({ ...p, supplier: e.target.value }))}
                     placeholder="Supplier" className="w-full border rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-                    style={{ background: '#FFFFC7' }} />
+                    style={{ background: '#eef2ff' }} />
                 </td>
                 <td style={{ padding: '4px 6px' }}>
                   <input value={newLine.description ?? ''} onChange={e => setNewLine((p: any) => ({ ...p, description: e.target.value }))}
                     placeholder="Description" className="w-full border rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-                    style={{ background: '#FFFFC7' }} />
+                    style={{ background: '#eef2ff' }} />
                 </td>
                 <td style={{ padding: '4px 6px' }}>
                   <select value={newLine.status ?? 'Placed'} onChange={e => setNewLine((p: any) => ({ ...p, status: e.target.value }))}
-                    className="w-full border rounded px-2 py-1 text-xs focus:outline-none" style={{ background: '#FFFFC7' }}>
+                    className="w-full border rounded px-2 py-1 text-xs focus:outline-none" style={{ background: '#eef2ff' }}>
                     {STATUSES.map(s => <option key={s}>{s}</option>)}
                   </select>
                 </td>
@@ -219,15 +219,15 @@ export default function CommittedClient({ lines, costCodes, variations, projectI
                 <td style={{ padding: '4px 4px' }}>
                   <input value={newLine.unit ?? ''} onChange={e => setNewLine((p: any) => ({ ...p, unit: e.target.value }))}
                     placeholder="nr" className="w-full border rounded px-1 py-1 text-xs text-center focus:outline-none"
-                    style={{ background: '#FFFFC7' }} />
+                    style={{ background: '#eef2ff' }} />
                 </td>
                 <td data-col={1}><GridInput value={newLine.unitRate ?? 0} onSave={v => setNewLine((p: any) => ({ ...p, unitRate: v }))} /></td>
-                <td style={{ textAlign: 'right', padding: '0 10px', fontWeight: 700, fontSize: 12, color: '#1e3a5f' }}>
+                <td style={{ textAlign: 'right', padding: '0 10px', fontWeight: 700, fontSize: 12, color: '#1a1d23' }}>
                   {fmt((newLine.quantity && newLine.unitRate) ? newLine.quantity * newLine.unitRate : 0)}
                 </td>
                 <td style={{ padding: '4px 6px' }}>
                   <div className="flex gap-1">
-                    <button onClick={addLine} className="px-2 py-1 rounded text-white text-[11px] font-bold" style={{ background: '#456919' }}>Add</button>
+                    <button onClick={addLine} className="px-2 py-1 rounded text-white text-[11px] font-bold" style={{ background: '#0a8a54' }}>Add</button>
                     <button onClick={() => setAdding(false)} className="px-2 py-1 rounded text-[11px] bg-gray-200">✕</button>
                   </div>
                 </td>
@@ -235,7 +235,7 @@ export default function CommittedClient({ lines, costCodes, variations, projectI
             )}
 
             {filtered.length === 0 && !adding && (
-              <tr><td colSpan={12} style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>
+              <tr><td colSpan={12} style={{ padding: '48px', textAlign: 'center', color: '#8b93a1', fontSize: 13 }}>
                 No commitments match current filters.
               </td></tr>
             )}
@@ -245,18 +245,18 @@ export default function CommittedClient({ lines, costCodes, variations, projectI
               const qty    = getVal(l.id, 'quantity')  ?? l.quantity
               const rate   = getVal(l.id, 'unit_rate') ?? l.unit_rate
               const total  = qty && rate ? qty * rate : (getVal(l.id, 'total') ?? l.total)
-              const cfg    = STATUS_CFG[status] || { bg: '#f3f4f6', text: '#4b5563' }
+              const cfg    = STATUS_CFG[status] || { bg: '#f1f2f5', text: '#5b626e' }
 
               return (
                 <tr key={l.id} data-row={idx} className="group">
                   <td className="row-num">{idx + 1}</td>
                   <td>
-                    <div className="ss-cell-ro" style={{ fontFamily: 'monospace', fontSize: 11, color: '#565e74', fontWeight: 600 }}>
+                    <div className="ss-cell-ro" style={{ fontFamily: 'monospace', fontSize: 11, color: '#5b626e', fontWeight: 600 }}>
                       {l.code}
                     </div>
                   </td>
                   <td>
-                    <div className="ss-cell-ro" style={{ fontSize: 11, color: '#6b7280' }}>
+                    <div className="ss-cell-ro" style={{ fontSize: 11, color: '#5b626e' }}>
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 125 }}>{l.trade}</span>
                     </div>
                   </td>
@@ -303,7 +303,7 @@ export default function CommittedClient({ lines, costCodes, variations, projectI
                     {(() => { const vo = String(getVal(l.id, 'variation_id') ?? l.variation_id ?? ''); return (
                       <select value={vo} onChange={e => saveCell(l.id, 'variation_id', e.target.value)}
                         className="w-full text-[10px] focus:outline-none focus:ring-1 focus:ring-primary rounded px-1 py-1"
-                        style={{ background: vo ? '#EAF3DE' : '#fff', border: '0.5px solid #e5e7eb', color: vo ? '#27500A' : '#9ca3af', fontWeight: 600 }}>
+                        style={{ background: vo ? '#e7f6ee' : '#fff', border: '0.5px solid #e7e9ee', color: vo ? '#0a6e44' : '#8b93a1', fontWeight: 600 }}>
                         <option value="">{'\u2013'}</option>
                         {variations.map(v => <option key={v.id} value={v.id}>{v.ref}</option>)}
                       </select>

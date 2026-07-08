@@ -29,8 +29,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             'flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium pointer-events-auto',
             'animate-in slide-in-from-right duration-200',
             t.kind === 'success' ? 'bg-[#004225] text-white' :
-            t.kind === 'error'   ? 'bg-[#C00000] text-white' :
-                                   'bg-[#FFC000] text-gray-900'
+            t.kind === 'error'   ? 'bg-[#c8412a] text-white' :
+                                   'bg-[#b6740a] text-gray-900'
           )}>
             {t.kind === 'success' ? <CheckCircle size={15} /> :
              t.kind === 'error'   ? <XCircle     size={15} /> :

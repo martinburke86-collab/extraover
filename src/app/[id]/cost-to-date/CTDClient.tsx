@@ -148,7 +148,7 @@ export default function CTDClient({ lines, costCodes, variations, projectId }: {
         actions={
           <div className="flex items-center gap-2">
             <button onClick={() => setShowImport(true)}
-              className="border border-[#565e74] text-[#565e74] px-3 py-1.5 rounded text-xs flex items-center gap-1.5 hover:bg-[#F1F4E0]">
+              className="border border-[#5b626e] text-[#5b626e] px-3 py-1.5 rounded text-xs flex items-center gap-1.5 hover:bg-[#f3faf6]">
               <Upload size={13} /> Import CSV
             </button>
             <button onClick={() => setAdding(true)}
@@ -160,15 +160,15 @@ export default function CTDClient({ lines, costCodes, variations, projectId }: {
       />
 
       {/* Trade summary strip */}
-      <div className="bg-[#1e3a5f] px-5 py-2 flex items-center gap-6 overflow-x-auto flex-shrink-0">
+      <div className="bg-[#1a1d23] px-5 py-2 flex items-center gap-6 overflow-x-auto flex-shrink-0">
         {Object.entries(tradeSums).map(([trade, s]) => (
           <div key={trade} className="flex-shrink-0 cursor-pointer" onClick={() => setTrade(tradeFilter === trade ? 'All' : trade)}>
-            <div className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: 'rgba(168,196,224,0.55)' }}>{trade}</div>
-            <div className="text-sm font-bold tabular-nums" style={{ color: tradeFilter === trade ? '#9edd6e' : '#ccd4ee' }}>{fmt(s.total)}</div>
+            <div className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: '#6f7787' }}>{trade}</div>
+            <div className="text-sm font-bold tabular-nums" style={{ color: tradeFilter === trade ? '#34d399' : '#9aa3b2' }}>{fmt(s.total)}</div>
           </div>
         ))}
         <div className="flex-shrink-0 ml-auto">
-          <div className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: 'rgba(168,196,224,0.55)' }}>Grand total</div>
+          <div className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: '#6f7787' }}>Grand total</div>
           <div className="text-sm font-black tabular-nums text-white">{fmt(grandTotal)}</div>
         </div>
       </div>
@@ -209,7 +209,7 @@ export default function CTDClient({ lines, costCodes, variations, projectId }: {
                 <td colSpan={3} style={{ padding: '4px 8px' }}>
                   <select value={newLine.code} autoFocus onChange={e => setNewLine(p => ({ ...p, code: e.target.value }))}
                     className="border rounded px-2 py-1 text-xs w-full focus:outline-none focus:ring-1 focus:ring-primary"
-                    style={{ background: '#FFFFC7' }}>
+                    style={{ background: '#eef2ff' }}>
                     <option value="">— Select cost code —</option>
                     {costCodes.map(c => <option key={c.code} value={c.code}>{c.code} · {c.description}</option>)}
                   </select>
@@ -227,7 +227,7 @@ export default function CTDClient({ lines, costCodes, variations, projectId }: {
                 <td />
                 <td style={{ padding: '4px 6px' }}>
                   <div className="flex gap-1">
-                    <button onClick={addLine} className="px-2 py-1 rounded text-white text-[11px] font-bold" style={{ background: '#456919' }}>Add</button>
+                    <button onClick={addLine} className="px-2 py-1 rounded text-white text-[11px] font-bold" style={{ background: '#0a8a54' }}>Add</button>
                     <button onClick={() => setAdding(false)} className="px-2 py-1 rounded text-[11px] bg-gray-200">✕</button>
                   </div>
                 </td>
@@ -235,7 +235,7 @@ export default function CTDClient({ lines, costCodes, variations, projectId }: {
             )}
 
             {filtered.length === 0 && !adding && (
-              <tr><td colSpan={10} style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>
+              <tr><td colSpan={10} style={{ padding: '48px', textAlign: 'center', color: '#8b93a1', fontSize: 13 }}>
                 No cost lines yet. Click "Add Line" to start entering costs.
               </td></tr>
             )}
@@ -245,13 +245,13 @@ export default function CTDClient({ lines, costCodes, variations, projectId }: {
               const acc    = getVal(l.id, 'accruals')
               const sub    = getVal(l.id, 'sub_recon')
               const total  = posted + acc + sub
-              const catCol = (CATEGORY_COLOURS as any)[l.category] || '#565e74'
+              const catCol = (CATEGORY_COLOURS as any)[l.category] || '#5b626e'
 
               return (
                 <tr key={l.id} data-row={idx} className="group">
                   <td className="row-num">{idx + 1}</td>
                   <td>
-                    <div className="ss-cell-ro" style={{ fontFamily: 'monospace', fontSize: 11, color: '#565e74', fontWeight: 600 }}>
+                    <div className="ss-cell-ro" style={{ fontFamily: 'monospace', fontSize: 11, color: '#5b626e', fontWeight: 600 }}>
                       {l.code}
                     </div>
                   </td>
@@ -284,7 +284,7 @@ export default function CTDClient({ lines, costCodes, variations, projectId }: {
                     <select value={getVO(l.id)} onChange={e => saveVO(l.id, e.target.value)}
                       title={getVO(l.id) ? 'Line tagged to a variation' : 'No variation tag'}
                       className="w-full text-[10px] focus:outline-none focus:ring-1 focus:ring-primary rounded px-1 py-1"
-                      style={{ background: getVO(l.id) ? '#EEF6E7' : '#fff', border: '0.5px solid #e5e7eb', color: getVO(l.id) ? '#27500A' : '#9ca3af', fontWeight: 600 }}>
+                      style={{ background: getVO(l.id) ? '#EEF6E7' : '#fff', border: '0.5px solid #e7e9ee', color: getVO(l.id) ? '#0a6e44' : '#8b93a1', fontWeight: 600 }}>
                       <option value="">{'\u2013'}</option>
                       {variations.map(v => <option key={v.id} value={v.id}>{v.ref}</option>)}
                     </select>

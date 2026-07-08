@@ -39,7 +39,7 @@ function Delta({ current, prior, lowerIsBetter = false }: {
   const improved = lowerIsBetter ? diff < 0 : diff > 0
   return (
     <span className={clx('text-xs font-medium tabular-nums inline-flex items-center gap-0.5',
-      improved ? 'text-[#456919]' : 'text-[#9f403d]')}>
+      improved ? 'text-[#0a8a54]' : 'text-[#c8412a]')}>
       {improved ? '▲' : '▼'} {diff > 0 ? '+' : ''}{fmt(diff)}
     </span>
   )
@@ -54,7 +54,7 @@ function PctDelta({ current, prior, lowerIsBetter = false }: {
   const improved = lowerIsBetter ? diff < 0 : diff > 0
   const pctStr = (diff > 0 ? '+' : '') + (diff * 100).toFixed(1) + '%'
   return (
-    <span className={clx('text-[10px] font-medium ml-1', improved ? 'text-[#456919]' : 'text-[#9f403d]')}>
+    <span className={clx('text-[10px] font-medium ml-1', improved ? 'text-[#0a8a54]' : 'text-[#c8412a]')}>
       {pctStr}
     </span>
   )
@@ -138,7 +138,7 @@ export default function PeriodsClient({
             {!showRollForm && (
               <button
                 onClick={() => setShowRollForm(true)}
-                className="bg-[#1e3a5f] text-white px-4 py-2 rounded text-sm flex items-center gap-1.5 hover:bg-[#16304f] font-medium">
+                className="bg-[#1a1d23] text-white px-4 py-2 rounded text-sm flex items-center gap-1.5 hover:bg-[#16304f] font-medium">
                 <span className="material-symbols-outlined" style={{ fontSize: 15 }}>lock</span>
                 Lock period & roll forward
               </button>
@@ -149,7 +149,7 @@ export default function PeriodsClient({
 
       {/* Roll form */}
       {showRollForm && (
-        <div className="bg-[#FFFFC7] border-b border-amber-200 px-6 py-3 flex items-center gap-4 flex-shrink-0">
+        <div className="bg-[#eef2ff] border-b border-amber-200 px-6 py-3 flex items-center gap-4 flex-shrink-0">
           <span className="text-sm font-medium text-on-surface">
             Lock <strong>{currentPeriod?.label || 'current period'}</strong> and start:
           </span>
@@ -166,7 +166,7 @@ export default function PeriodsClient({
           <button
             onClick={lockAndRoll}
             disabled={rolling || !newLabel.trim()}
-            className="bg-[#456919] text-white px-4 py-1.5 rounded text-sm font-medium disabled:opacity-40 hover:bg-[#3a5715]">
+            className="bg-[#0a8a54] text-white px-4 py-1.5 rounded text-sm font-medium disabled:opacity-40 hover:bg-[#3a5715]">
             {rolling ? 'Locking…' : 'Confirm lock & roll'}
           </button>
           <button onClick={() => setShowRollForm(false)}
@@ -178,15 +178,15 @@ export default function PeriodsClient({
 
       {/* Summary strip for current live KPIs */}
       {liveKpis && (
-        <div className="bg-[#1e3a5f] px-6 py-2.5 flex items-center gap-8 flex-shrink-0">
+        <div className="bg-[#1a1d23] px-6 py-2.5 flex items-center gap-8 flex-shrink-0">
           <div className="text-white">
             <div className="text-[10px] uppercase tracking-wide opacity-60">Current period</div>
             <div className="text-xs font-bold opacity-90">{currentPeriod?.label || '—'}</div>
           </div>
           {[
             { label: 'Live EFC',        val: fmt(liveKpis.efc) },
-            { label: 'Forecast margin', val: fmt(liveKpis.forecastMargin), col: liveKpis.forecastMargin >= 0 ? '#9edd6e' : '#ff9a9a' },
-            { label: 'Margin %',        val: (liveKpis.forecastMarginPct * 100).toFixed(1) + '%', col: liveKpis.forecastMarginPct >= 0 ? '#9edd6e' : '#ff9a9a' },
+            { label: 'Forecast margin', val: fmt(liveKpis.forecastMargin), col: liveKpis.forecastMargin >= 0 ? '#34d399' : '#ff9a9a' },
+            { label: 'Margin %',        val: (liveKpis.forecastMarginPct * 100).toFixed(1) + '%', col: liveKpis.forecastMarginPct >= 0 ? '#34d399' : '#ff9a9a' },
             { label: 'Total CTD',       val: fmt(liveKpis.totalCtd) },
             { label: 'Cash position',   val: fmt(liveKpis.cashPosition) },
           ].map(k => (
@@ -227,7 +227,7 @@ export default function PeriodsClient({
                   ['Cash position',   'right', 'w-28'],
                 ].map(([h, align, w]) => (
                   <th key={h} className={clx(
-                    'px-4 py-2.5 text-[10px] font-bold text-white bg-[#1e3a5f] uppercase tracking-wide',
+                    'px-4 py-2.5 text-[10px] font-bold text-white bg-[#1a1d23] uppercase tracking-wide',
                     w, `text-${align}`
                   )}>{h}</th>
                 ))}
@@ -257,7 +257,7 @@ export default function PeriodsClient({
                 return (
                   <tr key={p.id} className={clx(
                     'border-b border-outline-variant/10 transition-colors',
-                    isCurrent ? 'bg-[#FFFFC7]/50 hover:bg-[#FFFFC7]/70' : 'bg-white hover:bg-surface-container-low/30'
+                    isCurrent ? 'bg-[#eef2ff]/50 hover:bg-[#eef2ff]/70' : 'bg-white hover:bg-surface-container-low/30'
                   )}>
                     <td className="px-4 py-2.5">
                       <div className="font-semibold text-on-surface text-sm">{p.label}</div>
@@ -267,25 +267,25 @@ export default function PeriodsClient({
                     </td>
                     <td className="px-4 py-2.5">
                       {isCurrent ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFFFC7] text-amber-700 border border-amber-300">Current</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#eef2ff] text-amber-700 border border-amber-300">Current</span>
                       ) : isLocked ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-[#456919] border border-green-200">Locked</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-[#0a8a54] border border-green-200">Locked</span>
                       ) : (
                         <span className="text-[10px] text-on-surface-variant">Draft</span>
                       )}
                     </td>
                     <td className="px-4 py-2.5 text-right">
-                      <Money v={efc} cls="text-[#565e74] font-semibold" />
+                      <Money v={efc} cls="text-[#5b626e] font-semibold" />
                     </td>
                     <td className="px-4 py-2.5 text-right">
                       <Delta current={efc} prior={priorEfc} lowerIsBetter={true} />
                     </td>
                     <td className="px-4 py-2.5 text-right">
-                      <Money v={margin} cls={margin != null ? (margin >= 0 ? 'text-[#456919] font-semibold' : 'text-[#9f403d] font-semibold') : ''} />
+                      <Money v={margin} cls={margin != null ? (margin >= 0 ? 'text-[#0a8a54] font-semibold' : 'text-[#c8412a] font-semibold') : ''} />
                     </td>
                     <td className="px-4 py-2.5 text-right">
                       {marginPct != null ? (
-                        <span className={clx('text-xs font-medium tabular-nums', marginPct >= 0 ? 'text-[#456919]' : 'text-[#9f403d]')}>
+                        <span className={clx('text-xs font-medium tabular-nums', marginPct >= 0 ? 'text-[#0a8a54]' : 'text-[#c8412a]')}>
                           {(marginPct * 100).toFixed(1)}%
                         </span>
                       ) : <span className="text-on-surface-variant/30">—</span>}
@@ -303,7 +303,7 @@ export default function PeriodsClient({
                       <Money v={claimed} cls="text-on-surface-variant" />
                     </td>
                     <td className="px-4 py-2.5 text-right">
-                      <Money v={cash} cls={cash != null ? (cash >= 0 ? 'text-[#456919]' : 'text-[#9f403d]') : ''} />
+                      <Money v={cash} cls={cash != null ? (cash >= 0 ? 'text-[#0a8a54]' : 'text-[#c8412a]') : ''} />
                     </td>
                   </tr>
                 )

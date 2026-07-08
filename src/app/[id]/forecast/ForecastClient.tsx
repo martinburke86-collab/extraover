@@ -115,11 +115,11 @@ export default function ForecastClient({ lines, costCodes, variations, projectId
   function FormRow({ parentId }: { parentId?: string }) {
     const cc = costCodes.find(c => c.code === form.code)
     return (
-      <tr className="bg-[#FFFFC7] border-b border-amber-200">
+      <tr className="bg-[#eef2ff] border-b border-amber-200">
         <td className="px-2 py-1.5" colSpan={parentId ? 1 : 0}>
           <input placeholder="Code" value={form.code ?? ''} list="codes-list"
             onChange={e => { setForm(p => ({ ...p, code: e.target.value })) }}
-            className="w-24 border rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#565e74]" />
+            className="w-24 border rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#5b626e]" />
           <datalist id="codes-list">
             {costCodes.map(c => <option key={c.code} value={c.code}>{c.description}</option>)}
           </datalist>
@@ -204,7 +204,7 @@ export default function ForecastClient({ lines, costCodes, variations, projectId
         ) : (
           <tr key={l.id} className={clx(
             'border-b border-gray-100 hover:bg-gray-50 group transition-colors',
-            isChild ? 'bg-[#F8FAF8]' : ''
+            isChild ? 'bg-[#fbfbfc]' : ''
           )}>
             <td className="px-2 py-1.5">
               <div className={clx('flex items-center gap-1', isChild ? 'pl-6' : '')}>
@@ -255,7 +255,7 @@ export default function ForecastClient({ lines, costCodes, variations, projectId
             </td>
             <td className="px-2 py-1.5 text-center">
               {l.variation_ref
-                ? <span className="px-1.5 py-0.5 rounded text-[10px] font-bold" style={{ background: '#EAF3DE', color: '#27500A' }}
+                ? <span className="px-1.5 py-0.5 rounded text-[10px] font-bold" style={{ background: '#e7f6ee', color: '#0a6e44' }}
                     title="Tagged to a variation, edit via the pencil">{l.variation_ref}</span>
                 : <span className="text-xs text-gray-300">{'\u2013'}</span>}
             </td>
@@ -267,7 +267,7 @@ export default function ForecastClient({ lines, costCodes, variations, projectId
                 {!isChild && (
                   <button title="Add sub-item"
                     onClick={() => { setAddingTo(l.id); setEditingId(null); setForm({}); setExpanded(p => { const n = new Set(Array.from(p)); n.add(l.id); return n }) }}
-                    className="text-primary-dim hover:bg-[#E2EFDA] rounded p-0.5">
+                    className="text-primary-dim hover:bg-[#e7f6ee] rounded p-0.5">
                     <Plus size={12} />
                   </button>
                 )}
@@ -314,13 +314,13 @@ export default function ForecastClient({ lines, costCodes, variations, projectId
       <div className="bg-white border-b px-6 py-2.5 flex items-center gap-3 flex-shrink-0">
         <input placeholder="Search code, description or supplier..."
           value={search} onChange={e => setSearch(e.target.value)}
-          className="border rounded px-3 py-1.5 text-sm w-72 focus:outline-none focus:ring-1 focus:ring-[#565e74]" />
+          className="border rounded px-3 py-1.5 text-sm w-72 focus:outline-none focus:ring-1 focus:ring-[#5b626e]" />
         <select value={tradeFilter} onChange={e => setTradeFilter(e.target.value)}
-          className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#565e74]">
+          className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#5b626e]">
           {TRADES.map(t => <option key={t}>{t}</option>)}
         </select>
         <select value={statusFilter} onChange={e => setStatus(e.target.value)}
-          className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#565e74]">
+          className="border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#5b626e]">
           <option value="All">All Statuses</option>
           {STATUSES.map(s => <option key={s}>{s}</option>)}
         </select>

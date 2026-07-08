@@ -4,13 +4,13 @@ import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import type { DashboardKPIs, TradeSummary, PrelimItem } from './calculations'
 
 // ── Colours ───────────────────────────────────────────────────────────────────
-const NAVY   = '#1e3a5f'
+const NAVY   = '#1a1d23'
 const NAVY2  = '#2d4f7a'
-const SLATE  = '#565e74'
-const OLIVE  = '#456919'
-const RED    = '#9f403d'
+const SLATE  = '#5b626e'
+const OLIVE  = '#0a8a54'
+const RED    = '#c8412a'
 const GOLD   = '#856c0b'
-const GRAY   = '#6b7280'
+const GRAY   = '#5b626e'
 const LIGHT  = '#f0f4f8'
 const HEADER = '#dae4f0'
 const WHITE  = '#ffffff'
@@ -173,13 +173,13 @@ function CoverPage({ project, kpis, period, generated }: any) {
             </View>
             <View style={s.coverKpi}>
               <Text style={s.coverKpiLbl}>FORECAST P&L</Text>
-              <Text style={[s.coverKpiVal, { color: isProfit ? '#9edd6e' : '#ff9a9a' }]}>
+              <Text style={[s.coverKpiVal, { color: isProfit ? '#34d399' : '#ff9a9a' }]}>
                 {money(kpis.forecastMargin)}
               </Text>
             </View>
             <View style={s.coverKpi}>
               <Text style={s.coverKpiLbl}>MARGIN</Text>
-              <Text style={[s.coverKpiVal, { color: isProfit ? '#9edd6e' : '#ff9a9a' }]}>
+              <Text style={[s.coverKpiVal, { color: isProfit ? '#34d399' : '#ff9a9a' }]}>
                 {marginPct}%
               </Text>
             </View>
@@ -263,7 +263,7 @@ function SummaryPage({ project, kpis, period, generated }: any) {
         {/* WIP & Cash */}
         <Text style={s.secTitleSm}>Cash &amp; WIP Position</Text>
         <View style={s.wipBox}>
-          <View style={[s.wipItem, { borderColor: wip >= 0 ? '#9edd6e' : '#ffb3b3',
+          <View style={[s.wipItem, { borderColor: wip >= 0 ? '#34d399' : '#ffb3b3',
             backgroundColor: wip >= 0 ? GREEN_BG : RED_BG }]}>
             <Text style={s.kpiLbl}>{wip >= 0 ? 'WIP (CERTIFIED NOT YET RECEIVED)' : 'OVERBILLING'}</Text>
             <Text style={[s.kpiVal, { color: wip >= 0 ? OLIVE : RED }]}>{money(Math.abs(wip))}</Text>
@@ -488,10 +488,10 @@ function VariationsPage({ project, variations, period, generated }: any) {
   const pending   = variations.filter((v: any) => ['Submitted','Under Review'].includes(v.status))
 
   const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-    'Approved':     { bg: '#d0fc9a', text: OLIVE },
-    'Submitted':    { bg: '#ffeeb9', text: GOLD },
-    'Under Review': { bg: '#ffeeb9', text: GOLD },
-    'Instructed':   { bg: '#e8ecff', text: '#3730a3' },
+    'Approved':     { bg: '#c3e8d3', text: OLIVE },
+    'Submitted':    { bg: '#fcf2e2', text: GOLD },
+    'Under Review': { bg: '#fcf2e2', text: GOLD },
+    'Instructed':   { bg: '#e8ecff', text: '#1a45c0' },
     'Rejected':     { bg: '#ffe8e6', text: RED },
     'On Hold':      { bg: '#f1efe8', text: SLATE },
   }

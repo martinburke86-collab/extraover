@@ -35,7 +35,7 @@ function rag(pct: number, hasData: boolean): 'green' | 'amber' | 'red' | 'none' 
 }
 
 const RAG_COLOURS = {
-  green: { dot: '#3B6D11', text: '#27500A', label: 'On track' },
+  green: { dot: '#3B6D11', text: '#0a6e44', label: 'On track' },
   amber: { dot: '#BA7517', text: '#633806', label: 'Review' },
   red:   { dot: '#A32D2D', text: '#791F1F', label: 'At risk' },
   none:  { dot: '#888780', text: '#444441', label: 'No data' },
@@ -109,9 +109,9 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
       <th
         onClick={() => setSort2(col)}
         style={{ cursor: 'pointer', userSelect: 'none', textAlign: right ? 'right' : 'left',
-          padding: '9px 12px', fontSize: 10, fontWeight: 500, color: active ? '#1e3a5f' : '#6b7280',
+          padding: '9px 12px', fontSize: 10, fontWeight: 500, color: active ? '#1a1d23' : '#5b626e',
           textTransform: 'uppercase', letterSpacing: '0.07em',
-          background: '#f8f9fb', borderBottom: '0.5px solid #e5e7eb',
+          background: '#f8f9fb', borderBottom: '0.5px solid #e7e9ee',
           whiteSpace: 'nowrap' }}>
         {label} {active ? (sortDir === 1 ? '↑' : '↓') : ''}
       </th>
@@ -122,7 +122,7 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
     <div style={{ minHeight: '100vh', background: '#f4f6f9', fontFamily: 'var(--font-sans)' }}>
 
       {/* Top bar */}
-      <div style={{ background: '#1e3a5f', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ background: '#1a1d23', padding: '14px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <img src="/logo.png" alt="ExtraOver" style={{ width: 110, height: 'auto', filter: 'invert(1) brightness(2)' }} />
           <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.2)' }} />
@@ -135,7 +135,7 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
           <button
             onClick={() => router.push('/setup')}
             style={{ fontSize: 12, padding: '6px 14px', borderRadius: 6,
-              background: '#456919', border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 500 }}>
+              background: '#0a8a54', border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 500 }}>
             + New project
           </button>
         </div>
@@ -150,19 +150,19 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
             { label: 'Total EFC',         val: fmt(totals.totalEfc),        sub: 'estimate final cost',          col: '' },
             { label: 'Forecast margin',   val: fmt(totals.totalMargin),
               sub: `${(weightedMarginPct * 100).toFixed(1)}% weighted avg`,
-              col: totals.totalMargin >= 0 ? '#27500A' : '#791F1F' },
+              col: totals.totalMargin >= 0 ? '#0a6e44' : '#791F1F' },
             { label: 'Projects in profit',val: `${totals.inProfit} / ${summaries.length}`,
               sub: totals.atRisk > 0 ? `${totals.atRisk} at risk` : 'all in profit',
-              col: totals.atRisk > 0 ? '#633806' : '#27500A' },
+              col: totals.atRisk > 0 ? '#633806' : '#0a6e44' },
             { label: 'Red flags',         val: String(totals.totalFlags),
               sub: totals.totalErrors > 0 ? `${totals.totalErrors} critical` : 'no critical issues',
-              col: totals.totalErrors > 0 ? '#791F1F' : '#27500A' },
+              col: totals.totalErrors > 0 ? '#791F1F' : '#0a6e44' },
           ].map(k => (
-            <div key={k.label} style={{ background: '#fff', border: '0.5px solid #e5e7eb',
+            <div key={k.label} style={{ background: '#fff', border: '0.5px solid #e7e9ee',
               borderRadius: 10, padding: '12px 14px' }}>
-              <div style={{ fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>{k.label}</div>
+              <div style={{ fontSize: 10, color: '#5b626e', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>{k.label}</div>
               <div style={{ fontSize: 20, fontWeight: 500, color: k.col || '#1a1a1a' }}>{k.val}</div>
-              <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 3 }}>{k.sub}</div>
+              <div style={{ fontSize: 11, color: '#8b93a1', marginTop: 3 }}>{k.sub}</div>
             </div>
           ))}
         </div>
@@ -172,9 +172,9 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
           <div style={{ background: '#FEF2F2', border: '0.5px solid #FECACA', borderRadius: 8,
             padding: '10px 14px', marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-              <span style={{ color: '#991B1B', fontSize: 13, marginTop: 1, flexShrink: 0 }}>⚑</span>
+              <span style={{ color: '#a23015', fontSize: 13, marginTop: 1, flexShrink: 0 }}>⚑</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 12, fontWeight: 500, color: '#991B1B', marginBottom: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 500, color: '#a23015', marginBottom: 6 }}>
                   Portfolio flags requiring attention · {allFlags.length} issue{allFlags.length !== 1 ? 's' : ''} across {new Set(allFlags.map(f => f.projectId)).size} project{new Set(allFlags.map(f => f.projectId)).size !== 1 ? 's' : ''}
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
@@ -183,8 +183,8 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
                       key={i}
                       onClick={() => router.push(`/${f.projectId}/${f.href || 'dashboard'}`)}
                       style={{ fontSize: 11, padding: '2px 9px', borderRadius: 20,
-                        background: f.severity === 'error' ? '#FEE2E2' : '#FEF3C7',
-                        color: f.severity === 'error' ? '#991B1B' : '#78350f',
+                        background: f.severity === 'error' ? '#fbeae6' : '#FEF3C7',
+                        color: f.severity === 'error' ? '#a23015' : '#b6740a',
                         border: 'none', cursor: 'pointer', fontWeight: 500 }}>
                       {f.projectName.split(' ').slice(0, 3).join(' ')} — {f.title}
                     </button>
@@ -194,7 +194,7 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
                       onClick={() => setExpandedFlags(e => !e)}
                       style={{ fontSize: 11, padding: '2px 9px', borderRadius: 20,
                         background: 'none', border: '0.5px solid #FECACA',
-                        color: '#991B1B', cursor: 'pointer' }}>
+                        color: '#a23015', cursor: 'pointer' }}>
                       {expandedFlags ? 'Show less' : `+${allFlags.length - 8} more`}
                     </button>
                   )}
@@ -205,21 +205,21 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
         )}
 
         {/* Filter + table */}
-        <div style={{ background: '#fff', border: '0.5px solid #e5e7eb', borderRadius: 10, overflow: 'hidden' }}>
+        <div style={{ background: '#fff', border: '0.5px solid #e7e9ee', borderRadius: 10, overflow: 'hidden' }}>
 
           {/* Table header */}
-          <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #e5e7eb',
+          <div style={{ padding: '12px 16px', borderBottom: '0.5px solid #e7e9ee',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 11, fontWeight: 500, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+            <span style={{ fontSize: 11, fontWeight: 500, color: '#5b626e', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
               All projects
             </span>
             <div style={{ display: 'flex', gap: 5 }}>
               {([['all', 'All'], ['risk', 'At risk'], ['profit', 'In profit'], ['flags', 'Critical flags']] as [Filter, string][]).map(([f, label]) => (
                 <button key={f} onClick={() => setFilter(f)}
                   style={{ fontSize: 11, padding: '4px 11px', borderRadius: 20, border: '0.5px solid',
-                    borderColor: filter === f ? '#1e3a5f' : '#d1d5db',
-                    background: filter === f ? '#1e3a5f' : 'none',
-                    color: filter === f ? '#fff' : '#6b7280',
+                    borderColor: filter === f ? '#1a1d23' : '#aeb4bf',
+                    background: filter === f ? '#1a1d23' : 'none',
+                    color: filter === f ? '#fff' : '#5b626e',
                     cursor: 'pointer' }}>
                   {label}
                 </button>
@@ -232,25 +232,25 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
               <thead>
                 <tr>
                   <SortTh col="name"   label="Project" />
-                  <th style={{ padding: '9px 12px', fontSize: 10, fontWeight: 500, color: '#6b7280',
+                  <th style={{ padding: '9px 12px', fontSize: 10, fontWeight: 500, color: '#5b626e',
                     textTransform: 'uppercase', letterSpacing: '0.07em', background: '#f8f9fb',
-                    borderBottom: '0.5px solid #e5e7eb', textAlign: 'right' }}>Status</th>
-                  <th style={{ padding: '9px 12px', fontSize: 10, fontWeight: 500, color: '#6b7280',
+                    borderBottom: '0.5px solid #e7e9ee', textAlign: 'right' }}>Status</th>
+                  <th style={{ padding: '9px 12px', fontSize: 10, fontWeight: 500, color: '#5b626e',
                     textTransform: 'uppercase', letterSpacing: '0.07em', background: '#f8f9fb',
-                    borderBottom: '0.5px solid #e5e7eb', textAlign: 'right' }}>Contract sum</th>
+                    borderBottom: '0.5px solid #e7e9ee', textAlign: 'right' }}>Contract sum</th>
                   <SortTh col="efc"    label="EFC"    right />
                   <SortTh col="margin" label="Forecast margin" right />
-                  <th style={{ padding: '9px 12px', fontSize: 10, fontWeight: 500, color: '#6b7280',
+                  <th style={{ padding: '9px 12px', fontSize: 10, fontWeight: 500, color: '#5b626e',
                     textTransform: 'uppercase', letterSpacing: '0.07em', background: '#f8f9fb',
-                    borderBottom: '0.5px solid #e5e7eb', textAlign: 'right' }}>Margin %</th>
-                  <th style={{ padding: '9px 12px', fontSize: 10, fontWeight: 500, color: '#6b7280',
+                    borderBottom: '0.5px solid #e7e9ee', textAlign: 'right' }}>Margin %</th>
+                  <th style={{ padding: '9px 12px', fontSize: 10, fontWeight: 500, color: '#5b626e',
                     textTransform: 'uppercase', letterSpacing: '0.07em', background: '#f8f9fb',
-                    borderBottom: '0.5px solid #e5e7eb', textAlign: 'right' }}>Total CTD</th>
+                    borderBottom: '0.5px solid #e7e9ee', textAlign: 'right' }}>Total CTD</th>
                   <SortTh col="flags"  label="Flags"  right />
-                  <th style={{ padding: '9px 12px', fontSize: 10, fontWeight: 500, color: '#6b7280',
+                  <th style={{ padding: '9px 12px', fontSize: 10, fontWeight: 500, color: '#5b626e',
                     textTransform: 'uppercase', letterSpacing: '0.07em', background: '#f8f9fb',
-                    borderBottom: '0.5px solid #e5e7eb', textAlign: 'right' }}>Period</th>
-                  <th style={{ padding: '9px 12px', background: '#f8f9fb', borderBottom: '0.5px solid #e5e7eb' }} />
+                    borderBottom: '0.5px solid #e7e9ee', textAlign: 'right' }}>Period</th>
+                  <th style={{ padding: '9px 12px', background: '#f8f9fb', borderBottom: '0.5px solid #e7e9ee' }} />
                 </tr>
               </thead>
               <tbody>
@@ -264,13 +264,13 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
                       onClick={() => router.push(`/${p.id}/dashboard`)}
                       style={{ cursor: 'pointer', background: idx % 2 === 1 ? '#fafbfc' : '#fff',
                         borderBottom: '0.5px solid #f0f0f0' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = '#f0f4fa')}
+                      onMouseEnter={e => (e.currentTarget.style.background = '#fbfbfc')}
                       onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 1 ? '#fafbfc' : '#fff')}>
 
                       {/* Project name */}
                       <td style={{ padding: '12px 12px' }}>
                         <div style={{ fontSize: 13, fontWeight: 500, color: '#111' }}>{p.name}</div>
-                        <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>
+                        <div style={{ fontSize: 11, color: '#8b93a1', marginTop: 2 }}>
                           {p.code}{p.client ? ` · ${p.client}` : ''}
                         </div>
                       </td>
@@ -284,30 +284,30 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
                       </td>
 
                       {/* Contract sum */}
-                      <td style={{ padding: '12px', textAlign: 'right', fontSize: 12, color: '#6b7280' }}>
+                      <td style={{ padding: '12px', textAlign: 'right', fontSize: 12, color: '#5b626e' }}>
                         {p.adjustedSum > 0 ? fmt(p.adjustedSum) : '—'}
                       </td>
 
                       {/* EFC */}
                       <td style={{ padding: '12px', textAlign: 'right', fontSize: 12, fontWeight: 500,
-                        color: p.efc > p.adjustedSum && p.adjustedSum > 0 ? '#991B1B' : '#1a1a1a' }}>
+                        color: p.efc > p.adjustedSum && p.adjustedSum > 0 ? '#a23015' : '#1a1a1a' }}>
                         {p.efc > 0 ? fmt(p.efc) : '—'}
                       </td>
 
                       {/* Forecast margin */}
                       <td style={{ padding: '12px', textAlign: 'right', fontSize: 12, fontWeight: 500,
-                        color: !hasFinancial ? '#9ca3af' : p.forecastMargin >= 0 ? '#27500A' : '#991B1B' }}>
+                        color: !hasFinancial ? '#8b93a1' : p.forecastMargin >= 0 ? '#0a6e44' : '#a23015' }}>
                         {hasFinancial ? fmt(p.forecastMargin) : '—'}
                       </td>
 
                       {/* Margin % */}
                       <td style={{ padding: '12px', textAlign: 'right', fontSize: 12, fontWeight: 500,
-                        color: !hasFinancial ? '#9ca3af' : p.forecastPct >= 0 ? '#27500A' : '#991B1B' }}>
+                        color: !hasFinancial ? '#8b93a1' : p.forecastPct >= 0 ? '#0a6e44' : '#a23015' }}>
                         {hasFinancial ? (p.forecastPct * 100).toFixed(1) + '%' : '—'}
                       </td>
 
                       {/* CTD */}
-                      <td style={{ padding: '12px', textAlign: 'right', fontSize: 12, color: '#6b7280' }}>
+                      <td style={{ padding: '12px', textAlign: 'right', fontSize: 12, color: '#5b626e' }}>
                         {p.totalCtd > 0 ? fmt(p.totalCtd) : '—'}
                       </td>
 
@@ -315,19 +315,19 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
                       <td style={{ padding: '12px', textAlign: 'right' }}>
                         {p.issueCount > 0 ? (
                           <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10,
-                            background: p.errorCount > 0 ? '#FEE2E2' : '#FEF3C7',
-                            color: p.errorCount > 0 ? '#991B1B' : '#78350f',
+                            background: p.errorCount > 0 ? '#fbeae6' : '#FEF3C7',
+                            color: p.errorCount > 0 ? '#a23015' : '#b6740a',
                             fontWeight: 500 }}>
                             {p.issueCount}
                           </span>
                         ) : (
                           <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10,
-                            background: '#EAF3DE', color: '#27500A', fontWeight: 500 }}>✓</span>
+                            background: '#e7f6ee', color: '#0a6e44', fontWeight: 500 }}>✓</span>
                         )}
                       </td>
 
                       {/* Period */}
-                      <td style={{ padding: '12px', textAlign: 'right', fontSize: 11, color: '#9ca3af' }}>
+                      <td style={{ padding: '12px', textAlign: 'right', fontSize: 11, color: '#8b93a1' }}>
                         {p.periodLabel || '—'}
                       </td>
 
@@ -341,7 +341,7 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
 
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={10} style={{ padding: '40px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>
+                    <td colSpan={10} style={{ padding: '40px', textAlign: 'center', color: '#8b93a1', fontSize: 13 }}>
                       No projects match the current filter.
                     </td>
                   </tr>
@@ -351,30 +351,30 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
               {/* Portfolio totals footer */}
               {filtered.length > 1 && (
                 <tfoot>
-                  <tr style={{ background: '#f0f4fa', borderTop: '1.5px solid #c7d7ed' }}>
-                    <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 500, color: '#1e3a5f' }}>
+                  <tr style={{ background: '#fbfbfc', borderTop: '1.5px solid #c7d7ed' }}>
+                    <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 500, color: '#1a1d23' }}>
                       Portfolio total ({filtered.length} projects)
                     </td>
                     <td />
-                    <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, fontWeight: 500, color: '#1e3a5f' }}>
+                    <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, fontWeight: 500, color: '#1a1d23' }}>
                       {fmt(filtered.reduce((s, p) => s + p.adjustedSum, 0))}
                     </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, fontWeight: 500, color: '#1e3a5f' }}>
+                    <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, fontWeight: 500, color: '#1a1d23' }}>
                       {fmt(filtered.reduce((s, p) => s + p.efc, 0))}
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, fontWeight: 500,
-                      color: filtered.reduce((s, p) => s + p.forecastMargin, 0) >= 0 ? '#27500A' : '#991B1B' }}>
+                      color: filtered.reduce((s, p) => s + p.forecastMargin, 0) >= 0 ? '#0a6e44' : '#a23015' }}>
                       {fmt(filtered.reduce((s, p) => s + p.forecastMargin, 0))}
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, fontWeight: 500,
-                      color: '#6b7280' }}>
+                      color: '#5b626e' }}>
                       {(() => {
                         const totAdj = filtered.reduce((s, p) => s + p.adjustedSum, 0)
                         const totMar = filtered.reduce((s, p) => s + p.forecastMargin, 0)
                         return totAdj ? (totMar / totAdj * 100).toFixed(1) + '%' : '—'
                       })()}
                     </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, fontWeight: 500, color: '#1e3a5f' }}>
+                    <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, fontWeight: 500, color: '#1a1d23' }}>
                       {fmt(filtered.reduce((s, p) => s + p.totalCtd, 0))}
                     </td>
                     <td colSpan={3} />
@@ -386,7 +386,7 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
         </div>
 
         {/* Footer note on access levels */}
-        <div style={{ marginTop: 16, fontSize: 11, color: '#9ca3af', textAlign: 'center' }}>
+        <div style={{ marginTop: 16, fontSize: 11, color: '#8b93a1', textAlign: 'center' }}>
           ExtraOver Portfolio · All figures live from project data · Access control coming soon
         </div>
       </div>

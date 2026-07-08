@@ -71,10 +71,10 @@ export default function ValueClient({ vp, proj, projectId }: Props) {
   }
 
   function Total({ label, value, accent }: { label: string; value: number; accent?: string }) {
-    const col = accent ?? (value < 0 ? '#991B1B' : '#1e3a5f')
+    const col = accent ?? (value < 0 ? '#a23015' : '#1a1d23')
     return (
-      <tr style={{ background: '#f0f4fa', borderTop: '1.5px solid #c7d7ed' }}>
-        <td className="px-4 py-2 text-xs font-bold text-[#1e3a5f]" colSpan={2}>{label}</td>
+      <tr style={{ background: '#fbfbfc', borderTop: '1.5px solid #c7d7ed' }}>
+        <td className="px-4 py-2 text-xs font-bold text-[#1a1d23]" colSpan={2}>{label}</td>
         <td className="px-4 py-2 text-xs text-right tabular-nums font-bold" style={{ color: col }}>{fmt(value)}</td>
       </tr>
     )
@@ -82,7 +82,7 @@ export default function ValueClient({ vp, proj, projectId }: Props) {
 
   function Section({ title, bg, children }: { title: string; bg: string; children: React.ReactNode }) {
     return (
-      <div className="bg-white rounded-lg overflow-hidden" style={{ border: '0.5px solid #e2e8f0' }}>
+      <div className="bg-white rounded-lg overflow-hidden" style={{ border: '0.5px solid #e7e9ee' }}>
         <div className="px-4 py-2.5 text-white font-bold text-xs uppercase tracking-wide" style={{ background: bg }}>{title}</div>
         <table className="w-full" onKeyDown={gridNav}>
           <thead>
@@ -106,16 +106,16 @@ export default function ValueClient({ vp, proj, projectId }: Props) {
         actions={
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <label style={{ fontSize: 11, fontWeight: 500, color: '#6b7280', whiteSpace: 'nowrap' }}>App. Ref</label>
+              <label style={{ fontSize: 11, fontWeight: 500, color: '#5b626e', whiteSpace: 'nowrap' }}>App. Ref</label>
               <input
                 defaultValue={vals.current.app_ref}
                 onBlur={e => { vals.current.app_ref = e.target.value }}
                 placeholder="e.g. Application No. 6"
                 style={{
-                  border: '0.5px solid #d1d5db', borderRadius: 6, padding: '5px 10px',
-                  fontSize: 12, width: 200, background: '#FFFFC7', outline: 'none',
+                  border: '0.5px solid #aeb4bf', borderRadius: 6, padding: '5px 10px',
+                  fontSize: 12, width: 200, background: '#eef2ff', outline: 'none',
                 }}
-                onFocus={e => e.target.style.boxShadow = '0 0 0 2px #1e3a5f30'}
+                onFocus={e => e.target.style.boxShadow = '0 0 0 2px #1a1d2330'}
               />
             </div>
             <button onClick={save} disabled={status === 'saving'}
@@ -127,17 +127,17 @@ export default function ValueClient({ vp, proj, projectId }: Props) {
       />
 
       {/* Summary strip */}
-      <div className="bg-[#1e3a5f] px-6 py-3 flex items-center gap-8 flex-shrink-0">
+      <div className="bg-[#1a1d23] px-6 py-3 flex items-center gap-8 flex-shrink-0">
         {[
           { label: 'Application Ref',     val: vals.current.app_ref || '—', col: '#DEE5B5' },
-          { label: 'Adjusted Contract Sum', val: fmt(adjustedSum),       col: '#ccd4ee' },
-          { label: 'Cumulative Claimed',    val: fmt(v.cumul_claimed),   col: '#ccd4ee' },
-          { label: 'Cumulative Certified',  val: fmt(v.cumul_certified), col: '#ccd4ee' },
+          { label: 'Adjusted Contract Sum', val: fmt(adjustedSum),       col: '#9aa3b2' },
+          { label: 'Cumulative Claimed',    val: fmt(v.cumul_claimed),   col: '#9aa3b2' },
+          { label: 'Cumulative Certified',  val: fmt(v.cumul_certified), col: '#9aa3b2' },
           { label: 'Cash Position',         val: fmt(cashPosition),      col: cashPosition < 0 ? '#FECACA' : '#DEE5B5' },
           { label: 'Over / (Under) Claim',  val: fmt(overUnder),         col: overUnder < -50_000 ? '#FECACA' : '#DEE5B5' },
         ].map(({ label, val, col }) => (
           <div key={label} className="flex-shrink-0">
-            <div className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: 'rgba(168,196,224,0.55)' }}>{label}</div>
+            <div className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: '#6f7787' }}>{label}</div>
             <div className="text-sm font-bold tabular-nums" style={{ color: col }}>{val}</div>
           </div>
         ))}
@@ -146,7 +146,7 @@ export default function ValueClient({ vp, proj, projectId }: Props) {
       <div className="flex-1 overflow-auto px-6 py-5">
         <div className="grid grid-cols-3 gap-4 max-w-5xl">
 
-          <Section title="Application" bg="#1e3a5f">
+          <Section title="Application" bg="#1a1d23">
             <Inp field="cumul_claimed" label="Total Claimed to Date" />
             <Total label="Sub-Total Application" value={v.cumul_claimed} />
           </Section>
@@ -154,10 +154,10 @@ export default function ValueClient({ vp, proj, projectId }: Props) {
           <Section title="Certificate / Invoiced" bg="#253f6a">
             <Inp field="cumul_certified" label="Measurement BOQ – Own Work" />
             <Total label="Total Certified" value={v.cumul_certified} />
-            <tr style={{ background: '#fafbfc', borderTop: '0.5px solid #e5e7eb' }}>
+            <tr style={{ background: '#fafbfc', borderTop: '0.5px solid #e7e9ee' }}>
               <td className="px-4 py-2 text-xs text-gray-500 italic" colSpan={2}>Variance (App – Cert)</td>
               <td className="px-4 py-2 text-xs text-right tabular-nums font-semibold"
-                style={{ color: overUnder >= 0 ? '#27500A' : '#991B1B' }}>{fmt(overUnder)}</td>
+                style={{ color: overUnder >= 0 ? '#0a6e44' : '#a23015' }}>{fmt(overUnder)}</td>
             </tr>
           </Section>
 
@@ -168,10 +168,10 @@ export default function ValueClient({ vp, proj, projectId }: Props) {
             <Total label="Total Assessed Value" value={totalAssessedValue} accent="#856c0b" />
           </Section>
 
-          <Section title="Cash Position" bg="#1e3a5f">
+          <Section title="Cash Position" bg="#1a1d23">
             <Inp field="revenue_received" label="Revenue Received to Date" />
             <Inp field="total_paid"       label="Total Paid to Date (Costs Out)" />
-            <Total label="Cash Position" value={cashPosition} accent={cashPosition >= 0 ? '#27500A' : '#991B1B'} />
+            <Total label="Cash Position" value={cashPosition} accent={cashPosition >= 0 ? '#0a6e44' : '#a23015'} />
           </Section>
 
           <Section title="Risk & Opportunity" bg="#253f6a">

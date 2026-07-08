@@ -61,7 +61,7 @@ export default function MoneyInput({ value, onChange, onSave, onKeyDown, classNa
         'no-spin border rounded px-2 py-1 text-xs text-right focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary',
         className
       )}
-      style={{ background: '#FFFFC7' }}
+      style={{ background: '#eef2ff' }}
     />
   )
 }

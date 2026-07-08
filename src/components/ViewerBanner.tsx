@@ -5,7 +5,7 @@ export default function ViewerBanner({ role }: { role: Role }) {
   if (role !== 'viewer') return null
   return (
     <div style={{
-      background: '#EFF6FF', borderBottom: '0.5px solid #BFDBFE',
+      background: '#f6f7f9', borderBottom: '0.5px solid #BFDBFE',
       padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0,
     }}>
       <span className="material-symbols-outlined" style={{ fontSize: 15, color: '#1e40af' }}>visibility</span>

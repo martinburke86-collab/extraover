@@ -472,7 +472,7 @@ export default function SetupWizard() {
         <div className="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/20">
 
           {/* Header */}
-          <div style={{ background: '#1e3a5f' }} className="px-7 pt-5 pb-4">
+          <div style={{ background: '#1a1d23' }} className="px-7 pt-5 pb-4">
             <div className="flex items-center gap-2.5 mb-4">
               <img src="/logo.png" alt="ExtraOver" style={{ width: 120, height: 'auto', filter: 'brightness(0) invert(1)' }} />
             </div>
@@ -485,8 +485,8 @@ export default function SetupWizard() {
                     <div className="absolute top-2.5 left-1/2 w-full h-px bg-white/15" />
                   )}
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center z-10 text-[10px] font-medium transition-all ${
-                    i < step ? 'bg-[#456919] text-white' :
-                    i === step ? 'bg-white text-[#1e3a5f] font-bold' :
+                    i < step ? 'bg-[#0a8a54] text-white' :
+                    i === step ? 'bg-white text-[#1a1d23] font-bold' :
                     'bg-white/10 text-white/40'
                   }`}>
                     {i < step
@@ -543,14 +543,14 @@ export default function SetupWizard() {
                 <button
                   onClick={() => setStep(s => s + 1)}
                   disabled={!canAdvance()}
-                  className="bg-[#1e3a5f] text-white text-xs font-bold px-4 py-1.5 rounded disabled:opacity-40 hover:bg-[#16304f] transition-colors">
+                  className="bg-[#1a1d23] text-white text-xs font-bold px-4 py-1.5 rounded disabled:opacity-40 hover:bg-[#16304f] transition-colors">
                   {step === 3 ? 'Save & continue →' : 'Continue →'}
                 </button>
               ) : (
                 <button
                   onClick={create}
                   disabled={loading}
-                  className="bg-[#456919] text-white text-xs font-bold px-5 py-1.5 rounded disabled:opacity-50 hover:bg-[#3a5715] transition-colors">
+                  className="bg-[#0a8a54] text-white text-xs font-bold px-5 py-1.5 rounded disabled:opacity-50 hover:bg-[#3a5715] transition-colors">
                   {loading ? 'Creating...' : 'Create project →'}
                 </button>
               )}

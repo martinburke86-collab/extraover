@@ -261,21 +261,21 @@ export default function SCurveClient({
   const FROZEN = W.name + W.date * 2 + W.money * 3
 
   const cell = (extra?: React.CSSProperties): React.CSSProperties => ({
-    padding: '0 0', borderBottom: '0.5px solid #e2e8f0', borderRight: '0.5px solid #e2e8f0',
+    padding: '0 0', borderBottom: '0.5px solid #e7e9ee', borderRight: '0.5px solid #e7e9ee',
     verticalAlign: 'middle', ...extra,
   })
   const frozen = (left: number, bg = '#fff'): React.CSSProperties => ({
     position: 'sticky', left, zIndex: 2, background: bg,
-    borderBottom: '0.5px solid #e2e8f0', borderRight: '0.5px solid #e2e8f0',
+    borderBottom: '0.5px solid #e7e9ee', borderRight: '0.5px solid #e7e9ee',
     verticalAlign: 'middle',
   })
   const thFrozen = (left: number): React.CSSProperties => ({
-    position: 'sticky', left, zIndex: 3, background: '#1e3a5f',
+    position: 'sticky', left, zIndex: 3, background: '#1a1d23',
     color: '#fff', fontSize: 11, fontWeight: 600, padding: '7px 8px',
     textAlign: 'right', whiteSpace: 'nowrap', borderRight: '0.5px solid rgba(255,255,255,0.15)',
   })
   const thMonth: React.CSSProperties = {
-    background: '#1e3a5f', color: '#fff', fontSize: 11, fontWeight: 600,
+    background: '#1a1d23', color: '#fff', fontSize: 11, fontWeight: 600,
     padding: '7px 4px', textAlign: 'right', minWidth: W.month,
     borderRight: '0.5px solid rgba(255,255,255,0.12)',
   }
@@ -288,11 +288,11 @@ export default function SCurveClient({
     const [editing, setEditing] = useState(false)
     const [raw, setRaw]         = useState('')
 
-    if (!inBand) return <div style={{ textAlign: 'right', padding: '5px 8px', color: '#d1d5db', fontSize: 11 }}>—</div>
+    if (!inBand) return <div style={{ textAlign: 'right', padding: '5px 8px', color: '#aeb4bf', fontSize: 11 }}>—</div>
 
     const display = value > 0 ? Math.round(value).toLocaleString('en-IE') : (isOverride ? '0' : '')
-    const bg = disabled ? 'transparent' : isOverride ? '#FFFFC7' : '#f8faff'
-    const col = disabled ? '#9ca3af' : isOverride ? '#1a1a1a' : value > 0 ? '#374151' : '#d1d5db'
+    const bg = disabled ? 'transparent' : isOverride ? '#eef2ff' : '#f8faff'
+    const col = disabled ? '#8b93a1' : isOverride ? '#1a1a1a' : value > 0 ? '#1a1d23' : '#aeb4bf'
 
     return (
       <input
@@ -321,8 +321,8 @@ export default function SCurveClient({
   const tabCls = (t: string) => ({
     padding: '8px 16px', fontSize: 12, fontWeight: 600, cursor: 'pointer', border: 'none',
     background: tab === t ? '#fff' : 'transparent',
-    borderBottom: tab === t ? '2px solid #1e3a5f' : '2px solid transparent',
-    color: tab === t ? '#1e3a5f' : '#6b7280',
+    borderBottom: tab === t ? '2px solid #1a1d23' : '2px solid transparent',
+    color: tab === t ? '#1a1d23' : '#5b626e',
   } as React.CSSProperties)
 
   // ─── Section header row ────────────────────────────────────────────────────
@@ -337,18 +337,18 @@ export default function SCurveClient({
   }
 
   // ─── Totals row ────────────────────────────────────────────────────────────
-  function TotalsRow({ label, getVal, bg = '#f0f4fa', bold = true }: {
+  function TotalsRow({ label, getVal, bg = '#fbfbfc', bold = true }: {
     label: string; getVal: (m: string) => number; bg?: string; bold?: boolean
   }) {
     const runningTotal = { val: 0 }
     return (
       <tr style={{ background: bg }}>
-        <td style={{ ...frozen(0, bg), padding: '6px 10px', fontSize: 11, fontWeight: bold ? 700 : 500, color: '#1e3a5f' }}>{label}</td>
-        <td colSpan={5} style={{ background: bg, borderBottom: '0.5px solid #e2e8f0' }} />
+        <td style={{ ...frozen(0, bg), padding: '6px 10px', fontSize: 11, fontWeight: bold ? 700 : 500, color: '#1a1d23' }}>{label}</td>
+        <td colSpan={5} style={{ background: bg, borderBottom: '0.5px solid #e7e9ee' }} />
         {months.map(m => {
           const v = getVal(m)
           return (
-            <td key={m} style={{ background: bg, borderRight: '0.5px solid #e2e8f0', borderBottom: '0.5px solid #e2e8f0', padding: '6px 8px', textAlign: 'right', fontSize: 11, fontWeight: bold ? 700 : 500, fontVariantNumeric: 'tabular-nums', color: v > 0 ? '#1e3a5f' : '#d1d5db' }}>
+            <td key={m} style={{ background: bg, borderRight: '0.5px solid #e7e9ee', borderBottom: '0.5px solid #e7e9ee', padding: '6px 8px', textAlign: 'right', fontSize: 11, fontWeight: bold ? 700 : 500, fontVariantNumeric: 'tabular-nums', color: v > 0 ? '#1a1d23' : '#aeb4bf' }}>
               {v > 0 ? Math.round(v).toLocaleString('en-IE') : '—'}
             </td>
           )
@@ -372,12 +372,12 @@ export default function SCurveClient({
           <div className="flex items-center gap-1.5">
             <span className="text-[11px] text-slate-500 font-medium">Margin %</span>
             <input type="number" value={marginPct} onChange={e => setMarginPct(Number(e.target.value))}
-              style={{ width: 52, border: '0.5px solid #d1d5db', borderRadius: 5, padding: '4px 6px', fontSize: 12, fontWeight: 700, textAlign: 'right', background: '#FFFFC7' }} />
+              style={{ width: 52, border: '0.5px solid #aeb4bf', borderRadius: 5, padding: '4px 6px', fontSize: 12, fontWeight: 700, textAlign: 'right', background: '#eef2ff' }} />
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-[11px] text-slate-500 font-medium">Income lag</span>
             <select value={lagMonths} onChange={e => saveLag(Number(e.target.value))}
-              style={{ border: '0.5px solid #d1d5db', borderRadius: 5, padding: '4px 6px', fontSize: 12, fontWeight: 600, background: '#f0f9ff', color: '#0c447c', cursor: 'pointer' }}>
+              style={{ border: '0.5px solid #aeb4bf', borderRadius: 5, padding: '4px 6px', fontSize: 12, fontWeight: 600, background: '#eef2ff', color: '#0c447c', cursor: 'pointer' }}>
               <option value={0}>None (same month)</option>
               <option value={1}>1 month</option>
               <option value={2}>2 months</option>
@@ -386,7 +386,7 @@ export default function SCurveClient({
           </div>
           {tab === 'history' && role !== 'viewer' && (
             <button onClick={saveHistory} disabled={saving}
-              className="px-3 py-1.5 rounded text-xs font-semibold text-white bg-[#1e3a5f] hover:bg-[#253f6a] disabled:opacity-50">
+              className="px-3 py-1.5 rounded text-xs font-semibold text-white bg-[#1a1d23] hover:bg-[#253f6a] disabled:opacity-50">
               {saving ? 'Saving…' : 'Save History'}
             </button>
           )}
@@ -396,11 +396,11 @@ export default function SCurveClient({
       <ViewerBanner role={role} />
 
       {/* Summary strip */}
-      <div className="bg-[#1e3a5f] px-6 py-2.5 flex items-center gap-6 flex-shrink-0 flex-wrap">
+      <div className="bg-[#1a1d23] px-6 py-2.5 flex items-center gap-6 flex-shrink-0 flex-wrap">
         {[
-          { label: 'Contract sum', val: fmt(adjustedSum),       col: '#ccd4ee' },
-          { label: 'Total EFC',    val: fmt(kpis.efc),          col: '#ccd4ee' },
-          { label: 'Cost to date', val: fmt(kpis.actualsTotal), col: '#ccd4ee' },
+          { label: 'Contract sum', val: fmt(adjustedSum),       col: '#9aa3b2' },
+          { label: 'Total EFC',    val: fmt(kpis.efc),          col: '#9aa3b2' },
+          { label: 'Cost to date', val: fmt(kpis.actualsTotal), col: '#9aa3b2' },
           { label: 'To forecast',  val: fmt(totalForecastCost), col: '#FAEEDA' },
           { label: 'Periods',      val: `${months.length}`,     col: '#DEE5B5' },
         ].map(k => (
@@ -451,7 +451,7 @@ export default function SCurveClient({
                 <SectionRow label="Income" bg="#253f6a" />
 
                 {/* Income totals row */}
-                <TotalsRow label="TOTAL INCOME" getVal={m => incomeTotals[m] ?? 0} bg="#EAF3DE" />
+                <TotalsRow label="TOTAL INCOME" getVal={m => incomeTotals[m] ?? 0} bg="#e7f6ee" />
 
                 {/* Income type rows */}
                 {incomeLabels.map((label, ri) => {
@@ -460,14 +460,14 @@ export default function SCurveClient({
                   return (
                     <tr key={label} style={{ background: rowBg }}>
                       <td style={{ ...frozen(0, rowBg), padding: '4px 10px' }}>
-                        <div style={{ fontSize: 12, color: '#374151', fontWeight: isAuto ? 600 : 400 }}>{label}</div>
+                        <div style={{ fontSize: 12, color: '#1a1d23', fontWeight: isAuto ? 600 : 400 }}>{label}</div>
                         {isAuto && (
-                          <div style={{ fontSize: 10, color: '#6b7280', marginTop: 1 }}>
+                          <div style={{ fontSize: 10, color: '#5b626e', marginTop: 1 }}>
                             Auto — cost × {marginPct}% margin, {lagMonths === 0 ? 'no lag' : `${lagMonths}m lag`}
                           </div>
                         )}
                       </td>
-                      <td colSpan={5} style={{ background: rowBg, borderBottom: '0.5px solid #e2e8f0' }} />
+                      <td colSpan={5} style={{ background: rowBg, borderBottom: '0.5px solid #e7e9ee' }} />
                       {months.map(m => (
                         <td key={m} style={cell()}>
                           {isAuto ? (
@@ -475,7 +475,7 @@ export default function SCurveClient({
                             <div style={{
                               padding: '5px 8px', textAlign: 'right', fontSize: 11,
                               fontVariantNumeric: 'tabular-nums',
-                              color: (contractIncome[m] ?? 0) > 0 ? '#27500A' : '#d1d5db',
+                              color: (contractIncome[m] ?? 0) > 0 ? '#0a6e44' : '#aeb4bf',
                               fontStyle: 'italic', background: '#f0fce0',
                             }}>
                               {(contractIncome[m] ?? 0) > 0
@@ -498,10 +498,10 @@ export default function SCurveClient({
                 })}
 
                 {/* ── EXPENDITURE SECTION ────────────────────────────── */}
-                <SectionRow label="Expenditure" bg="#1e3a5f" />
+                <SectionRow label="Expenditure" bg="#1a1d23" />
 
                 {/* Expenditure totals row */}
-                <TotalsRow label="TOTAL EXPENDITURE" getVal={m => costTotals[m] ?? 0} bg="#f0f4fa" />
+                <TotalsRow label="TOTAL EXPENDITURE" getVal={m => costTotals[m] ?? 0} bg="#fbfbfc" />
 
                 {/* Trade rows */}
                 {tradeSummaries.map((t, ri) => {
@@ -518,33 +518,33 @@ export default function SCurveClient({
                             value={shape}
                             title={`S-curve: ${SHAPE_LABELS[shape]}`}
                             onChange={e => saveBand(t.name, { sCurveShape: Number(e.target.value) })}
-                            style={{ width: 60, accentColor: '#1e3a5f', verticalAlign: 'middle' }}
+                            style={{ width: 60, accentColor: '#1a1d23', verticalAlign: 'middle' }}
                           />
-                          <span style={{ fontSize: 9, color: '#9ca3af', whiteSpace: 'nowrap' }}>{SHAPE_LABELS[shape]}</span>
+                          <span style={{ fontSize: 9, color: '#8b93a1', whiteSpace: 'nowrap' }}>{SHAPE_LABELS[shape]}</span>
                         </div>
                       </td>
                       {/* Frozen: start */}
                       <td style={{ ...frozen(W.name, ri % 2 === 0 ? '#fff' : '#f8faff'), padding: '2px 4px' }}>
                         <input type="date" defaultValue={band?.startDate ?? projectStart ?? ''}
                           onBlur={e => saveBand(t.name, { startDate: e.target.value || null })}
-                          style={{ width: '100%', border: 'none', fontSize: 11, background: 'transparent', outline: 'none', color: '#374151', padding: '4px 2px' }} />
+                          style={{ width: '100%', border: 'none', fontSize: 11, background: 'transparent', outline: 'none', color: '#1a1d23', padding: '4px 2px' }} />
                       </td>
                       {/* Frozen: finish */}
                       <td style={{ ...frozen(W.name + W.date, ri % 2 === 0 ? '#fff' : '#f8faff'), padding: '2px 4px' }}>
                         <input type="date" defaultValue={band?.finishDate ?? projectFinish ?? ''}
                           onBlur={e => saveBand(t.name, { finishDate: e.target.value || null })}
-                          style={{ width: '100%', border: 'none', fontSize: 11, background: 'transparent', outline: 'none', color: '#374151', padding: '4px 2px' }} />
+                          style={{ width: '100%', border: 'none', fontSize: 11, background: 'transparent', outline: 'none', color: '#1a1d23', padding: '4px 2px' }} />
                       </td>
                       {/* Frozen: Total EFC */}
-                      <td style={{ ...frozen(W.name + W.date*2, ri % 2 === 0 ? '#fff' : '#f8faff'), padding: '5px 8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: '#1e3a5f', fontWeight: 600, fontSize: 11 }}>
+                      <td style={{ ...frozen(W.name + W.date*2, ri % 2 === 0 ? '#fff' : '#f8faff'), padding: '5px 8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: '#1a1d23', fontWeight: 600, fontSize: 11 }}>
                         {fmt(t.efc)}
                       </td>
                       {/* Frozen: CTD */}
-                      <td style={{ ...frozen(W.name + W.date*2 + W.money, ri % 2 === 0 ? '#fff' : '#f8faff'), padding: '5px 8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: '#6b7280', fontSize: 11 }}>
+                      <td style={{ ...frozen(W.name + W.date*2 + W.money, ri % 2 === 0 ? '#fff' : '#f8faff'), padding: '5px 8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: '#5b626e', fontSize: 11 }}>
                         {t.totalCTD ? fmt(t.totalCTD) : '—'}
                       </td>
                       {/* Frozen: Remaining */}
-                      <td style={{ ...frozen(W.name + W.date*2 + W.money*2, ri % 2 === 0 ? '#fff' : '#f8faff'), padding: '5px 8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 700, fontSize: 11, color: t.remaining > 0 ? '#856c0b' : '#9ca3af', borderRight: '2px solid #e2e8f0' }}>
+                      <td style={{ ...frozen(W.name + W.date*2 + W.money*2, ri % 2 === 0 ? '#fff' : '#f8faff'), padding: '5px 8px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 700, fontSize: 11, color: t.remaining > 0 ? '#856c0b' : '#8b93a1', borderRight: '2px solid #e7e9ee' }}>
                         {t.remaining > 0 ? fmt(t.remaining) : '—'}
                       </td>
                       {/* Monthly cells */}
@@ -572,9 +572,9 @@ export default function SCurveClient({
 
           {/* Legend */}
           <div className="px-4 py-3 border-t border-slate-200 bg-white flex items-center gap-6 text-[10px] text-slate-500">
-            <span className="flex items-center gap-1.5"><span style={{ width: 16, height: 12, background: '#FFFFC7', border: '0.5px solid #d1d5db', borderRadius: 2, display: 'inline-block' }} />Hard key (your value)</span>
-            <span className="flex items-center gap-1.5"><span style={{ width: 16, height: 12, background: '#f8faff', border: '0.5px solid #d1d5db', borderRadius: 2, display: 'inline-block' }} />S-curve calculated (italic)</span>
-            <span className="flex items-center gap-1.5"><span style={{ width: 16, height: 12, background: '#fff', border: '0.5px solid #e5e7eb', borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d1d5db', fontSize: 10 }} />Outside band</span>
+            <span className="flex items-center gap-1.5"><span style={{ width: 16, height: 12, background: '#eef2ff', border: '0.5px solid #aeb4bf', borderRadius: 2, display: 'inline-block' }} />Hard key (your value)</span>
+            <span className="flex items-center gap-1.5"><span style={{ width: 16, height: 12, background: '#f8faff', border: '0.5px solid #aeb4bf', borderRadius: 2, display: 'inline-block' }} />S-curve calculated (italic)</span>
+            <span className="flex items-center gap-1.5"><span style={{ width: 16, height: 12, background: '#fff', border: '0.5px solid #e7e9ee', borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#aeb4bf', fontSize: 10 }} />Outside band</span>
             <span className="ml-auto">Click any cell to enter an amount · Tab / Enter to move · S-curve slider per trade</span>
           </div>
         </div>
@@ -629,8 +629,8 @@ export default function SCurveClient({
         function ChartTip({ active, payload, label }: any) {
           if (!active || !payload?.length) return null
           return (
-            <div style={{ background: '#fff', border: '0.5px solid #e2e8f0', borderRadius: 8, padding: '10px 14px', fontSize: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-              <div style={{ fontWeight: 700, color: '#1e3a5f', marginBottom: 6 }}>{label}</div>
+            <div style={{ background: '#fff', border: '0.5px solid #e7e9ee', borderRadius: 8, padding: '10px 14px', fontSize: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+              <div style={{ fontWeight: 700, color: '#1a1d23', marginBottom: 6 }}>{label}</div>
               {payload.map((p: any) => p.value != null && (
                 <div key={p.dataKey} style={{ display: 'flex', justifyContent: 'space-between', gap: 20, color: p.color ?? p.fill, marginBottom: 2 }}>
                   <span>{p.name}</span>
@@ -643,7 +643,7 @@ export default function SCurveClient({
 
         // Monthly cost breakdown by trade for stacked bars
         const tradeColors = [
-          '#1e3a5f','#2d5a9a','#456919','#9f403d','#856c0b',
+          '#1a1d23','#2d5a9a','#0a8a54','#c8412a','#856c0b',
           '#3a6b4a','#6b3a8b','#3a6b8b','#8b3a6b','#6b8b3a',
         ]
 
@@ -685,30 +685,30 @@ export default function SCurveClient({
                 { label: 'Margin %',              val: `${marginPct}%` },
                 { label: 'Contract sum',           val: fmtM(adjustedSum) },
               ].map(k => (
-                <div key={k.label} style={{ background: '#f8faff', border: '0.5px solid #e2e8f0', borderRadius: 8, padding: '12px 14px' }}>
-                  <div style={{ fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>{k.label}</div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: '#1e3a5f', fontVariantNumeric: 'tabular-nums' }}>{k.val}</div>
+                <div key={k.label} style={{ background: '#f8faff', border: '0.5px solid #e7e9ee', borderRadius: 8, padding: '12px 14px' }}>
+                  <div style={{ fontSize: 10, color: '#5b626e', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>{k.label}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: '#1a1d23', fontVariantNumeric: 'tabular-nums' }}>{k.val}</div>
                 </div>
               ))}
             </div>
 
             {/* Monthly cost bars + cumulative lines */}
-            <div style={{ background: '#fff', border: '0.5px solid #e2e8f0', borderRadius: 10, padding: '16px 16px 8px' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 12 }}>Monthly cost forecast by trade · cumulative cost & income</div>
+            <div style={{ background: '#fff', border: '0.5px solid #e7e9ee', borderRadius: 10, padding: '16px 16px 8px' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1d23', marginBottom: 12 }}>Monthly cost forecast by trade · cumulative cost & income</div>
               <div style={{ height: 360 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={stackedData} margin={{ top: 8, right: 20, bottom: 20, left: 56 }}
                     barCategoryGap="20%">
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f4f8" />
-                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false}
+                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#5b626e' }} tickLine={false}
                       angle={-35} textAnchor="end" height={45} />
-                    <YAxis tickFormatter={fmtM} tick={{ fontSize: 10, fill: '#6b7280' }}
+                    <YAxis tickFormatter={fmtM} tick={{ fontSize: 10, fill: '#5b626e' }}
                       axisLine={false} tickLine={false} width={54} />
                     <Tooltip content={<ChartTip />} />
                     <Legend wrapperStyle={{ fontSize: 10, paddingTop: 8 }} />
 
-                    <ReferenceLine y={adjustedSum} stroke="#1e3a5f" strokeDasharray="5 3" strokeWidth={1}
-                      label={{ value: 'Contract sum', position: 'insideTopRight', fontSize: 9, fill: '#1e3a5f' }} />
+                    <ReferenceLine y={adjustedSum} stroke="#1a1d23" strokeDasharray="5 3" strokeWidth={1}
+                      label={{ value: 'Contract sum', position: 'insideTopRight', fontSize: 9, fill: '#1a1d23' }} />
 
                     {/* Stacked bars per trade */}
                     {tradeSummaries.map((t, i) => (
@@ -719,18 +719,18 @@ export default function SCurveClient({
 
                     {/* Cumulative forecast lines */}
                     <Line type="monotone" dataKey="cumulForecast" name="Cumul. cost (forecast)"
-                      stroke="#9f403d" strokeWidth={2.5}
-                      dot={{ r: 3, fill: '#9f403d', stroke: '#fff', strokeWidth: 1.5 }}
+                      stroke="#c8412a" strokeWidth={2.5}
+                      dot={{ r: 3, fill: '#c8412a', stroke: '#fff', strokeWidth: 1.5 }}
                       strokeDasharray="6 3" connectNulls={false} />
                     <Line type="monotone" dataKey="cumulIncome" name="Cumul. income (forecast)"
-                      stroke="#456919" strokeWidth={2.5}
-                      dot={{ r: 3, fill: '#456919', stroke: '#fff', strokeWidth: 1.5 }}
+                      stroke="#0a8a54" strokeWidth={2.5}
+                      dot={{ r: 3, fill: '#0a8a54', stroke: '#fff', strokeWidth: 1.5 }}
                       strokeDasharray="4 2" connectNulls={false} />
 
                     {/* Actual history lines */}
                     <Line type="monotone" dataKey="actualCost" name="Actual cost (history)"
-                      stroke="#1e3a5f" strokeWidth={2.5}
-                      dot={{ r: 4, fill: '#1e3a5f', stroke: '#fff', strokeWidth: 2 }}
+                      stroke="#1a1d23" strokeWidth={2.5}
+                      dot={{ r: 4, fill: '#1a1d23', stroke: '#fff', strokeWidth: 2 }}
                       connectNulls={false} />
                     <Line type="monotone" dataKey="actualClaimed" name="Actual claimed (history)"
                       stroke="#856c0b" strokeWidth={2}
@@ -742,8 +742,8 @@ export default function SCurveClient({
             </div>
 
             {/* Per-trade spend profile (S-curve preview) */}
-            <div style={{ background: '#fff', border: '0.5px solid #e2e8f0', borderRadius: 10, padding: '16px 16px 8px' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 12 }}>Cumulative spend profile by trade</div>
+            <div style={{ background: '#fff', border: '0.5px solid #e7e9ee', borderRadius: 10, padding: '16px 16px 8px' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1d23', marginBottom: 12 }}>Cumulative spend profile by trade</div>
               <div style={{ height: 300 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={(() => {
@@ -761,9 +761,9 @@ export default function SCurveClient({
                       })
                   })()} margin={{ top: 8, right: 20, bottom: 20, left: 56 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f4f8" />
-                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false}
+                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#5b626e' }} tickLine={false}
                       angle={-35} textAnchor="end" height={45} />
-                    <YAxis tickFormatter={fmtM} tick={{ fontSize: 10, fill: '#6b7280' }}
+                    <YAxis tickFormatter={fmtM} tick={{ fontSize: 10, fill: '#5b626e' }}
                       axisLine={false} tickLine={false} width={54} />
                     <Tooltip content={<ChartTip />} />
                     <Legend wrapperStyle={{ fontSize: 10, paddingTop: 8 }}
@@ -776,7 +776,7 @@ export default function SCurveClient({
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
-              <p style={{ fontSize: 10, color: '#9ca3af', marginTop: 8 }}>
+              <p style={{ fontSize: 10, color: '#8b93a1', marginTop: 8 }}>
                 S-curve shape per trade controls the slope of each line. Adjust sliders on the Forecast Grid tab.
               </p>
             </div>
@@ -792,7 +792,7 @@ export default function SCurveClient({
             <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Actual cumulative data</span>
             {role !== 'viewer' && (
               <button onClick={() => setHistRows(prev => [...prev, { id: '', month_label: '', month_date: new Date().toISOString().slice(0,10), sort_order: prev.length, cumul_claimed: 0, cumul_certified: 0, cumul_cost: 0 }])}
-                style={{ border: '0.5px solid #565e74', color: '#565e74', background: '#fff', borderRadius: 6, padding: '5px 12px', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                style={{ border: '0.5px solid #5b626e', color: '#5b626e', background: '#fff', borderRadius: 6, padding: '5px 12px', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Plus size={12} /> Add month
               </button>
             )}

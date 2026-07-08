@@ -145,8 +145,8 @@ export default function BreakdownPane({
       <select defaultValue={String(val ?? '')}
         onBlur={e => updateRow(row.id, { [field]: e.target.value } as any)}
         onKeyDown={e => tableNav(e as any)}
-        className={clx(w, 'border-0 bg-transparent text-xs focus:outline-none focus:ring-1 focus:ring-[#565e74] rounded px-1')}
-        style={{ background: '#FFFFC7' }}>
+        className={clx(w, 'border-0 bg-transparent text-xs focus:outline-none focus:ring-1 focus:ring-[#5b626e] rounded px-1')}
+        style={{ background: '#eef2ff' }}>
         <option value="">–</option>
         {options.map(o => <option key={o}>{o}</option>)}
       </select>
@@ -162,7 +162,7 @@ export default function BreakdownPane({
           if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
           tableNav(e as any)
         }}
-        className={clx(w, 'no-spin border-0 bg-transparent text-xs focus:outline-none focus:bg-[#FFFFC7] focus:ring-1 focus:ring-[#565e74] rounded px-1',
+        className={clx(w, 'no-spin border-0 bg-transparent text-xs focus:outline-none focus:bg-[#eef2ff] focus:ring-1 focus:ring-[#5b626e] rounded px-1',
           type === 'number' ? 'text-right' : '')}
       />
     )
@@ -185,14 +185,14 @@ export default function BreakdownPane({
               <Calculator size={16} />
               Rate / Quantity Breakdown
             </div>
-            <div className="text-[11px] mt-0.5" style={{ color: '#ccd4ee' }}>
+            <div className="text-[11px] mt-0.5" style={{ color: '#9aa3b2' }}>
               {parentLabel} · {parentField.toUpperCase()}
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <div className="text-[10px] uppercase tracking-wide" style={{ color: '#ccd4ee' }}>Built-up Total</div>
-              <div className="text-xl font-bold tabular-nums" style={{ color: total > 0 ? '#DEE5B5' : '#ccd4ee' }}>
+              <div className="text-[10px] uppercase tracking-wide" style={{ color: '#9aa3b2' }}>Built-up Total</div>
+              <div className="text-xl font-bold tabular-nums" style={{ color: total > 0 ? '#DEE5B5' : '#9aa3b2' }}>
                 {total > 0 ? total.toLocaleString('en-IE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }) : '–'}
               </div>
             </div>
@@ -209,7 +209,7 @@ export default function BreakdownPane({
           <ChevronRight size={14} className="text-gray-400" />
           <div>
             <span className="text-gray-500">Built-up total:</span>{' '}
-            <span className="font-bold tabular-nums" style={{ color: total !== currentValue ? '#C00000' : '#456919' }}>
+            <span className="font-bold tabular-nums" style={{ color: total !== currentValue ? '#c8412a' : '#0a8a54' }}>
               {total.toLocaleString('en-IE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 })}
             </span>
             {total !== currentValue && total > 0 && (
@@ -229,16 +229,16 @@ export default function BreakdownPane({
               <thead className="sticky top-0 z-10">
                 <tr>
                   {[
-                    ['Description', '220px', '#565e74'],
-                    ['Cost Code',   '90px',  '#4a5268'],
-                    ['Trade',       '100px', '#4a5268'],
-                    ['Element',     '100px', '#4a5268'],
+                    ['Description', '220px', '#5b626e'],
+                    ['Cost Code',   '90px',  '#4c525d'],
+                    ['Trade',       '100px', '#4c525d'],
+                    ['Element',     '100px', '#4c525d'],
                     ['Qty',         '60px',  '#2d6a1c'],
                     ['Unit',        '60px',  '#2d6a1c'],
                     ['Rate (€)',    '100px', '#2d6a1c'],
                     ['Amount (€)',  '110px', '#7F4500'],
-                    ['Notes',       '120px', '#4B5563'],
-                    ['',            '36px',  '#565e74'],
+                    ['Notes',       '120px', '#5b626e'],
+                    ['',            '36px',  '#5b626e'],
                   ].map(([h, w, bg], i) => (
                     <th key={i} style={{ background: bg as string, minWidth: w as string }}
                       className={clx('px-2 py-2.5 text-white font-bold whitespace-nowrap sticky top-0',
@@ -257,7 +257,7 @@ export default function BreakdownPane({
                     <td className="px-1 py-1 border-b border-gray-100">
                       <select defaultValue={row.cost_code ?? ''}
                         onBlur={e => updateRow(row.id, { cost_code: e.target.value || null })}
-                        className="w-full border-0 bg-transparent text-xs focus:outline-none focus:bg-[#FFFFC7] rounded px-1">
+                        className="w-full border-0 bg-transparent text-xs focus:outline-none focus:bg-[#eef2ff] rounded px-1">
                         <option value="">–</option>
                         {costCodes.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
                       </select>
@@ -278,7 +278,7 @@ export default function BreakdownPane({
                       <Inp row={row} field="rate" type="number" w="w-24" />
                     </td>
                     <td className="px-2 py-1.5 border-b border-gray-100 text-right tabular-nums font-semibold"
-                      style={{ color: row.amount > 0 ? '#565e74' : '#9CA3AF', background: '#F1F4E0' }}>
+                      style={{ color: row.amount > 0 ? '#5b626e' : '#8b93a1', background: '#f3faf6' }}>
                       {fmtN(row.amount)}
                       {saving === row.id && <span className="ml-1 text-[9px] text-gray-400 font-normal">…</span>}
                     </td>
@@ -298,7 +298,7 @@ export default function BreakdownPane({
                 <tr>
                   <td colSpan={10} className="px-3 py-2">
                     <button onClick={addRow}
-                      className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded border border-dashed border-gray-300 text-gray-500 hover:border-[#565e74] hover:text-[#565e74] transition-colors">
+                      className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded border border-dashed border-gray-300 text-gray-500 hover:border-[#5b626e] hover:text-[#5b626e] transition-colors">
                       <Plus size={12} /> Add row
                     </button>
                   </td>
@@ -308,11 +308,11 @@ export default function BreakdownPane({
               {/* Total row */}
               {rows.length > 0 && (
                 <tfoot className="sticky bottom-0">
-                  <tr style={{ background: '#FFEEB9' }} className="border-t-2 border-amber-300">
-                    <td colSpan={7} className="px-3 py-2.5 text-xs font-bold" style={{ color: '#565e74' }}>
+                  <tr style={{ background: '#fcf2e2' }} className="border-t-2 border-amber-300">
+                    <td colSpan={7} className="px-3 py-2.5 text-xs font-bold" style={{ color: '#5b626e' }}>
                       TOTAL ({rows.length} row{rows.length !== 1 ? 's' : ''})
                     </td>
-                    <td className="px-2 py-2.5 text-right tabular-nums font-bold text-sm" style={{ color: '#565e74' }}>
+                    <td className="px-2 py-2.5 text-right tabular-nums font-bold text-sm" style={{ color: '#5b626e' }}>
                       {total.toLocaleString('en-IE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 })}
                     </td>
                     <td colSpan={2} />

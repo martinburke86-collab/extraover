@@ -52,7 +52,7 @@ function IntInput({ value, onSave, min, max, w = 'w-14' }: {
       onBlur={e => onSave(Number(e.target.value))}
       onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
       className={clx(w, 'border border-gray-200 rounded px-1.5 py-0.5 text-xs text-center focus:outline-none focus:ring-1 focus:ring-primary')}
-      style={{ background: '#FFFFC7' }}
+      style={{ background: '#eef2ff' }}
     />
   )
 }
@@ -163,12 +163,12 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
         subtitle={`Week ${weeksElapsed} of ${totalWeeks} · ${weeksRem} weeks remaining`}
         actions={
           <div className="flex items-center gap-2">
-            <div className="text-xs px-3 py-1.5 rounded font-semibold" style={{ background: '#FFEEB9', color: '#7F4500' }}>
+            <div className="text-xs px-3 py-1.5 rounded font-semibold" style={{ background: '#fcf2e2', color: '#7F4500' }}>
               Projected Final Cost: {fmt(totals.pfc)}
             </div>
             {items.length === 0 && (
               <button onClick={loadTemplate} disabled={templateLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 border border-[#1e3a5f] rounded text-xs font-semibold text-[#1e3a5f] hover:bg-blue-50 disabled:opacity-50">
+                className="flex items-center gap-1.5 px-3 py-1.5 border border-[#1a1d23] rounded text-xs font-semibold text-[#1a1d23] hover:bg-blue-50 disabled:opacity-50">
                 {templateLoading ? 'Loading…' : '📋 Load standard template'}
               </button>
             )}
@@ -188,13 +188,13 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
       <div className="bg-primary text-on-primary hover:bg-primary-dim rounded px-4 py-1.5 text-xs font-bold uppercase tracking-tight transition-colors flex-shrink-0 border-b border-blue-800">
         <div className="px-6 py-2.5 flex items-center gap-8">
           {[
-            { label: 'Budget',                 val: fmt(totals.budget),                  col: '#ccd4ee' },
-            { label: 'Cost to Date',           val: fmt(totals.ctd),                     col: '#FFB9B9' },
-            { label: 'Committed',              val: fmt(totals.committed),               col: '#FFB9B9' },
+            { label: 'Budget',                 val: fmt(totals.budget),                  col: '#9aa3b2' },
+            { label: 'Cost to Date',           val: fmt(totals.ctd),                     col: '#fbeae6' },
+            { label: 'Committed',              val: fmt(totals.committed),               col: '#fbeae6' },
             { label: 'Uncommitted Remaining',  val: fmt(totals.amount),                  col: '#DEE5B5' },
-            { label: 'Projected Final Cost',   val: fmt(totals.pfc),                     col: '#FFEEB9' },
+            { label: 'Projected Final Cost',   val: fmt(totals.pfc),                     col: '#fcf2e2' },
             { label: '▲ vs Budget',            val: fmt(totals.budget - totals.pfc),
-              col: totals.budget - totals.pfc >= 0 ? '#DEE5B5' : '#FFB9B9' },
+              col: totals.budget - totals.pfc >= 0 ? '#DEE5B5' : '#fbeae6' },
           ].map(({ label, val, col }) => (
             <div key={label} className="flex-shrink-0">
               <div className="text-[10px] uppercase tracking-wide" style={{ color: 'rgba(168,196,224,0.65)' }}>{label}</div>
@@ -213,9 +213,9 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
           {pct(weeksElapsed / Math.max(totalWeeks, 1))} programme elapsed
         </span>
         <div className="text-xs flex-shrink-0 text-gray-500">
-          <span className="font-semibold text-[#565e74]">{revisedStart ? new Date(revisedStart).toLocaleDateString('en-IE',{day:'2-digit',month:'short',year:'2-digit'}) : '–'}</span>
+          <span className="font-semibold text-[#5b626e]">{revisedStart ? new Date(revisedStart).toLocaleDateString('en-IE',{day:'2-digit',month:'short',year:'2-digit'}) : '–'}</span>
           &nbsp;→&nbsp;
-          <span className="font-semibold text-[#565e74]">{revisedFinish ? new Date(revisedFinish).toLocaleDateString('en-IE',{day:'2-digit',month:'short',year:'2-digit'}) : '–'}</span>
+          <span className="font-semibold text-[#5b626e]">{revisedFinish ? new Date(revisedFinish).toLocaleDateString('en-IE',{day:'2-digit',month:'short',year:'2-digit'}) : '–'}</span>
         </div>
       </div>
 
@@ -225,7 +225,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
           <thead className="sticky top-0 z-20">
             {/* Group row */}
             <tr>
-              <th colSpan={5} style={{ background: '#565e74', color: 'white', top: 0 }}
+              <th colSpan={5} style={{ background: '#5b626e', color: 'white', top: 0 }}
                 className="px-3 py-2 text-center text-[11px] font-bold sticky">ITEM</th>
               <th colSpan={3} style={{ background: '#8B0000', color: 'white', top: 0 }}
                 className="px-3 py-2 text-center text-[11px] font-bold sticky border-l-2 border-white/20">COSTS</th>
@@ -233,15 +233,15 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                 className="px-3 py-2 text-center text-[11px] font-bold sticky border-l-2 border-white/20">RATE BUILD-UP → UNCOMMITTED</th>
               <th colSpan={3} style={{ background: '#7F4500', color: 'white', top: 0 }}
                 className="px-3 py-2 text-center text-[11px] font-bold sticky border-l-2 border-white/20">PROJECTED FINAL COST</th>
-              <th style={{ background: '#565e74', top: 0 }} className="px-3 py-2 sticky" />
+              <th style={{ background: '#5b626e', top: 0 }} className="px-3 py-2 sticky" />
             </tr>
             {/* Column row */}
             <tr>
-              <TH bg="#4a5268" top={32}>Section</TH>
-              <TH bg="#4a5268" top={32}>Cost Code</TH>
-              <TH bg="#4a5268" top={32}>Description</TH>
-              <TH bg="#4a5268" right top={32}>Budget</TH>
-              <TH bg="#4a5268" right top={32}>Notes</TH>
+              <TH bg="#4c525d" top={32}>Section</TH>
+              <TH bg="#4c525d" top={32}>Cost Code</TH>
+              <TH bg="#4c525d" top={32}>Description</TH>
+              <TH bg="#4c525d" right top={32}>Budget</TH>
+              <TH bg="#4c525d" right top={32}>Notes</TH>
               <TH bg="#8B0000" right top={32}>CTD</TH>
               <TH bg="#8B0000" right top={32}>Committed</TH>
               <TH bg="#8B0000" right top={32}>Total Costs</TH>
@@ -253,13 +253,13 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
               <TH bg="#7F4500" right top={32}>Uncommitted</TH>
               <TH bg="#7F4500" right top={32}>Proj Final Cost</TH>
               <TH bg="#7F4500" right top={32}>▲ vs Budget</TH>
-              <TH bg="#565e74" top={32}>{""}</TH>
+              <TH bg="#5b626e" top={32}>{""}</TH>
             </tr>
           </thead>
           <tbody>
             {/* New item row */}
             {adding && (
-              <tr style={{ background: '#FFFFC7' }} className="border-b-2 border-amber-300">
+              <tr style={{ background: '#eef2ff' }} className="border-b-2 border-amber-300">
                 <td className="px-2 py-1.5">
                   <select value={newItem.section} onChange={e => setNewItem(p => ({...p, section: e.target.value}))}
                     className="border rounded px-1.5 py-0.5 text-xs w-full focus:outline-none">
@@ -280,7 +280,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                 </td>
                 <td className="px-2 py-1.5">
                   <input type="text" className="no-spin border rounded px-1.5 py-0.5 text-xs w-24 text-right focus:outline-none"
-                    style={{ background: '#FFFFC7' }}
+                    style={{ background: '#eef2ff' }}
                     onChange={e => setNewItem(p => ({...p, budget: parseFloat(e.target.value.replace(/,/g,''))||0}))} />
                 </td>
                 <td className="px-2 py-1.5">
@@ -289,12 +289,12 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                 </td>
                 <td className="px-2 py-1.5">
                   <input type="text" className="no-spin border rounded px-1.5 py-0.5 text-xs w-24 text-right focus:outline-none"
-                    style={{ background: '#FFFFC7' }}
+                    style={{ background: '#eef2ff' }}
                     onChange={e => setNewItem(p => ({...p, ctd: parseFloat(e.target.value.replace(/,/g,''))||0}))} />
                 </td>
                 <td className="px-2 py-1.5">
                   <input type="text" className="no-spin border rounded px-1.5 py-0.5 text-xs w-24 text-right focus:outline-none"
-                    style={{ background: '#FFFFC7' }}
+                    style={{ background: '#eef2ff' }}
                     onChange={e => setNewItem(p => ({...p, committed: parseFloat(e.target.value.replace(/,/g,''))||0}))} />
                 </td>
                 <td className="px-3 py-1.5 text-right tabular-nums text-gray-500">
@@ -318,7 +318,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                 </td>
                 <td className="px-2 py-1.5">
                   <input type="text" className="no-spin border rounded px-1.5 py-0.5 text-xs w-24 text-right focus:outline-none"
-                    style={{ background: '#FFFFC7' }}
+                    style={{ background: '#eef2ff' }}
                     onChange={e => setNewItem(p => ({...p, rate: parseFloat(e.target.value.replace(/,/g,''))||0}))} />
                 </td>
                 <td className="px-2 py-1.5">
@@ -333,7 +333,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                   )}
                 </td>
                 <td className="px-3 py-1.5 text-right tabular-nums font-medium" style={{ color: '#7F4500' }}>{fmt(calcAmount(newItem, weeksElapsed))}</td>
-                <td className="px-3 py-1.5 text-right tabular-nums font-bold" style={{ color: '#565e74' }}>{fmt(calcPFC(newItem, weeksElapsed))}</td>
+                <td className="px-3 py-1.5 text-right tabular-nums font-bold" style={{ color: '#5b626e' }}>{fmt(calcPFC(newItem, weeksElapsed))}</td>
                 <td /><td className="px-2 py-1.5">
                   <div className="flex gap-1">
                     <button onClick={addItem} className="px-2 py-1 rounded text-xs text-white font-semibold bg-primary text-on-primary hover:bg-primary-dim rounded px-4 py-1.5 text-xs font-bold uppercase tracking-tight transition-colors">Add</button>
@@ -356,7 +356,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                 <tr key={`hdr-${section}`} onClick={() => toggleSection(section)}
                   className="cursor-pointer select-none bg-primary-container">
                   <td colSpan={5} className="px-3 py-2">
-                    <div className="flex items-center gap-2 font-bold text-[11px]" style={{ color: '#565e74' }}>
+                    <div className="flex items-center gap-2 font-bold text-[11px]" style={{ color: '#5b626e' }}>
                       {isOpen ? <ChevronDown size={13}/> : <ChevronRight size={13}/>}
                       {section}
                       <span className="font-normal text-gray-500">({sItems.length})</span>
@@ -367,9 +367,9 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                   <td className="px-3 py-2 text-right tabular-nums text-xs font-bold text-gray-600">{fmt(secTot.ctd+secTot.committed)}</td>
                   <td colSpan={4} />
                   <td className="px-3 py-2 text-right tabular-nums text-xs font-bold" style={{ color: '#7F4500' }}>{fmt(secTot.amount)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-xs font-bold" style={{ color: '#565e74' }}>{fmt(secTot.pfc)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-xs font-bold" style={{ color: '#5b626e' }}>{fmt(secTot.pfc)}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-xs font-bold"
-                    style={{ color: secTot.budget-secTot.pfc >= 0 ? '#2d6a1c' : '#C00000' }}>
+                    style={{ color: secTot.budget-secTot.pfc >= 0 ? '#2d6a1c' : '#c8412a' }}>
                     {secTot.budget ? fmt(secTot.budget-secTot.pfc) : '–'}
                   </td>
                   <td />
@@ -391,7 +391,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                         <select value={item.section}
                           onChange={e => updAndSave(item.id, 'section', e.target.value)}
                           className="border border-gray-200 rounded px-1 py-0.5 text-xs focus:outline-none"
-                          style={{ background: '#FFFFC7', minWidth: 110 }}>
+                          style={{ background: '#eef2ff', minWidth: 110 }}>
                           {SECTIONS.map(s => <option key={s}>{s}</option>)}
                         </select>
                       </td>
@@ -464,7 +464,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                         <select value={item.unit}
                           onChange={e => updAndSave(item.id, 'unit', e.target.value)}
                           className="border border-gray-200 rounded px-1 py-0.5 text-xs focus:outline-none"
-                          style={{ background: '#FFFFC7' }}>
+                          style={{ background: '#eef2ff' }}>
                           {UNITS.map(u => <option key={u}>{u}</option>)}
                         </select>
                       </td>
@@ -503,13 +503,13 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                       </td>
 
                       {/* PFC */}
-                      <td className="px-3 py-1.5 text-right tabular-nums font-bold" style={{ color: '#565e74' }}>
+                      <td className="px-3 py-1.5 text-right tabular-nums font-bold" style={{ color: '#5b626e' }}>
                         {pfc.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
 
                       {/* vs Budget */}
                       <td className="px-3 py-1.5 text-right tabular-nums font-medium"
-                        style={{ color: vsBudget === null ? '#9CA3AF' : vsBudget >= 0 ? '#2d6a1c' : '#C00000' }}>
+                        style={{ color: vsBudget === null ? '#8b93a1' : vsBudget >= 0 ? '#2d6a1c' : '#c8412a' }}>
                         {vsBudget !== null ? vsBudget.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '–'}
                       </td>
 
@@ -528,7 +528,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
 
             {/* Grand Total */}
             <tr className="bg-cvr-profit-lt font-bold border-t-2 border-amber-300">
-              <td colSpan={5} className="px-4 py-2.5 text-xs" style={{ color: '#565e74' }}>TOTAL PRELIMINARIES</td>
+              <td colSpan={5} className="px-4 py-2.5 text-xs" style={{ color: '#5b626e' }}>TOTAL PRELIMINARIES</td>
               <td className="px-3 py-2.5 text-right tabular-nums text-xs" style={{ color: '#8B0000' }}>
                 {fmt(totals.ctd)}
               </td>
@@ -540,9 +540,9 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
               </td>
               <td colSpan={4} />
               <td className="px-3 py-2.5 text-right tabular-nums text-xs" style={{ color: '#7F4500' }}>{fmt(totals.amount)}</td>
-              <td className="px-3 py-2.5 text-right tabular-nums text-xs" style={{ color: '#565e74' }}>{fmt(totals.pfc)}</td>
+              <td className="px-3 py-2.5 text-right tabular-nums text-xs" style={{ color: '#5b626e' }}>{fmt(totals.pfc)}</td>
               <td className="px-3 py-2.5 text-right tabular-nums text-xs"
-                style={{ color: totals.budget - totals.pfc >= 0 ? '#2d6a1c' : '#C00000' }}>
+                style={{ color: totals.budget - totals.pfc >= 0 ? '#2d6a1c' : '#c8412a' }}>
                 {totals.budget ? fmt(totals.budget - totals.pfc) : '–'}
               </td>
               <td />

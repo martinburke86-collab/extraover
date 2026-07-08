@@ -26,7 +26,7 @@ const VIEW_LABELS: Record<View, string> = {
 
 // Colour helpers for CTD/committed/forecast/EFC columns
 const COL = {
-  ctd:       'text-[#565e74] font-medium',
+  ctd:       'text-[#5b626e] font-medium',
   committed: 'text-[#856c0b] font-medium',
   forecast:  'text-on-surface-variant',
   efc:       'text-on-surface font-semibold',
@@ -94,7 +94,7 @@ function ByElement({ lines }: { lines: Line[] }) {
             ['EFC',             'right','w-[15%]'],
             ['% of total',      'right','w-[12%]'],
           ].map(([h, align, w]) => (
-            <th key={h} className={clx('px-4 py-2.5 text-[10px] font-bold text-white bg-[#565e74] uppercase tracking-wide', w, `text-${align}`)}>{h}</th>
+            <th key={h} className={clx('px-4 py-2.5 text-[10px] font-bold text-white bg-[#5b626e] uppercase tracking-wide', w, `text-${align}`)}>{h}</th>
           ))}
         </tr>
       </thead>
@@ -113,13 +113,13 @@ function ByElement({ lines }: { lines: Line[] }) {
                   {totals.efc ? ((v.efc / totals.efc) * 100).toFixed(1) : '0'}%
                 </span>
                 <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-[#565e74] rounded-full" style={{ width: `${totals.efc ? Math.min((v.efc / totals.efc) * 100, 100) : 0}%` }} />
+                  <div className="h-full bg-[#5b626e] rounded-full" style={{ width: `${totals.efc ? Math.min((v.efc / totals.efc) * 100, 100) : 0}%` }} />
                 </div>
               </div>
             </td>
           </tr>
         ))}
-        <tr className="bg-[#565e74]/5 border-t-2 border-[#565e74]/30">
+        <tr className="bg-[#5b626e]/5 border-t-2 border-[#5b626e]/30">
           <td className="px-4 py-2.5 font-bold text-on-surface text-sm">Total</td>
           <td className="px-4 py-2.5 text-right text-xs text-on-surface-variant">{lines.length}</td>
           <td className="px-4 py-2.5 text-right font-bold text-sm"><Money v={totals.ctd} cls={COL.ctd} /></td>
@@ -164,13 +164,13 @@ function ByCostCode({ lines }: { lines: Line[] }) {
       {/* Sub-filters */}
       <div className="bg-white border-b px-4 py-2 flex items-center gap-2 flex-shrink-0">
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search code or description…"
-          className="border rounded px-3 py-1.5 text-xs w-56 focus:outline-none focus:ring-1 focus:ring-[#565e74]" />
+          className="border rounded px-3 py-1.5 text-xs w-56 focus:outline-none focus:ring-1 focus:ring-[#5b626e]" />
         <select value={tradeFilter} onChange={e => setTradeFilter(e.target.value)}
-          className="border rounded px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#565e74]">
+          className="border rounded px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#5b626e]">
           {trades.map(t => <option key={t}>{t}</option>)}
         </select>
         <select value={catFilter} onChange={e => setCatFilter(e.target.value)}
-          className="border rounded px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#565e74]">
+          className="border rounded px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-[#5b626e]">
           {cats.map(c => <option key={c}>{c}</option>)}
         </select>
         <span className="text-xs text-on-surface-variant ml-auto">{filtered.length} of {lines.length} codes</span>
@@ -190,14 +190,14 @@ function ByCostCode({ lines }: { lines: Line[] }) {
               ['EFC',         'right','w-[12%]'],
               ['% of total',  'right','w-[9%]'],
             ].map(([h, align, w]) => (
-              <th key={h} className={clx('px-3 py-2.5 text-[10px] font-bold text-white bg-[#565e74] uppercase tracking-wide', w, `text-${align}`)}>{h}</th>
+              <th key={h} className={clx('px-3 py-2.5 text-[10px] font-bold text-white bg-[#5b626e] uppercase tracking-wide', w, `text-${align}`)}>{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {filtered.map((l, idx) => (
             <tr key={l.cost_code_id} className={clx('border-b border-outline-variant/10 hover:bg-blue-50/20 transition-colors', idx % 2 === 0 ? 'bg-white' : 'bg-surface-container-low/30')}>
-              <td className="px-3 py-2 font-mono font-bold text-[#565e74] text-xs">{l.code}</td>
+              <td className="px-3 py-2 font-mono font-bold text-[#5b626e] text-xs">{l.code}</td>
               <td className="px-3 py-2 text-on-surface max-w-0"><span className="block truncate">{l.description}</span></td>
               <td className="px-3 py-2 text-xs text-on-surface-variant">{l.trade}</td>
               <td className="px-3 py-2">
@@ -215,7 +215,7 @@ function ByCostCode({ lines }: { lines: Line[] }) {
                     {grandEfc ? ((l.efc / grandEfc) * 100).toFixed(1) : '0'}%
                   </span>
                   <div className="w-12 h-1 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-[#565e74] rounded-full" style={{ width: `${grandEfc ? Math.min((l.efc / grandEfc) * 100, 100) : 0}%` }} />
+                    <div className="h-full bg-[#5b626e] rounded-full" style={{ width: `${grandEfc ? Math.min((l.efc / grandEfc) * 100, 100) : 0}%` }} />
                   </div>
                 </div>
               </td>
@@ -225,7 +225,7 @@ function ByCostCode({ lines }: { lines: Line[] }) {
             <tr><td colSpan={9} className="px-4 py-12 text-center text-on-surface-variant text-sm">No cost codes match the current filter.</td></tr>
           )}
           {filtered.length > 0 && (
-            <tr className="bg-[#565e74]/5 border-t-2 border-[#565e74]/30">
+            <tr className="bg-[#5b626e]/5 border-t-2 border-[#5b626e]/30">
               <td colSpan={4} className="px-3 py-2.5 font-bold text-on-surface text-sm">Total ({filtered.length} codes)</td>
               <td className="px-3 py-2.5 text-right font-bold text-sm"><Money v={totals.ctd} cls={COL.ctd} /></td>
               <td className="px-3 py-2.5 text-right font-bold text-sm"><Money v={totals.committed} cls={COL.committed} /></td>
@@ -280,7 +280,7 @@ function ByType({ lines }: { lines: Line[] }) {
             ['EFC',         'right','w-[16%]'],
             ['% of EFC',    'right','w-[14%]'],
           ].map(([h, align, w]) => (
-            <th key={h} className={clx('px-4 py-2.5 text-[10px] font-bold text-white bg-[#565e74] uppercase tracking-wide', w, `text-${align}`)}>{h}</th>
+            <th key={h} className={clx('px-4 py-2.5 text-[10px] font-bold text-white bg-[#5b626e] uppercase tracking-wide', w, `text-${align}`)}>{h}</th>
           ))}
         </tr>
       </thead>
@@ -308,13 +308,13 @@ function ByType({ lines }: { lines: Line[] }) {
                     Materials:     'bg-green-400',
                     Subcontractor: 'bg-amber-400',
                     Indirect:      'bg-gray-400',
-                  }[category] || 'bg-[#565e74]')} style={{ width: `${totals.efc ? Math.min((v.efc / totals.efc) * 100, 100) : 0}%` }} />
+                  }[category] || 'bg-[#5b626e]')} style={{ width: `${totals.efc ? Math.min((v.efc / totals.efc) * 100, 100) : 0}%` }} />
                 </div>
               </div>
             </td>
           </tr>
         ))}
-        <tr className="bg-[#565e74]/5 border-t-2 border-[#565e74]/30">
+        <tr className="bg-[#5b626e]/5 border-t-2 border-[#5b626e]/30">
           <td className="px-4 py-2.5 font-bold text-on-surface text-sm">Total</td>
           <td className="px-4 py-2.5 text-right text-xs text-on-surface-variant">{lines.length}</td>
           <td className="px-4 py-2.5 text-right font-bold text-sm"><Money v={totals.ctd} cls={COL.ctd} /></td>
@@ -338,7 +338,7 @@ export default function EFCBreakdownClient({ lines, projectId }: { lines: Line[]
   }), { ctd: 0, committed: 0, forecast: 0, efc: 0 }), [lines])
 
   const KPI_ITEMS = [
-    { label: 'Total CTD',             value: totals.ctd,       sub: 'posted + accruals + sub recon', colour: 'text-[#565e74]' },
+    { label: 'Total CTD',             value: totals.ctd,       sub: 'posted + accruals + sub recon', colour: 'text-[#5b626e]' },
     { label: 'Total committed',       value: totals.committed, sub: 'excl. cancelled',               colour: 'text-[#856c0b]' },
     { label: 'Forecast to complete',  value: totals.forecast,  sub: 'remaining works',               colour: 'text-on-surface-variant' },
     { label: 'EFC',                   value: totals.efc,       sub: 'estimate final cost',           colour: 'text-on-surface' },
@@ -352,7 +352,7 @@ export default function EFCBreakdownClient({ lines, projectId }: { lines: Line[]
       />
 
       {/* KPI strip */}
-      <div className="bg-[#565e74] px-6 py-3 flex items-center gap-8 flex-shrink-0">
+      <div className="bg-[#5b626e] px-6 py-3 flex items-center gap-8 flex-shrink-0">
         {KPI_ITEMS.map(({ label, value, sub }) => (
           <div key={label} className="text-white">
             <div className="text-[10px] uppercase tracking-wide opacity-60">{label}</div>
@@ -361,7 +361,7 @@ export default function EFCBreakdownClient({ lines, projectId }: { lines: Line[]
           </div>
         ))}
         <div className="ml-auto flex items-center gap-4 text-white/60">
-          <div className="flex items-center gap-1.5 text-[11px]"><span className="w-3 h-2 bg-[#565e74] border border-white/30 rounded-sm inline-block" /> CTD</div>
+          <div className="flex items-center gap-1.5 text-[11px]"><span className="w-3 h-2 bg-[#5b626e] border border-white/30 rounded-sm inline-block" /> CTD</div>
           <div className="flex items-center gap-1.5 text-[11px]"><span className="w-3 h-2 bg-[#856c0b] rounded-sm inline-block" /> Committed</div>
           <div className="flex items-center gap-1.5 text-[11px]"><span className="w-3 h-2 bg-gray-400 rounded-sm inline-block" /> Forecast</div>
           <div className="flex items-center gap-1.5 text-[11px]"><span className="w-3 h-2 bg-white/80 rounded-sm inline-block" /> EFC</div>
@@ -375,7 +375,7 @@ export default function EFCBreakdownClient({ lines, projectId }: { lines: Line[]
             className={clx(
               'px-4 py-1.5 rounded-full text-xs font-semibold border transition-colors',
               view === v
-                ? 'bg-[#565e74] text-white border-[#565e74]'
+                ? 'bg-[#5b626e] text-white border-[#5b626e]'
                 : 'border-outline-variant/40 text-on-surface-variant hover:bg-surface-container-low'
             )}>
             {VIEW_LABELS[v]}
@@ -386,7 +386,7 @@ export default function EFCBreakdownClient({ lines, projectId }: { lines: Line[]
 
       {/* Panel with accent bar */}
       <div className="flex-1 overflow-auto scrollbar-thin">
-        <div className="h-1 bg-[#565e74]" />
+        <div className="h-1 bg-[#5b626e]" />
         {lines.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-on-surface-variant gap-3">
             <span className="material-symbols-outlined text-4xl opacity-30">table_chart</span>

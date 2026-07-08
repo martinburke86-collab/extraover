@@ -128,7 +128,7 @@ export default function CostCodesClient({ codes: initial, projectId, trades }: P
                 <td data-col={2} style={{ padding: '3px 4px' }}>
                   <select value={newForm.trade||''} onChange={e=>setNewForm(p=>({...p,trade:e.target.value}))}
                     className="w-full border rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
-                    style={{ background: '#FFFFC7' }}>
+                    style={{ background: '#eef2ff' }}>
                     {trades.map(t => <option key={t}>{t}</option>)}
                   </select>
                 </td>
@@ -139,7 +139,7 @@ export default function CostCodesClient({ codes: initial, projectId, trades }: P
                 <td style={{ padding: '3px 6px' }}>
                   <div className="flex gap-1">
                     <button onClick={add} disabled={saving||!newForm.code||!newForm.description}
-                      className="p-1 rounded text-white disabled:opacity-40" style={{ background: '#456919' }}><Check size={13}/></button>
+                      className="p-1 rounded text-white disabled:opacity-40" style={{ background: '#0a8a54' }}><Check size={13}/></button>
                     <button onClick={() => setAdding(false)} className="p-1 rounded bg-gray-200"><X size={13}/></button>
                   </div>
                 </td>
@@ -147,7 +147,7 @@ export default function CostCodesClient({ codes: initial, projectId, trades }: P
             )}
 
             {filtered.length === 0 && !adding && (
-              <tr><td colSpan={6} style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>
+              <tr><td colSpan={6} style={{ padding: '48px', textAlign: 'center', color: '#8b93a1', fontSize: 13 }}>
                 {search || tradeFilter !== 'All' ? 'No codes match the current filter.' : 'No cost codes yet. Click Add Code or Import CSV.'}
               </td></tr>
             )}
@@ -170,7 +170,7 @@ export default function CostCodesClient({ codes: initial, projectId, trades }: P
                       <td data-col={2} style={{ padding: '3px 4px' }}>
                         <select value={editForm.trade||''} onChange={e=>setEditForm(p=>({...p,trade:e.target.value}))}
                           className="w-full border rounded px-2 py-1 text-xs focus:outline-none"
-                          style={{ background: '#FFFFC7' }}>
+                          style={{ background: '#eef2ff' }}>
                           {trades.map(t => <option key={t}>{t}</option>)}
                         </select>
                       </td>
@@ -180,17 +180,17 @@ export default function CostCodesClient({ codes: initial, projectId, trades }: P
                       </td>
                       <td style={{ padding: '3px 6px' }}>
                         <div className="flex gap-1">
-                          <button onClick={() => saveEdit(c.id)} className="p-1 rounded text-white" style={{ background: '#456919' }}><Check size={13}/></button>
+                          <button onClick={() => saveEdit(c.id)} className="p-1 rounded text-white" style={{ background: '#0a8a54' }}><Check size={13}/></button>
                           <button onClick={() => setEditingId(null)} className="p-1 rounded bg-gray-200"><X size={13}/></button>
                         </div>
                       </td>
                     </>
                   ) : (
                     <>
-                      <td><div className="ss-cell-ro" style={{ fontFamily: 'monospace', fontWeight: 700, color: '#565e74', fontSize: 11 }}>{c.code}</div></td>
+                      <td><div className="ss-cell-ro" style={{ fontFamily: 'monospace', fontWeight: 700, color: '#5b626e', fontSize: 11 }}>{c.code}</div></td>
                       <td><div className="ss-cell-ro" style={{ color: '#111' }}>{c.description}</div></td>
-                      <td><div className="ss-cell-ro" style={{ color: '#6b7280' }}>{c.trade || <span style={{ color: '#991B1B', fontSize: 10, fontWeight: 700 }}>Missing</span>}</div></td>
-                      <td><div className="ss-cell-ro" style={{ color: '#6b7280', fontSize: 11 }}>{c.notes || ''}</div></td>
+                      <td><div className="ss-cell-ro" style={{ color: '#5b626e' }}>{c.trade || <span style={{ color: '#a23015', fontSize: 10, fontWeight: 700 }}>Missing</span>}</div></td>
+                      <td><div className="ss-cell-ro" style={{ color: '#5b626e', fontSize: 11 }}>{c.notes || ''}</div></td>
                       <td style={{ padding: '0 6px', textAlign: 'center' }}>
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity justify-center">
                           <button onClick={() => { setEditingId(c.id); setEditForm({ code:c.code, description:c.description, trade:c.trade, notes:c.notes||'' }) }}

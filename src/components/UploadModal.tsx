@@ -137,7 +137,7 @@ export default function UploadModal({ projectId, type, onClose }: Props) {
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden">
 
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4" style={{ background: '#565e74' }}>
+          <div className="flex items-center justify-between px-6 py-4" style={{ background: '#5b626e' }}>
             <div className="flex items-center gap-2.5 text-white">
               <Upload size={18} />
               <div>
@@ -157,14 +157,14 @@ export default function UploadModal({ projectId, type, onClose }: Props) {
               <div className="flex items-center justify-between">
                 <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Required columns</div>
                 <button onClick={downloadTemplate}
-                  className="text-xs text-[#565e74] underline hover:no-underline font-medium">
+                  className="text-xs text-[#5b626e] underline hover:no-underline font-medium">
                   ↓ Download template
                 </button>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {tmpl.cols.map(col => (
                   <span key={col} className="px-2 py-0.5 rounded text-[11px] font-mono font-semibold"
-                    style={{ background: '#E8EDF7', color: '#565e74' }}>{col}</span>
+                    style={{ background: '#E8EDF7', color: '#5b626e' }}>{col}</span>
                 ))}
               </div>
               <button onClick={() => setShowNotes(n => !n)}
@@ -191,13 +191,13 @@ export default function UploadModal({ projectId, type, onClose }: Props) {
               onClick={() => fileRef.current?.click()}
               className={clx(
                 'border-2 border-dashed rounded-lg px-4 py-8 text-center cursor-pointer transition-colors',
-                dragOver ? 'border-[#565e74] bg-[#E8EDF7]' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50',
-                file ? 'border-[#DEE5B5] bg-[#F1F4E0]' : ''
+                dragOver ? 'border-[#5b626e] bg-[#E8EDF7]' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50',
+                file ? 'border-[#DEE5B5] bg-[#f3faf6]' : ''
               )}>
               <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }} />
               {file ? (
-                <div className="flex items-center justify-center gap-2 text-sm font-medium" style={{ color: '#456919' }}>
+                <div className="flex items-center justify-center gap-2 text-sm font-medium" style={{ color: '#0a8a54' }}>
                   <FileSpreadsheet size={18} />
                   {file.name}
                   <span className="text-xs text-gray-400">({(file.size / 1024).toFixed(0)} KB)</span>
@@ -205,7 +205,7 @@ export default function UploadModal({ projectId, type, onClose }: Props) {
               ) : (
                 <>
                   <Upload size={22} className="mx-auto text-gray-300 mb-2" />
-                  <div className="text-sm text-gray-500">Drop file here or <span className="text-[#565e74] font-medium">click to browse</span></div>
+                  <div className="text-sm text-gray-500">Drop file here or <span className="text-[#5b626e] font-medium">click to browse</span></div>
                   <div className="text-xs text-gray-400 mt-0.5">Excel (.xlsx, .xls) or CSV</div>
                 </>
               )}
@@ -214,10 +214,10 @@ export default function UploadModal({ projectId, type, onClose }: Props) {
             {/* Result */}
             {result && (
               <div className={clx('rounded-lg p-4 text-sm', result.inserted > 0 ? '' : 'bg-red-50')}
-                style={result.inserted > 0 ? { background: '#F1F4E0' } : {}}>
+                style={result.inserted > 0 ? { background: '#f3faf6' } : {}}>
                 <div className="flex items-center gap-2 font-semibold mb-1">
                   {result.inserted > 0
-                    ? <><CheckCircle size={15} style={{ color: '#456919' }} /><span style={{ color: '#456919' }}>Import complete</span></>
+                    ? <><CheckCircle size={15} style={{ color: '#0a8a54' }} /><span style={{ color: '#0a8a54' }}>Import complete</span></>
                     : <><AlertCircle size={15} className="text-red-600" /><span className="text-red-700">Import issues</span></>
                   }
                 </div>
@@ -243,7 +243,7 @@ export default function UploadModal({ projectId, type, onClose }: Props) {
               {!result && (
                 <button onClick={upload} disabled={!file || uploading}
                   className="flex items-center gap-2 px-5 py-2 rounded text-sm font-semibold text-white transition-colors disabled:opacity-40"
-                  style={{ background: '#565e74' }}>
+                  style={{ background: '#5b626e' }}>
                   {uploading ? (
                     <><span className="animate-spin inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full" />Importing…</>
                   ) : (
@@ -254,7 +254,7 @@ export default function UploadModal({ projectId, type, onClose }: Props) {
               {result && result.inserted > 0 && (
                 <button onClick={onClose}
                   className="px-5 py-2 rounded text-sm font-semibold text-white"
-                  style={{ background: '#565e74' }}>
+                  style={{ background: '#5b626e' }}>
                   Done
                 </button>
               )}

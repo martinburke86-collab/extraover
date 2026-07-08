@@ -48,24 +48,24 @@ export default function SetupClient() {
 
   const inp: React.CSSProperties = {
     width: '100%', padding: '10px 12px', fontSize: 14,
-    border: '0.5px solid #d1d5db', borderRadius: 8, outline: 'none',
+    border: '0.5px solid #aeb4bf', borderRadius: 8, outline: 'none',
     boxSizing: 'border-box', background: '#fafbfc',
   }
   const lbl: React.CSSProperties = {
-    display: 'block', fontSize: 11, fontWeight: 500, color: '#6b7280',
+    display: 'block', fontSize: 11, fontWeight: 500, color: '#5b626e',
     textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6,
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4f6f9', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f6f7f9', fontFamily: "'IBM Plex Sans', sans-serif" }}>
       <div style={{ width: 400 }}>
-        <div style={{ background: '#fff', borderRadius: 12, border: '0.5px solid #e2e8f0', overflow: 'hidden' }}>
-          <div style={{ background: '#1e3a5f', padding: '28px 32px 24px' }}>
+        <div style={{ background: '#fff', borderRadius: 12, border: '0.5px solid #e7e9ee', overflow: 'hidden' }}>
+          <div style={{ background: '#1a1d23', padding: '28px 32px 24px' }}>
             <img src="/logo.png" alt="ExtraOver" style={{ width: 130, filter: 'invert(1) brightness(2)', marginBottom: 8 }} />
             <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12, margin: 0 }}>Create your owner account</p>
           </div>
           <form onSubmit={handleSubmit} style={{ padding: '28px 32px' }}>
-            <div style={{ background: '#EAF3DE', border: '0.5px solid #DEE5B5', borderRadius: 8, padding: '10px 14px', marginBottom: 20, fontSize: 12, color: '#27500A' }}>
+            <div style={{ background: '#e7f6ee', border: '0.5px solid #DEE5B5', borderRadius: 8, padding: '10px 14px', marginBottom: 20, fontSize: 12, color: '#0a6e44' }}>
               First-time setup. This account will be the Owner — you can add more users from the Admin panel once signed in.
             </div>
 
@@ -83,13 +83,13 @@ export default function SetupClient() {
             ))}
 
             {error && (
-              <div style={{ background: '#FEF2F2', border: '0.5px solid #FECACA', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#991B1B' }}>
+              <div style={{ background: '#FEF2F2', border: '0.5px solid #FECACA', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#a23015' }}>
                 {error}
               </div>
             )}
 
             <button type="submit" disabled={loading}
-              style={{ width: '100%', padding: 11, background: loading ? '#374b64' : '#1e3a5f', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer' }}>
+              style={{ width: '100%', padding: 11, background: loading ? '#374b64' : '#1a1d23', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer' }}>
               {loading ? 'Creating account…' : 'Create Owner Account →'}
             </button>
           </form>

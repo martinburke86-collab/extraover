@@ -5,96 +5,98 @@ module.exports = {
     extend: {
       // ── Stitch / Material Design 3 colour system ──────────────────────
       colors: {
-        // Core surface colours
-        'background':                '#f6fafe',
-        'surface':                   '#f6fafe',
-        'surface-bright':            '#f6fafe',
-        'surface-dim':               '#cadde9',
+        // ── Costline design system ─────────────────────────────────────
+        // Surfaces & ground
+        'background':                '#f6f7f9',
+        'surface':                   '#ffffff',
+        'surface-bright':            '#ffffff',
+        'surface-dim':               '#eceef1',
         'surface-container-lowest':  '#ffffff',
-        'surface-container-low':     '#eef4fa',
-        'surface-container':         '#e5eff7',
-        'surface-container-high':    '#ddeaf3',
-        'surface-container-highest': '#d5e5ef',
-        'surface-variant':           '#d5e5ef',
-        'inverse-surface':           '#0a0f12',
+        'surface-container-low':     '#fbfbfc',
+        'surface-container':         '#f6f7f9',
+        'surface-container-high':    '#f1f2f5',
+        'surface-container-highest': '#eceef1',
+        'surface-variant':           '#f1f2f5',
+        'inverse-surface':           '#1a1d23',
 
-        // Text / content colours
-        'on-surface':                '#26343d',
-        'on-surface-variant':        '#52616a',
-        'on-background':             '#26343d',
-        'inverse-on-surface':        '#999da1',
+        // Text
+        'on-surface':                '#1a1d23',
+        'on-surface-variant':        '#5b626e',
+        'on-background':             '#1a1d23',
+        'inverse-on-surface':        '#e6e8ed',
 
-        // Primary (muted slate-blue)
-        'primary':                   '#565e74',
-        'primary-dim':               '#4a5268',
-        'on-primary':                '#f7f7ff',
-        'primary-container':         '#dae2fd',
-        'primary-fixed':             '#dae2fd',
-        'primary-fixed-dim':         '#ccd4ee',
-        'on-primary-container':      '#4a5167',
-        'on-primary-fixed':          '#373f54',
-        'on-primary-fixed-variant':  '#535b71',
-        'surface-tint':              '#565e74',
-        'inverse-primary':           '#dae2fd',
+        // Primary (Costline accent blue — action/selection/focus only)
+        'primary':                   '#1c4ed8',
+        'primary-dim':               '#1a45c0',
+        'on-primary':                '#ffffff',
+        'primary-container':         '#eef2ff',
+        'primary-fixed':             '#eef2ff',
+        'primary-fixed-dim':         '#d6e0ff',
+        'on-primary-container':      '#1a45c0',
+        'on-primary-fixed':          '#1a45c0',
+        'on-primary-fixed-variant':  '#1c4ed8',
+        'surface-tint':              '#1c4ed8',
+        'inverse-primary':           '#7aa2ff',
 
-        // Secondary
-        'secondary':                 '#526075',
-        'secondary-dim':             '#465469',
-        'on-secondary':              '#f8f8ff',
-        'secondary-container':       '#d5e3fd',
-        'secondary-fixed':           '#d5e3fd',
-        'secondary-fixed-dim':       '#c7d5ee',
-        'on-secondary-container':    '#455367',
-        'on-secondary-fixed':        '#324054',
-        'on-secondary-fixed-variant':'#4e5c71',
+        // Secondary (neutral)
+        'secondary':                 '#5b626e',
+        'secondary-dim':             '#4c525d',
+        'on-secondary':              '#ffffff',
+        'secondary-container':       '#f1f2f5',
+        'secondary-fixed':           '#f1f2f5',
+        'secondary-fixed-dim':       '#e7e9ee',
+        'on-secondary-container':    '#1a1d23',
+        'on-secondary-fixed':        '#1a1d23',
+        'on-secondary-fixed-variant':'#5b626e',
 
-        // Tertiary (green — profit/positive)
-        'tertiary':                  '#456919',
-        'tertiary-dim':              '#3a5c0c',
-        'on-tertiary':               '#eeffd4',
-        'tertiary-container':        '#d0fc9a',
-        'tertiary-fixed':            '#d0fc9a',
-        'tertiary-fixed-dim':        '#c2ed8d',
-        'on-tertiary-container':     '#3f6212',
-        'on-tertiary-fixed':         '#2e4f00',
-        'on-tertiary-fixed-variant': '#496d1c',
+        // Tertiary (green — money-positive only)
+        'tertiary':                  '#0a8a54',
+        'tertiary-dim':              '#0a6e44',
+        'on-tertiary':               '#ffffff',
+        'tertiary-container':        '#e7f6ee',
+        'tertiary-fixed':            '#e7f6ee',
+        'tertiary-fixed-dim':        '#c3e8d3',
+        'on-tertiary-container':     '#0a6e44',
+        'on-tertiary-fixed':         '#0a6e44',
+        'on-tertiary-fixed-variant': '#0a8a54',
 
-        // Error (red — losses/overruns)
-        'error':                     '#9f403d',
-        'error-dim':                 '#4e0309',
-        'on-error':                  '#fff7f6',
-        'error-container':           '#fe8983',
-        'on-error-container':        '#752121',
+        // Error (red — money-negative only)
+        'error':                     '#c8412a',
+        'error-dim':                 '#a23015',
+        'on-error':                  '#ffffff',
+        'error-container':           '#fbeae6',
+        'on-error-container':        '#a23015',
 
-        // Outline
-        'outline':                   '#6e7d86',
-        'outline-variant':           '#a4b4be',
+        // Outline / borders
+        'outline':                   '#e7e9ee',
+        'outline-variant':           '#dfe2e7',
 
-        // ── CVR semantic colours (kept for functional meaning) ──────────
-        'cvr-value':      '#C00000',   // Value/CTD section headers
-        'cvr-value-lt':   '#FFB9B9',   // Value certified cells
-        'cvr-profit':     '#FFC000',   // P&L headers
-        'cvr-profit-lt':  '#FFEEB9',   // P&L cells
-        'cvr-forecast':   '#DEE5B5',   // Forecast headers
-        'cvr-forecast-lt':'#F1F4E0',   // Forecast sub-cells
-        'cvr-input':      '#FFFFC7',   // Editable input cells
+        // ── CVR semantic colours (Costline mapping) ──────────────────────
+        'cvr-value':      '#c8412a',   // Value/CTD section headers
+        'cvr-value-lt':   '#fbeae6',   // Value certified cells
+        'cvr-profit':     '#b6740a',   // P&L headers
+        'cvr-profit-lt':  '#fcf2e2',   // P&L cells
+        'cvr-forecast':   '#0a8a54',   // Forecast headers
+        'cvr-forecast-lt':'#f3faf6',   // Forecast sub-cells
+        'cvr-input':      '#eef2ff',   // Editable input cells (blue = action)
       },
 
       fontFamily: {
-        'headline': ['Inter', 'sans-serif'],
-        'body':     ['Inter', 'sans-serif'],
-        'label':    ['Inter', 'sans-serif'],
-        'sans':     ['Inter', 'sans-serif'],
+        'headline': ['IBM Plex Sans', 'sans-serif'],
+        'body':     ['IBM Plex Sans', 'sans-serif'],
+        'label':    ['IBM Plex Mono', 'monospace'],
+        'sans':     ['IBM Plex Sans', 'sans-serif'],
+        'mono':     ['IBM Plex Mono', 'monospace'],
       },
 
       borderRadius: {
-        DEFAULT: '0.125rem',
-        'sm':    '0.125rem',
-        'md':    '0.25rem',
-        'lg':    '0.25rem',
-        'xl':    '0.5rem',
-        '2xl':   '0.5rem',
-        'full':  '0.75rem',
+        DEFAULT: '0.5rem',
+        'sm':    '0.4375rem',   // 7px — chips
+        'md':    '0.5625rem',   // 9px — buttons
+        'lg':    '0.75rem',     // 12px — cards
+        'xl':    '0.75rem',
+        '2xl':   '1rem',
+        'full':  '9999px',
       },
     },
   },

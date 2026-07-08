@@ -123,7 +123,7 @@ function TradeBudgets({ projectId }: { projectId: string }) {
       <thead>
         <tr>
           {['Trade', 'Budget (€)', 'Forecast Method', 'Hard Key EFC (€)', ''].map((h, i) => (
-            <th key={i} className="px-4 py-2 text-left text-xs font-bold text-white" style={{ background: '#565e74' }}>{h}</th>
+            <th key={i} className="px-4 py-2 text-left text-xs font-bold text-white" style={{ background: '#5b626e' }}>{h}</th>
           ))}
         </tr>
       </thead>
@@ -279,7 +279,7 @@ export default function SettingsClient({ project: p, trades, projectId }: { proj
         actions={
           <div className="flex items-center gap-2">
             <button onClick={lockPeriod} disabled={locking}
-              className="border border-[#FFC000] text-[#7F4500] px-4 py-2 rounded text-sm flex items-center gap-1.5 hover:bg-[#FFF2CC] disabled:opacity-50">
+              className="border border-[#b6740a] text-[#7F4500] px-4 py-2 rounded text-sm flex items-center gap-1.5 hover:bg-[#FFF2CC] disabled:opacity-50">
               <Lock size={14} /> {locking ? 'Locking…' : 'Lock Period'}
             </button>
             <button onClick={save} disabled={saving}
@@ -313,7 +313,7 @@ export default function SettingsClient({ project: p, trades, projectId }: { proj
               <Field label="Approved Variations (€)"     field="approvedVars"   type="number" />
               <div>
                 <label className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-1">Adjusted Contract Sum</label>
-                <div className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-[#F1F4E0] font-bold text-primary tabular-nums">
+                <div className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-[#f3faf6] font-bold text-primary tabular-nums">
                   {fmt(adjustedSum)}
                 </div>
               </div>
@@ -348,7 +348,7 @@ export default function SettingsClient({ project: p, trades, projectId }: { proj
                 <input type="number" value={form.gifa || ''}
                   onChange={e => setForm(p => ({ ...p, gifa: Number(e.target.value) }))}
                   placeholder="e.g. 4500"
-                  className="w-full border border-outline-variant/30 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3a6b4a] bg-[#FFFFC7] text-right tabular-nums" />
+                  className="w-full border border-outline-variant/30 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3a6b4a] bg-[#eef2ff] text-right tabular-nums" />
                 <p className="text-[11px] text-on-surface-variant mt-1">Used for cost per m² analysis on the dashboard and PDF report</p>
               </div>
               <div className="flex items-center">
@@ -362,7 +362,7 @@ export default function SettingsClient({ project: p, trades, projectId }: { proj
                       ].filter(r => r.val).map(r => (
                         <div key={r.label} className="flex justify-between">
                           <span className="text-gray-600">{r.label}</span>
-                          <span className="font-semibold tabular-nums text-[#27500A]">€{r.val!.toLocaleString('en-IE')}</span>
+                          <span className="font-semibold tabular-nums text-[#0a6e44]">€{r.val!.toLocaleString('en-IE')}</span>
                         </div>
                       ))}
                     </div>
@@ -427,7 +427,7 @@ export default function SettingsClient({ project: p, trades, projectId }: { proj
                 ))}
               </div>
               <button onClick={saveTerms} disabled={termsSaving}
-                className="mt-4 flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold text-white bg-[#3a4a6a] hover:bg-[#1e3a5f] disabled:opacity-50">
+                className="mt-4 flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold text-white bg-[#3a4a6a] hover:bg-[#1a1d23] disabled:opacity-50">
                 <Save size={13} /> {termsSaving ? 'Saving…' : 'Save Terminology'}
               </button>
               <p className="text-[10px] text-on-surface-variant mt-2">
@@ -443,13 +443,13 @@ export default function SettingsClient({ project: p, trades, projectId }: { proj
               <p className="text-xs text-on-surface-variant mb-4">These lists are shared across all projects. They populate the dropdown options in the Rate/Quantity Breakdown pane.</p>
               <div className="grid grid-cols-2 gap-4">
                 <GlobalList title="Elements" endpoint="/api/global/elements" colour="#2d6a1c" />
-                <GlobalList title="Trades / Disciplines" endpoint="/api/global/trades" colour="#565e74" />
+                <GlobalList title="Trades / Disciplines" endpoint="/api/global/trades" colour="#5b626e" />
               </div>
             </div>
           </div>
 
           {/* Lock Period instructions */}
-          <div className="bg-[#FFF2CC] border border-[#FFC000] rounded-xl p-5">
+          <div className="bg-[#FFF2CC] border border-[#b6740a] rounded-xl p-5">
             <div className="font-bold text-[#7F4500] text-sm mb-2 flex items-center gap-2">
               <Lock size={14} /> End of Month — Lock Period Procedure
             </div>

@@ -9,15 +9,15 @@ const SEVERITY_CONFIG: Record<Severity, {
 }> = {
   error: {
     bg: '#FEF2F2', border: '#FECACA', icon: 'error',
-    iconCol: '#9f403d', labelBg: '#FEE2E2', labelText: '#7f1d1d', label: 'Critical',
+    iconCol: '#c8412a', labelBg: '#fbeae6', labelText: '#7f1d1d', label: 'Critical',
   },
   warning: {
     bg: '#FFFBEB', border: '#FDE68A', icon: 'warning',
-    iconCol: '#92400e', labelBg: '#FEF3C7', labelText: '#78350f', label: 'Warning',
+    iconCol: '#92400e', labelBg: '#FEF3C7', labelText: '#b6740a', label: 'Warning',
   },
   info: {
-    bg: '#EFF6FF', border: '#BFDBFE', icon: 'info',
-    iconCol: '#1e40af', labelBg: '#DBEAFE', labelText: '#1e3a8a', label: 'Info',
+    bg: '#f6f7f9', border: '#BFDBFE', icon: 'info',
+    iconCol: '#1e40af', labelBg: '#eef2ff', labelText: '#1e3a8a', label: 'Info',
   },
 }
 
@@ -96,7 +96,7 @@ export default function HealthBanner({ issues, projectId }: {
           CVR Health Check
           <span className="ml-2 font-normal text-on-surface-variant">
             {visible.length} issue{visible.length !== 1 ? 's' : ''} found
-            {errors.length > 0 && <span className="ml-1 text-[#9f403d]">· {errors.length} critical</span>}
+            {errors.length > 0 && <span className="ml-1 text-[#c8412a]">· {errors.length} critical</span>}
             {warnings.length > 0 && <span className="ml-1 text-amber-700">· {warnings.length} warning{warnings.length > 1 ? 's' : ''}</span>}
           </span>
         </span>

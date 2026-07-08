@@ -76,8 +76,8 @@ export default function BreakdownCell({
               onSave(v)
             }}
             onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
-            className={clx(width, 'no-spin border rounded px-1.5 py-0.5 text-xs text-right focus:outline-none focus:ring-1 focus:ring-[#565e74]')}
-            style={{ background: '#FFFFC7', borderColor: '#565e74' }}
+            className={clx(width, 'no-spin border rounded px-1.5 py-0.5 text-xs text-right focus:outline-none focus:ring-1 focus:ring-[#5b626e]')}
+            style={{ background: '#eef2ff', borderColor: '#5b626e' }}
           />
         ) : (
           <input
@@ -94,8 +94,8 @@ export default function BreakdownCell({
                 : 'border-gray-200'                   // hard-keyed style
             )}
             style={{
-              background: isBuiltUp ? '#F1F4E0' : '#FFFFC7',
-              color: isBuiltUp ? '#456919' : '#1F2937',
+              background: isBuiltUp ? '#f3faf6' : '#eef2ff',
+              color: isBuiltUp ? '#0a8a54' : '#1F2937',
             }}
           />
         )}
@@ -108,17 +108,17 @@ export default function BreakdownCell({
             'flex-shrink-0 flex items-center justify-center rounded transition-all',
             'w-6 h-[22px] border text-[10px]',
             isBuiltUp
-              ? 'border-[#DEE5B5] text-[#456919] hover:bg-[#DEE5B5]'
-              : 'border-gray-200 text-gray-400 hover:border-[#565e74] hover:text-[#565e74]'
+              ? 'border-[#DEE5B5] text-[#0a8a54] hover:bg-[#DEE5B5]'
+              : 'border-gray-200 text-gray-400 hover:border-[#5b626e] hover:text-[#5b626e]'
           )}
-          style={{ background: isBuiltUp ? '#F1F4E0' : 'white' }}>
+          style={{ background: isBuiltUp ? '#f3faf6' : 'white' }}>
           <Sigma size={11} strokeWidth={isBuiltUp ? 2.5 : 1.5} />
         </button>
       </div>
 
       {/* Built-up indicator label */}
       {isBuiltUp && (
-        <div className="text-[9px] mt-0.5 flex items-center gap-0.5" style={{ color: '#456919' }}>
+        <div className="text-[9px] mt-0.5 flex items-center gap-0.5" style={{ color: '#0a8a54' }}>
           <Sigma size={8} />
           built-up
         </div>

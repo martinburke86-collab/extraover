@@ -27,12 +27,12 @@ const CATEGORIES = [
 ]
 
 const STATUS_CFG: Record<string, { bg: string; text: string; dot: string }> = {
-  'Instructed':   { bg: '#F0F4FF', text: '#3730a3', dot: '#4338ca' },
-  'Submitted':    { bg: '#EEF2FF', text: '#565e74', dot: '#565e74' },
-  'Under Review': { bg: '#FEF9C3', text: '#854F0B', dot: '#CA8A04' },
-  'Approved':     { bg: '#F1F4E0', text: '#456919', dot: '#3B6D11' },
-  'Rejected':     { bg: '#FEE2E2', text: '#991B1B', dot: '#A32D2D' },
-  'On Hold':      { bg: '#F3F4F6', text: '#4B5563', dot: '#9CA3AF' },
+  'Instructed':   { bg: '#eef2ff', text: '#1a45c0', dot: '#1c4ed8' },
+  'Submitted':    { bg: '#eef2ff', text: '#5b626e', dot: '#5b626e' },
+  'Under Review': { bg: '#fcf2e2', text: '#854F0B', dot: '#CA8A04' },
+  'Approved':     { bg: '#f3faf6', text: '#0a8a54', dot: '#3B6D11' },
+  'Rejected':     { bg: '#fbeae6', text: '#a23015', dot: '#A32D2D' },
+  'On Hold':      { bg: '#f1f2f5', text: '#5b626e', dot: '#8b93a1' },
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -148,7 +148,7 @@ export default function VariationsClient({ variations: initial, projectId, role 
         onChange={e => saveCell(id, field, e.target.value)}
         disabled={role === 'viewer'}
         className="w-full border-0 text-[11px] focus:outline-none focus:ring-1 focus:ring-primary px-1 py-1"
-        style={{ background: '#FFFFC7', fontWeight: 600, color: STATUS_CFG[val]?.text ?? '#374151' }}>
+        style={{ background: '#eef2ff', fontWeight: 600, color: STATUS_CFG[val]?.text ?? '#1a1d23' }}>
         {opts.map(o => <option key={o}>{o}</option>)}
       </select>
     )
@@ -171,16 +171,16 @@ export default function VariationsClient({ variations: initial, projectId, role 
       <ViewerBanner role={role} />
 
       {/* Summary strip */}
-      <div className="bg-[#1e3a5f] px-6 py-2.5 flex items-center gap-6 flex-shrink-0 flex-wrap">
+      <div className="bg-[#1a1d23] px-6 py-2.5 flex items-center gap-6 flex-shrink-0 flex-wrap">
         {[
           { label: 'Approved income',    val: fmt(totals.approvedIncome),  col: '#DEE5B5' },
           { label: 'Approved margin',    val: fmt(totals.approvedMargin),  col: totals.approvedMargin >= 0 ? '#DEE5B5' : '#FECACA' },
           { label: 'Submitted / review', val: fmt(totals.submittedIncome), col: '#FDE68A' },
-          { label: 'Pipeline (excl. rejected)', val: fmt(totals.pipelineIncome), col: '#ccd4ee' },
-          { label: 'Total cost estimate', val: fmt(totals.totalCostEst),   col: '#ccd4ee' },
+          { label: 'Pipeline (excl. rejected)', val: fmt(totals.pipelineIncome), col: '#9aa3b2' },
+          { label: 'Total cost estimate', val: fmt(totals.totalCostEst),   col: '#9aa3b2' },
         ].map(k => (
           <div key={k.label} className="flex-shrink-0">
-            <div className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: 'rgba(168,196,224,0.55)' }}>{k.label}</div>
+            <div className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: '#6f7787' }}>{k.label}</div>
             <div className="text-sm font-bold tabular-nums" style={{ color: k.col }}>{k.val}</div>
           </div>
         ))}
@@ -190,7 +190,7 @@ export default function VariationsClient({ variations: initial, projectId, role 
       <div className="bg-white border-b px-4 py-2 flex items-center gap-2 flex-shrink-0 overflow-x-auto">
         <button onClick={() => setFilter('All')}
           className={clx('flex-shrink-0 px-3 py-1.5 rounded-full border text-[11px] font-semibold transition-all',
-            statusFilter === 'All' ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-white text-[#6b7280] border-[#e5e7eb]')}>
+            statusFilter === 'All' ? 'bg-[#1a1d23] text-white border-[#1a1d23]' : 'bg-white text-[#5b626e] border-[#e7e9ee]')}>
           All ({vars.length})
         </button>
         {STATUSES.map(s => {
@@ -202,11 +202,11 @@ export default function VariationsClient({ variations: initial, projectId, role 
               className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold transition-all"
               style={active
                 ? { background: cfg.bg, color: cfg.text, borderColor: cfg.dot, boxShadow: `0 0 0 2px ${cfg.bg}` }
-                : { background: '#fff', color: '#6b7280', borderColor: '#e5e7eb' }}>
+                : { background: '#fff', color: '#5b626e', borderColor: '#e7e9ee' }}>
               <span style={{ width: 7, height: 7, borderRadius: '50%', background: cfg.dot }} />
               {s}
               <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold"
-                style={{ background: active ? cfg.dot : '#f3f4f6', color: active ? '#fff' : '#6b7280' }}>
+                style={{ background: active ? cfg.dot : '#f1f2f5', color: active ? '#fff' : '#5b626e' }}>
                 {count}
               </span>
             </button>
@@ -253,14 +253,14 @@ export default function VariationsClient({ variations: initial, projectId, role 
                 </td>
                 <td style={{ padding: '3px 4px' }}>
                   <select onChange={e => setNewRow(p => ({ ...p, category: e.target.value }))}
-                    className="w-full border rounded px-1 py-1 text-xs focus:outline-none" style={{ background: '#FFFFC7' }}>
+                    className="w-full border rounded px-1 py-1 text-xs focus:outline-none" style={{ background: '#eef2ff' }}>
                     <option value="">—</option>
                     {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                   </select>
                 </td>
                 <td style={{ padding: '3px 4px' }}>
                   <select defaultValue="Instructed" onChange={e => setNewRow(p => ({ ...p, status: e.target.value }))}
-                    className="w-full border rounded px-1 py-1 text-xs focus:outline-none" style={{ background: '#FFFFC7' }}>
+                    className="w-full border rounded px-1 py-1 text-xs focus:outline-none" style={{ background: '#eef2ff' }}>
                     {STATUSES.map(s => <option key={s}>{s}</option>)}
                   </select>
                 </td>
@@ -274,7 +274,7 @@ export default function VariationsClient({ variations: initial, projectId, role 
                 <td /><td />
                 <td data-col={1}><GridInput value={0} onSave={v => setNewRow(p => ({ ...p, income_value: v }))} /></td>
                 <td data-col={2}><GridInput value={0} onSave={v => setNewRow(p => ({ ...p, cost_estimate: v }))} /></td>
-                <td><div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#9ca3af' }}>{'\u2014'}</div></td>
+                <td><div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#8b93a1' }}>{'\u2014'}</div></td>
                 <td data-col={3}><GridInput value={0} onSave={v => setNewRow(p => ({ ...p, pct_complete: v }))} /></td>
                 <td />
                 <td style={{ padding: '3px 4px' }}>
@@ -284,11 +284,11 @@ export default function VariationsClient({ variations: initial, projectId, role 
                 <td style={{ padding: '3px 6px' }}>
                   <div className="flex gap-1">
                     <button onClick={add} disabled={saving || !newRow.description}
-                      style={{ background: '#456919', color: '#fff', border: 'none', borderRadius: 5, padding: '4px 8px', fontSize: 12, cursor: 'pointer', opacity: !newRow.description ? 0.5 : 1 }}>
+                      style={{ background: '#0a8a54', color: '#fff', border: 'none', borderRadius: 5, padding: '4px 8px', fontSize: 12, cursor: 'pointer', opacity: !newRow.description ? 0.5 : 1 }}>
                       Add
                     </button>
                     <button onClick={() => setAdding(false)}
-                      style={{ background: '#f3f4f6', border: 'none', borderRadius: 5, padding: '4px 8px', fontSize: 12, cursor: 'pointer' }}>
+                      style={{ background: '#f1f2f5', border: 'none', borderRadius: 5, padding: '4px 8px', fontSize: 12, cursor: 'pointer' }}>
                       ✕
                     </button>
                   </div>
@@ -297,7 +297,7 @@ export default function VariationsClient({ variations: initial, projectId, role 
             )}
 
             {filtered.length === 0 && !adding && (
-              <tr><td colSpan={16} style={{ padding: '48px', textAlign: 'center', color: '#9ca3af', fontSize: 13 }}>
+              <tr><td colSpan={16} style={{ padding: '48px', textAlign: 'center', color: '#8b93a1', fontSize: 13 }}>
                 No variations{statusFilter !== 'All' ? ` with status "${statusFilter}"` : ''}. Click Add Variation to get started.
               </td></tr>
             )}
@@ -315,14 +315,14 @@ export default function VariationsClient({ variations: initial, projectId, role 
                 <tr key={v.id} data-row={idx} className="group"
                   style={idx % 2 === 1 ? { background: '#fafcff' } : {}}>
                   <td className="row-num">{idx + 1}</td>
-                  <td><div className="ss-cell-ro" style={{ fontFamily: 'monospace', fontWeight: 700, color: '#565e74', fontSize: 11 }}>{v.ref}</div></td>
+                  <td><div className="ss-cell-ro" style={{ fontFamily: 'monospace', fontWeight: 700, color: '#5b626e', fontSize: 11 }}>{v.ref}</div></td>
                   <td data-col={0} style={{ padding: '2px 4px' }}><TextCell id={v.id} field="description" placeholder="Description…" /></td>
                   <td style={{ padding: '2px 4px' }}>
                     <select defaultValue={v.category ?? ''}
                       onChange={e => saveCell(v.id, 'category', e.target.value)}
                       disabled={role === 'viewer'}
                       className="w-full text-[11px] focus:outline-none focus:ring-1 focus:ring-primary rounded px-1 py-1"
-                      style={{ background: '#FFFFC7', border: '0.5px solid #e5e7eb' }}>
+                      style={{ background: '#eef2ff', border: '0.5px solid #e7e9ee' }}>
                       <option value="">—</option>
                       {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                     </select>
@@ -332,7 +332,7 @@ export default function VariationsClient({ variations: initial, projectId, role 
                       onChange={e => saveCell(v.id, 'status', e.target.value)}
                       disabled={role === 'viewer'}
                       className="w-full text-[11px] focus:outline-none focus:ring-1 focus:ring-primary rounded px-1 py-1"
-                      style={{ background: STATUS_CFG[status]?.bg ?? '#FFFFC7', color: STATUS_CFG[status]?.text ?? '#374151', fontWeight: 600, border: '0.5px solid #e5e7eb' }}>
+                      style={{ background: STATUS_CFG[status]?.bg ?? '#eef2ff', color: STATUS_CFG[status]?.text ?? '#1a1d23', fontWeight: 600, border: '0.5px solid #e7e9ee' }}>
                       {STATUSES.map(s => <option key={s}>{s}</option>)}
                     </select>
                   </td>
@@ -362,14 +362,14 @@ export default function VariationsClient({ variations: initial, projectId, role 
                       title={coded > 0
                         ? `Sum of lines tagged to ${v.ref} on Cost to Date, Committed and Forecast.${codedGap !== 0 ? ` ${codedGap > 0 ? '+' : ''}${Math.round(codedGap).toLocaleString('en-IE')} vs estimate.` : ''}`
                         : `No lines tagged to ${v.ref} yet. Tag lines on the Cost to Date, Committed or Forecast sheets.`}
-                      style={{ fontVariantNumeric: 'tabular-nums', color: coded === 0 ? '#9ca3af' : (codedGap > 0 ? '#991B1B' : '#1e3a5f'), fontWeight: 600 }}>
+                      style={{ fontVariantNumeric: 'tabular-nums', color: coded === 0 ? '#8b93a1' : (codedGap > 0 ? '#a23015' : '#1a1d23'), fontWeight: 600 }}>
                       {coded > 0 ? fmt(coded) : '\u2014'}
                     </div>
                   </td>
                   <td data-col={4}><GridInput value={v.pct_complete ?? 0} onSave={v2 => saveCell(v.id, 'pct_complete', v2)} /></td>
                   <td>
                     <div className="ss-cell-ro ss-cell-ro-r font-bold"
-                      style={{ color: margin >= 0 ? '#27500A' : '#991B1B' }}>
+                      style={{ color: margin >= 0 ? '#0a6e44' : '#a23015' }}>
                       {fmt(margin)}
                     </div>
                   </td>
@@ -390,17 +390,17 @@ export default function VariationsClient({ variations: initial, projectId, role 
           {/* Totals footer */}
           {filtered.length > 0 && (
             <tfoot>
-              <tr style={{ background: '#f0f4fa', borderTop: '2px solid #1e3a5f' }}>
-                <td colSpan={9} style={{ padding: '6px 12px', fontWeight: 700, fontSize: 11, color: '#1e3a5f', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <tr style={{ background: '#fbfbfc', borderTop: '2px solid #1a1d23' }}>
+                <td colSpan={9} style={{ padding: '6px 12px', fontWeight: 700, fontSize: 11, color: '#1a1d23', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Totals ({filtered.length} variations)
                 </td>
-                <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#1e3a5f' }}>
+                <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#1a1d23' }}>
                   {fmt(filtered.reduce((s, v) => s + (getVal(v.id, 'income_value') ?? v.income_value), 0))}
                 </td>
-                <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#565e74' }}>
+                <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#5b626e' }}>
                   {fmt(filtered.reduce((s, v) => s + (getVal(v.id, 'cost_estimate') ?? v.cost_estimate), 0))}
                 </td>
-                <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#1e3a5f' }}>
+                <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#1a1d23' }}>
                   {fmt(filtered.reduce((s, v) => s + (v.coded_cost || 0), 0))}
                 </td>
                 <td />
@@ -408,7 +408,7 @@ export default function VariationsClient({ variations: initial, projectId, role 
                   {(() => {
                     const m = filtered.reduce((s, v) =>
                       s + (getVal(v.id, 'income_value') ?? v.income_value) - (getVal(v.id, 'cost_estimate') ?? v.cost_estimate), 0)
-                    return <span style={{ color: m >= 0 ? '#27500A' : '#991B1B' }}>{fmt(m)}</span>
+                    return <span style={{ color: m >= 0 ? '#0a6e44' : '#a23015' }}>{fmt(m)}</span>
                   })()}
                 </td>
                 <td colSpan={2} />

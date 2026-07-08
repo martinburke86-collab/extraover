@@ -93,7 +93,7 @@ export default function CostCodeInput({ projectId, value, field, onSelect, onKey
             <button key={cc.code} type="button"
               className="w-full text-left px-3 py-2 hover:bg-blue-50 flex items-center gap-3 border-b border-gray-50"
               onMouseDown={() => select(cc)}>
-              <span className="font-mono font-bold text-[#565e74] w-20 flex-shrink-0">{cc.code}</span>
+              <span className="font-mono font-bold text-[#5b626e] w-20 flex-shrink-0">{cc.code}</span>
               <span className="text-gray-700 flex-1 truncate">{cc.description}</span>
               <span className="text-gray-400 text-[10px] flex-shrink-0">{cc.category}</span>
             </button>

@@ -36,10 +36,10 @@ function TrendTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
     <div style={{
-      background: '#fff', border: '0.5px solid #e2e8f0', borderRadius: 8,
+      background: '#fff', border: '0.5px solid #e7e9ee', borderRadius: 8,
       padding: '10px 14px', fontSize: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
     }}>
-      <div style={{ fontWeight: 700, marginBottom: 6, color: '#1e3a5f' }}>{label}</div>
+      <div style={{ fontWeight: 700, marginBottom: 6, color: '#1a1d23' }}>{label}</div>
       {payload.map((p: any) => (
         <div key={p.dataKey} style={{ display: 'flex', justifyContent: 'space-between', gap: 24, color: p.color, marginBottom: 2 }}>
           <span>{p.name}</span>
@@ -75,7 +75,7 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
       <tr style={
         accent === 'highlight' ? { background: '#EEF4FA' } :
         accent === 'profit'    ? { background: '#F0FCE0' } :
-        accent === 'loss'      ? { background: '#FFF0F0' } : {}
+        accent === 'loss'      ? { background: '#fbeae6' } : {}
       }>
         <td className={clx('py-2 text-[11px]', bold ? 'font-bold text-on-surface' : 'font-medium text-on-surface-variant')}>{label}</td>
         <td className={clx('py-2 text-right tabular-nums text-[11px]', bold ? 'font-black' : 'font-semibold',
@@ -189,13 +189,13 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f4f8" />
                     <XAxis
                       dataKey="label"
-                      tick={{ fontSize: 10, fill: '#6b7280' }}
-                      axisLine={{ stroke: '#e2e8f0' }}
+                      tick={{ fontSize: 10, fill: '#5b626e' }}
+                      axisLine={{ stroke: '#e7e9ee' }}
                       tickLine={false}
                     />
                     <YAxis
                       tickFormatter={fmtM}
-                      tick={{ fontSize: 10, fill: '#6b7280' }}
+                      tick={{ fontSize: 10, fill: '#5b626e' }}
                       axisLine={false}
                       tickLine={false}
                       width={48}
@@ -203,16 +203,16 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
                     <Tooltip content={<TrendTooltip />} />
                     <Legend
                       wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
-                      formatter={(value) => <span style={{ color: '#6b7280' }}>{value}</span>}
+                      formatter={(value) => <span style={{ color: '#5b626e' }}>{value}</span>}
                     />
 
                     {/* Contract sum reference line */}
                     <ReferenceLine
                       y={adjustedSum}
-                      stroke="#1e3a5f"
+                      stroke="#1a1d23"
                       strokeDasharray="5 3"
                       strokeWidth={1}
-                      label={{ value: 'Contract sum', position: 'insideTopRight', fontSize: 9, fill: '#1e3a5f', dy: -4 }}
+                      label={{ value: 'Contract sum', position: 'insideTopRight', fontSize: 9, fill: '#1a1d23', dy: -4 }}
                     />
 
                     {/* Shaded area under EFC */}
@@ -220,11 +220,11 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
                       type="monotone"
                       dataKey="efc"
                       name="EFC"
-                      stroke="#9f403d"
+                      stroke="#c8412a"
                       strokeWidth={2.5}
-                      fill="#9f403d"
+                      fill="#c8412a"
                       fillOpacity={0.06}
-                      dot={{ r: 3, fill: '#9f403d', stroke: '#fff', strokeWidth: 1.5 }}
+                      dot={{ r: 3, fill: '#c8412a', stroke: '#fff', strokeWidth: 1.5 }}
                       activeDot={{ r: 5 }}
                     />
 
@@ -233,9 +233,9 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
                       type="monotone"
                       dataKey="totalCtd"
                       name="Cost to date"
-                      stroke="#1e3a5f"
+                      stroke="#1a1d23"
                       strokeWidth={2}
-                      dot={{ r: 3, fill: '#1e3a5f', stroke: '#fff', strokeWidth: 1.5 }}
+                      dot={{ r: 3, fill: '#1a1d23', stroke: '#fff', strokeWidth: 1.5 }}
                       activeDot={{ r: 5 }}
                       strokeDasharray="0"
                     />
@@ -245,9 +245,9 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
                       type="monotone"
                       dataKey="totalClaimed"
                       name="Claimed"
-                      stroke="#456919"
+                      stroke="#0a8a54"
                       strokeWidth={2}
-                      dot={{ r: 3, fill: '#456919', stroke: '#fff', strokeWidth: 1.5 }}
+                      dot={{ r: 3, fill: '#0a8a54', stroke: '#fff', strokeWidth: 1.5 }}
                       activeDot={{ r: 5 }}
                       strokeDasharray="4 2"
                     />
@@ -258,15 +258,15 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
               {/* Legend explanation */}
               <div className="flex flex-wrap gap-4 mt-3 text-[10px] text-on-surface-variant">
                 <span className="flex items-center gap-1.5">
-                  <span style={{ width: 20, height: 2.5, background: '#9f403d', display: 'inline-block', borderRadius: 2 }} />
+                  <span style={{ width: 20, height: 2.5, background: '#c8412a', display: 'inline-block', borderRadius: 2 }} />
                   EFC — if trending up, cost is growing
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span style={{ width: 20, height: 2, background: '#1e3a5f', display: 'inline-block', borderRadius: 2 }} />
+                  <span style={{ width: 20, height: 2, background: '#1a1d23', display: 'inline-block', borderRadius: 2 }} />
                   Cost to date
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span style={{ width: 20, height: 2, background: '#456919', display: 'inline-block', borderRadius: 2, backgroundImage: 'repeating-linear-gradient(90deg, #456919 0, #456919 4px, transparent 4px, transparent 6px)' }} />
+                  <span style={{ width: 20, height: 2, background: '#0a8a54', display: 'inline-block', borderRadius: 2, backgroundImage: 'repeating-linear-gradient(90deg, #0a8a54 0, #0a8a54 4px, transparent 4px, transparent 6px)' }} />
                   Claimed
                 </span>
               </div>
@@ -343,12 +343,12 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
                   <div>
                     <div className="flex justify-between text-[10px] mb-1 font-bold uppercase text-on-surface-variant">
                       <span>Cost Variance (EV − AC)</span>
-                      <span style={{ color: cvGood ? '#27500A' : '#991B1B' }}>{fmt(cv)}</span>
+                      <span style={{ color: cvGood ? '#0a6e44' : '#a23015' }}>{fmt(cv)}</span>
                     </div>
-                    <div style={{ height: 6, background: '#e5e7eb', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ height: 6, background: '#e7e9ee', borderRadius: 3, overflow: 'hidden' }}>
                       <div style={{
                         height: '100%', borderRadius: 3,
-                        background: cvGood ? '#456919' : '#9f403d',
+                        background: cvGood ? '#0a8a54' : '#c8412a',
                         width: `${Math.min(100, ev > 0 ? Math.abs(cv) / ev * 100 : 0)}%`,
                         marginLeft: cvGood ? 0 : 'auto',
                       }} />
@@ -360,12 +360,12 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
                   <div>
                     <div className="flex justify-between text-[10px] mb-1 font-bold uppercase text-on-surface-variant">
                       <span>Schedule Variance (EV − PV)</span>
-                      <span style={{ color: svGood ? '#27500A' : '#991B1B' }}>{fmt(sv)}</span>
+                      <span style={{ color: svGood ? '#0a6e44' : '#a23015' }}>{fmt(sv)}</span>
                     </div>
-                    <div style={{ height: 6, background: '#e5e7eb', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ height: 6, background: '#e7e9ee', borderRadius: 3, overflow: 'hidden' }}>
                       <div style={{
                         height: '100%', borderRadius: 3,
-                        background: svGood ? '#456919' : '#9f403d',
+                        background: svGood ? '#0a8a54' : '#c8412a',
                         width: `${Math.min(100, pv > 0 ? Math.abs(sv) / pv * 100 : 0)}%`,
                       }} />
                     </div>
@@ -497,7 +497,7 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
                     <h4 className="text-[9px] font-black text-error uppercase tracking-widest mb-2">Overrun positions</h4>
                     <div className="space-y-1.5">
                       {trades.filter(t => t.projectedPL < 0).slice(0, 4).map(t => (
-                        <div key={t.trade} className="flex items-center justify-between p-2 rounded-sm" style={{ background: '#FFF0F0' }}>
+                        <div key={t.trade} className="flex items-center justify-between p-2 rounded-sm" style={{ background: '#fbeae6' }}>
                           <span className="text-[11px] font-bold uppercase truncate mr-2">{t.trade}</span>
                           <span className="text-[11px] font-black tabular-nums text-error flex-shrink-0">{fmt(t.projectedPL)}</span>
                         </div>

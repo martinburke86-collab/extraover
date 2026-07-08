@@ -12,27 +12,27 @@ async function handleSignOut() {
 }
 
 const NAV = [
-  { href: 'periods',       label: 'Period History',  icon: 'calendar_month' },
-  { href: 'dashboard',     label: 'Dashboard',       icon: 'dashboard' },
-  { href: 'trade',         label: 'CVR Table',       icon: 'analytics' },
-  { href: 'budget',        label: 'Budget',           icon: 'account_balance' },
-  { href: 'value',         label: 'Value / Claims',  icon: 'payments' },
-  { href: 'variations',    label: 'Variations',      icon: 'difference' },
-  { href: 'prelims',       label: 'Prelims',         icon: 'engineering' },
-  { href: 'forecast',      label: 'Forecast',        icon: 'trending_up' },
-  { href: 'efc-breakdown', label: 'EFC Breakdown',   icon: 'table_chart' },
-  { href: 'cost-to-date',  label: 'Cost to Date',    icon: 'receipt_long' },
-  { href: 'committed',     label: 'Committed',       icon: 'shopping_cart' },
-  { href: 's-curve',       label: 'Cashflow',        icon: 'show_chart' },
-  { href: 'cost-codes',    label: 'Cost Codes',      icon: 'tag' },
-  { href: 'audit',         label: 'Audit Log',       icon: 'history' },
-  { href: 'checks',        label: 'Checks',          icon: 'fact_check' },
-  { href: 'settings',      label: 'Settings',        icon: 'settings' },
+  { href: 'dashboard',     label: 'Dashboard',       icon: 'dashboard',        section: 'Reporting' },
+  { href: 'trade',         label: 'CVR Table',       icon: 'analytics',        section: 'Reporting' },
+  { href: 'efc-breakdown', label: 'EFC Breakdown',   icon: 'table_chart',      section: 'Reporting' },
+  { href: 'periods',       label: 'Period History',  icon: 'calendar_month',   section: 'Reporting' },
+  { href: 'budget',        label: 'Budget',          icon: 'account_balance',  section: 'Commercial' },
+  { href: 'value',         label: 'Value / Claims',  icon: 'payments',         section: 'Commercial' },
+  { href: 'variations',    label: 'Variations',      icon: 'difference',       section: 'Commercial' },
+  { href: 'prelims',       label: 'Prelims',         icon: 'engineering',      section: 'Commercial' },
+  { href: 'forecast',      label: 'Forecast',        icon: 'trending_up',      section: 'Commercial' },
+  { href: 'cost-to-date',  label: 'Cost to Date',    icon: 'receipt_long',     section: 'Cost ledger' },
+  { href: 'committed',     label: 'Committed',       icon: 'shopping_cart',    section: 'Cost ledger' },
+  { href: 's-curve',       label: 'Cashflow',        icon: 'show_chart',       section: 'Cost ledger' },
+  { href: 'cost-codes',    label: 'Cost Codes',      icon: 'tag',              section: 'Cost ledger' },
+  { href: 'audit',         label: 'Audit Log',       icon: 'history',          section: 'Governance' },
+  { href: 'checks',        label: 'Checks',          icon: 'fact_check',       section: 'Governance' },
+  { href: 'settings',      label: 'Settings',        icon: 'settings',         section: 'Governance' },
 ]
 
 const ROLE_BADGE: Record<Role, { label: string; bg: string; text: string }> = {
-  owner:  { label: 'Owner',  bg: '#F0F4FF', text: '#3730a3' },
-  editor: { label: 'Editor', bg: '#F1F4E0', text: '#456919' },
+  owner:  { label: 'Owner',  bg: '#eef2ff', text: '#1a45c0' },
+  editor: { label: 'Editor', bg: '#f3faf6', text: '#0a8a54' },
   viewer: { label: 'Viewer', bg: '#E6F1FB', text: '#0C447C' },
 }
 
@@ -139,22 +139,31 @@ function SidebarContents({
         <p className="text-[10px] text-slate-500 font-medium px-0.5 uppercase tracking-wider mt-1">Cost Reporting</p>
       </div>
 
-      {/* Nav — filtered by role */}
-      <nav className="flex-1 space-y-0.5 overflow-y-auto">
-        {visibleNav.map(({ href, label, icon }) => {
+      {/* Nav — filtered by role, grouped by section */}
+      <nav className="flex-1 overflow-y-auto">
+        {visibleNav.map(({ href, label, icon, section }, i) => {
           const full   = `/${params.id}/${href}`
           const active = pathname === full || pathname.startsWith(full + '/')
+          const newSection = i === 0 || visibleNav[i - 1].section !== section
           return (
-            <Link key={href} href={full} onClick={onNav}
-              className={clx(
-                'flex items-center gap-3 px-4 py-2 text-xs font-semibold transition-colors',
-                active
-                  ? 'border-l-2 border-slate-700 bg-slate-200/50 text-slate-900'
-                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/30 border-l-2 border-transparent'
-              )}>
-              <span className="material-symbols-outlined mat-sm flex-shrink-0">{icon}</span>
-              <span>{navLabels[href] ?? label}</span>
-            </Link>
+            <div key={href}>
+              {newSection && (
+                <div className="px-4 pt-4 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8b93a1]"
+                  style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+                  {section}
+                </div>
+              )}
+              <Link href={full} onClick={onNav}
+                className={clx(
+                  'flex items-center gap-3 px-4 py-2 text-xs font-semibold transition-colors border-l-[3px]',
+                  active
+                    ? 'border-[#1c4ed8] bg-[#eef2ff] text-[#1a1d23]'
+                    : 'border-transparent text-[#5b626e] hover:text-[#1a1d23] hover:bg-[#f1f2f5]'
+                )}>
+                <span className={clx('material-symbols-outlined mat-sm flex-shrink-0', active ? 'text-[#1c4ed8]' : '')}>{icon}</span>
+                <span>{navLabels[href] ?? label}</span>
+              </Link>
+            </div>
           )
         })}
       </nav>
@@ -163,7 +172,7 @@ function SidebarContents({
       <div className="mt-auto px-4 space-y-3 pt-4 border-t border-slate-200/70">
         <button onClick={exportExcel} disabled={exporting}
           className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded font-bold text-xs text-white transition-all disabled:opacity-50 hover:opacity-90 active:scale-95"
-          style={{ background: '#456919', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>
+          style={{ background: '#1c4ed8', boxShadow: '0 1px 2px rgba(28,78,216,0.25)', borderRadius: 9 }}>
           <span className="material-symbols-outlined" style={{ fontSize: 15 }}>
             {exporting ? 'hourglass_empty' : 'download'}
           </span>
@@ -171,8 +180,8 @@ function SidebarContents({
         </button>
 
         <button onClick={exportPDF} disabled={exportingPDF}
-          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded font-bold text-xs text-white transition-all disabled:opacity-50 hover:opacity-90 active:scale-95"
-          style={{ background: '#9f403d', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>
+          className="w-full flex items-center justify-center gap-2 py-2 px-3 font-bold text-xs transition-all disabled:opacity-50 hover:opacity-90 active:scale-95"
+          style={{ background: '#ffffff', color: '#1a45c0', border: '1px solid #d6e0ff', borderRadius: 9 }}>
           <span className="material-symbols-outlined" style={{ fontSize: 15 }}>
             {exportingPDF ? 'hourglass_empty' : 'picture_as_pdf'}
           </span>
@@ -209,7 +218,7 @@ function SidebarContents({
         )}
 
         <div className="text-[10px] text-slate-400 text-center pb-0.5 select-none">
-          ExtraOver v39
+          ExtraOver v40
         </div>
       </div>
     </div>
@@ -237,12 +246,12 @@ export default function LayoutClient({
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-[208px] border-r border-slate-200 bg-slate-100 flex-col z-50">
+      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-[208px] border-r border-[#e7e9ee] bg-[#fbfbfc] flex-col z-50">
         <SidebarContents params={params} role={role} userName={userName} terms={terms} />
       </aside>
 
       {/* Mobile top bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-2.5 bg-[#1e3a5f] shadow-md">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-2.5 bg-[#1a1d23] shadow-md">
         <button onClick={() => setDrawerOpen(true)} className="text-white p-1 rounded hover:bg-white/10">
           <span className="material-symbols-outlined" style={{ fontSize: 24 }}>menu</span>
         </button>
@@ -256,7 +265,7 @@ export default function LayoutClient({
       {drawerOpen && (
         <>
           <div className="lg:hidden fixed inset-0 z-50 bg-black/40" onClick={() => setDrawerOpen(false)} />
-          <div className="lg:hidden fixed left-0 top-0 h-screen w-[240px] bg-slate-100 border-r border-slate-200 z-50 shadow-2xl overflow-y-auto">
+          <div className="lg:hidden fixed left-0 top-0 h-screen w-[240px] bg-[#fbfbfc] border-r border-[#e7e9ee] z-50 shadow-2xl overflow-y-auto">
             <div className="flex items-center justify-between px-4 pt-4 pb-2 border-b border-slate-200">
               <img src="/logo.png" alt="ExtraOver" style={{ width: 110, height: 'auto' }} />
               <button onClick={() => setDrawerOpen(false)} className="text-slate-400 hover:text-slate-700 p-1 rounded">

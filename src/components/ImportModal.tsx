@@ -116,7 +116,7 @@ export default function ImportModal({ projectId, costCodes, onClose, onDone }: P
           {step === 'upload' && (
             <div>
               <div
-                className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center cursor-pointer hover:border-[#004225] hover:bg-[#E2EFDA]/30 transition-colors"
+                className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center cursor-pointer hover:border-[#004225] hover:bg-[#e7f6ee]/30 transition-colors"
                 onClick={() => fileRef.current?.click()}
               >
                 <Upload size={32} className="mx-auto text-gray-400 mb-3" />

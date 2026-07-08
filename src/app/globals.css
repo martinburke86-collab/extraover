@@ -3,12 +3,14 @@
 @tailwind utilities;
 
 /* ── Fonts ─────────────────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
 body {
-  font-family: 'Inter', sans-serif;
-  background: #f6fafe;
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: #f6f7f9;
+  color: #1a1d23;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Material Icons */
@@ -32,7 +34,7 @@ input.no-spin[type=number] { -moz-appearance: textfield; }
 /* Thin scrollbar */
 .scrollbar-thin::-webkit-scrollbar { height: 5px; width: 5px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-thin::-webkit-scrollbar-thumb { background: #a4b4be; border-radius: 3px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #dfe2e7; border-radius: 3px; }
 
 /* Tabular numbers */
 .tabular-nums { font-variant-numeric: tabular-nums; }
@@ -48,14 +50,16 @@ input.no-spin[type=number] { -moz-appearance: textfield; }
 
 /* Column headers */
 .ss-table thead th {
-  background: #1e3a5f;
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
+  background: #fbfbfc;
+  color: #8b93a1;
+  font-size: 10.5px;
+  font-weight: 600;
+  font-family: 'IBM Plex Mono', monospace;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 8px 10px;
-  border-right: 1px solid rgba(255,255,255,0.1);
+  border-right: 1px solid #eef0f3;
+  border-bottom: 1px solid #e7e9ee;
   white-space: nowrap;
   position: sticky;
   top: 0;
@@ -66,7 +70,7 @@ input.no-spin[type=number] { -moz-appearance: textfield; }
 
 /* Body cells */
 .ss-table tbody td {
-  border: 1px solid #e2e8f0;
+  border: 1px solid #f1f2f5;
   border-top: none;
   padding: 0;
   height: 32px;
@@ -76,12 +80,13 @@ input.no-spin[type=number] { -moz-appearance: textfield; }
 
 /* Row number column */
 .ss-table .row-num {
-  background: #f8fafc;
-  color: #94a3b8;
+  background: #fbfbfc;
+  color: #aeb4bf;
   font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
   text-align: center;
   padding: 0 6px;
-  border-right: 1px solid #cbd5e1;
+  border-right: 1px solid #e7e9ee;
   width: 32px;
   min-width: 32px;
   user-select: none;
@@ -90,7 +95,7 @@ input.no-spin[type=number] { -moz-appearance: textfield; }
 /* Read-only cells */
 .ss-table .ss-cell-ro {
   padding: 0 10px;
-  color: #374151;
+  color: #1a1d23;
   height: 100%;
   display: flex;
   align-items: center;
@@ -107,8 +112,8 @@ input.no-spin[type=number] { -moz-appearance: textfield; }
 
 /* Total cells */
 .ss-table .ss-cell-total {
-  background: #f0f4fa;
-  color: #1e3a5f;
+  background: #fbfbfc;
+  color: #1a1d23;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   padding: 0 10px;
@@ -120,19 +125,19 @@ input.no-spin[type=number] { -moz-appearance: textfield; }
 
 /* Alternating rows */
 .ss-table tbody tr:nth-child(even) td {
-  background: #fafbfc;
+  background: #ffffff;
 }
 .ss-table tbody tr:nth-child(even) .row-num {
-  background: #f1f5f9;
+  background: #fbfbfc;
 }
 
 /* Row hover */
 .ss-table tbody tr:hover td {
-  background: #eff6ff !important;
+  background: #f6f7f9 !important;
 }
 .ss-table tbody tr:hover .row-num {
-  background: #dbeafe !important;
-  color: #1d4ed8;
+  background: #eef2ff !important;
+  color: #1c4ed8;
 }
 
 /* Grid input — the core editable cell */
@@ -140,39 +145,39 @@ input.no-spin[type=number] { -moz-appearance: textfield; }
   width: 100%;
   height: 32px;
   border: none;
-  background: #fffcdb;
+  background: #eef2ff;
   padding: 0 10px;
   text-align: right;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
   font-family: inherit;
-  color: #111827;
+  color: #1a1d23;
   outline: none;
   display: block;
   transition: background 0.1s;
 }
 
 .grid-input:hover {
-  background: #fff9c4;
+  background: #d6e0ff;
 }
 
 .grid-input:focus {
   background: #ffffff;
-  box-shadow: inset 0 0 0 2px #2563eb;
+  box-shadow: inset 0 0 0 2px #1c4ed8;
   z-index: 2;
   position: relative;
 }
 
 .grid-input::placeholder {
-  color: #d1d5db;
+  color: #aeb4bf;
 }
 
 /* Totals footer row */
 .ss-table tfoot td {
-  background: #e8f0fb;
-  border-top: 2px solid #1e3a5f;
+  background: #fbfbfc;
+  border-top: 2px solid #1a1d23;
   font-weight: 700;
-  color: #1e3a5f;
+  color: #1a1d23;
   font-size: 12px;
   padding: 0 10px;
   height: 34px;
@@ -185,8 +190,8 @@ input.no-spin[type=number] { -moz-appearance: textfield; }
 .grid-input-sm {
   height: 26px;
   font-size: 12px;
-  background: #fffcdb;
-  border: 1px solid #e2e8f0;
+  background: #eef2ff;
+  border: 1px solid #e7e9ee;
   border-radius: 3px;
   padding: 0 6px;
   text-align: right;
@@ -197,6 +202,6 @@ input.no-spin[type=number] { -moz-appearance: textfield; }
 }
 .grid-input-sm:focus {
   background: #ffffff;
-  box-shadow: 0 0 0 2px #2563eb;
+  box-shadow: 0 0 0 2px #1c4ed8;
   border-color: transparent;
 }

@@ -10,10 +10,10 @@ import GridInput from '@/components/GridInput'
 interface Props { trades: TradeSummary[]; projectId: string }
 
 const METHOD_BG: Record<string, string> = {
-  prelims:          '#d0fc9a',
+  prelims:          '#c3e8d3',
   budget_remaining: '#dae2fd',
   forecast_sheet:   '#DEE5B5',
-  hard_key:         '#FFEEB9',
+  hard_key:         '#fcf2e2',
 }
 
 export default function TradeClient({ trades, projectId }: Props) {
@@ -92,7 +92,7 @@ export default function TradeClient({ trades, projectId }: Props) {
         subtitle="EFC = Cost to Date + Committed + Uncommitted Forecast"
         actions={
           <div className="flex items-center gap-1.5">
-            {Object.entries({ 'Prelims Calc': '#d0fc9a', 'Budget Remaining': '#dae2fd', 'Forecast Sheet': '#DEE5B5', 'Hard Key': '#FFEEB9' }).map(([k, bg]) => (
+            {Object.entries({ 'Prelims Calc': '#c3e8d3', 'Budget Remaining': '#dae2fd', 'Forecast Sheet': '#DEE5B5', 'Hard Key': '#fcf2e2' }).map(([k, bg]) => (
               <span key={k} className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide rounded border border-outline-variant/30"
                 style={{ background: bg, color: '#26343d' }}>{k}</span>
             ))}
@@ -104,12 +104,12 @@ export default function TradeClient({ trades, projectId }: Props) {
       <div className="flex-shrink-0 border-b border-outline-variant/20 bg-white">
         <div className="flex items-stretch divide-x divide-outline-variant/20">
           {[
-            { label: 'Final Value',  val: totals.fv,          accent: '#565e74' },
-            { label: 'Cost to Date', val: totals.ctd,         accent: '#565e74' },
-            { label: 'Committed',    val: totals.committed,   accent: '#565e74' },
-            { label: 'Uncommitted',  val: totals.uncommitted, accent: '#9f403d' },
-            { label: 'EFC',          val: totals.efc,         accent: '#1e3a5f' },
-            { label: 'Proj P/L',     val: totals.pl,          accent: totals.pl >= 0 ? '#456919' : '#9f403d' },
+            { label: 'Final Value',  val: totals.fv,          accent: '#5b626e' },
+            { label: 'Cost to Date', val: totals.ctd,         accent: '#5b626e' },
+            { label: 'Committed',    val: totals.committed,   accent: '#5b626e' },
+            { label: 'Uncommitted',  val: totals.uncommitted, accent: '#c8412a' },
+            { label: 'EFC',          val: totals.efc,         accent: '#1a1d23' },
+            { label: 'Proj P/L',     val: totals.pl,          accent: totals.pl >= 0 ? '#0a8a54' : '#c8412a' },
           ].map(({ label, val, accent }) => (
             <div key={label} className="px-5 py-3 flex-1 bg-surface-container-low/30">
               <div className="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant">{label}</div>
@@ -175,7 +175,7 @@ export default function TradeClient({ trades, projectId }: Props) {
                           if (m !== 'hard_key') saveTrade(t.id)
                         }}
                         className="border rounded px-1 py-0.5 text-[10px] font-bold focus:outline-none focus:ring-1 focus:ring-primary uppercase"
-                        style={{ background: METHOD_BG[e.method] || '#f6fafe' }}>
+                        style={{ background: METHOD_BG[e.method] || '#f6f7f9' }}>
                         <option value="budget_remaining">Budget Remaining</option>
                         <option value="forecast_sheet">Forecast Sheet</option>
                         <option value="hard_key">Hard Key</option>
@@ -192,26 +192,26 @@ export default function TradeClient({ trades, projectId }: Props) {
                   <td data-col={1}><GridInput value={e.vc}     onSave={v => saveCell(t.id, 'vc', v)} /></td>
                   <td data-col={2}><GridInput value={e.vna}    onSave={v => saveCell(t.id, 'vna', v)} /></td>
                   <td><div className="ss-cell-total">{fmt(fv)}</div></td>
-                  <td><div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#565e74' }}>{t.postedCost ? fmt(t.postedCost) : '—'}</div></td>
-                  <td><div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#565e74' }}>{t.accruals ? fmt(t.accruals) : '—'}</div></td>
+                  <td><div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#5b626e' }}>{t.postedCost ? fmt(t.postedCost) : '—'}</div></td>
+                  <td><div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#5b626e' }}>{t.accruals ? fmt(t.accruals) : '—'}</div></td>
                   <td><div className="ss-cell-total">{fmt(t.totalCTD)}</div></td>
                   <td><div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#856c0b' }}>{t.committed ? fmt(t.committed) : '—'}</div></td>
                   <td>
-                    <div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#565e74' }}>
+                    <div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#5b626e' }}>
                       {fmt(t.uncommitted)}
                       {e.method === 'prelims' && <span className="ml-1 text-[9px] px-1 rounded font-bold bg-green-100 text-green-800">P</span>}
                     </div>
                   </td>
-                  <td><div className="ss-cell-total" style={{ fontWeight: 900, color: '#1e3a5f' }}>{fmt(efc)}</div></td>
-                  <td><div className="ss-cell-ro ss-cell-ro-r font-bold" style={{ color: pl >= 0 ? '#27500A' : '#991B1B' }}>{fmt(pl)}</div></td>
-                  <td><div className="ss-cell-ro ss-cell-ro-r text-[11px]" style={{ color: pl >= 0 ? '#456919' : '#9f403d' }}>{fv ? pct(pl/fv) : '—'}</div></td>
-                  <td><div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#565e74' }}>{fmt(efc - t.totalCTD)}</div></td>
+                  <td><div className="ss-cell-total" style={{ fontWeight: 900, color: '#1a1d23' }}>{fmt(efc)}</div></td>
+                  <td><div className="ss-cell-ro ss-cell-ro-r font-bold" style={{ color: pl >= 0 ? '#0a6e44' : '#a23015' }}>{fmt(pl)}</div></td>
+                  <td><div className="ss-cell-ro ss-cell-ro-r text-[11px]" style={{ color: pl >= 0 ? '#0a8a54' : '#c8412a' }}>{fv ? pct(pl/fv) : '—'}</div></td>
+                  <td><div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#5b626e' }}>{fmt(efc - t.totalCTD)}</div></td>
                   <td />
                 </tr>
               )
             })}
-            <tr style={{ background: '#e8f0fb', borderTop: '2px solid #1e3a5f' }}>
-              <td colSpan={2}><div className="ss-cell-ro font-bold text-[#1e3a5f] uppercase tracking-wide text-[10px]">Portfolio Total</div></td>
+            <tr style={{ background: '#fbfbfc', borderTop: '2px solid #1a1d23' }}>
+              <td colSpan={2}><div className="ss-cell-ro font-bold text-[#1a1d23] uppercase tracking-wide text-[10px]">Portfolio Total</div></td>
               <td><div className="ss-cell-ro ss-cell-ro-r font-bold">{fmt(totals.budget)}</div></td>
               <td colSpan={2} />
               <td><div className="ss-cell-ro ss-cell-ro-r font-bold">{fmt(totals.fv)}</div></td>
@@ -219,9 +219,9 @@ export default function TradeClient({ trades, projectId }: Props) {
               <td><div className="ss-cell-ro ss-cell-ro-r font-bold">{fmt(totals.ctd)}</div></td>
               <td><div className="ss-cell-ro ss-cell-ro-r font-bold">{fmt(totals.committed)}</div></td>
               <td><div className="ss-cell-ro ss-cell-ro-r font-bold">{fmt(totals.uncommitted)}</div></td>
-              <td><div className="ss-cell-ro ss-cell-ro-r font-black text-[#1e3a5f]">{fmt(totals.efc)}</div></td>
-              <td><div className="ss-cell-ro ss-cell-ro-r font-bold" style={{ color: totals.pl >= 0 ? '#27500A' : '#991B1B' }}>{fmt(totals.pl)}</div></td>
-              <td><div className="ss-cell-ro ss-cell-ro-r text-[11px]" style={{ color: totals.pl >= 0 ? '#456919' : '#9f403d' }}>{totals.fv ? pct(totals.pl/totals.fv) : '—'}</div></td>
+              <td><div className="ss-cell-ro ss-cell-ro-r font-black text-[#1a1d23]">{fmt(totals.efc)}</div></td>
+              <td><div className="ss-cell-ro ss-cell-ro-r font-bold" style={{ color: totals.pl >= 0 ? '#0a6e44' : '#a23015' }}>{fmt(totals.pl)}</div></td>
+              <td><div className="ss-cell-ro ss-cell-ro-r text-[11px]" style={{ color: totals.pl >= 0 ? '#0a8a54' : '#c8412a' }}>{totals.fv ? pct(totals.pl/totals.fv) : '—'}</div></td>
               <td colSpan={2} />
             </tr>
           </tbody>

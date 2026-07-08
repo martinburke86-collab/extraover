@@ -29,9 +29,9 @@ function rag(budget: number, efc: number): RagStatus {
 }
 
 const RAG_CFG = {
-  ok:   { bg: '#F0FCE0', text: '#27500A', label: 'On budget' },
-  warn: { bg: '#FEF9C3', text: '#854F0B', label: 'Near limit' },
-  over: { bg: '#FEE2E2', text: '#991B1B', label: 'Over budget' },
+  ok:   { bg: '#F0FCE0', text: '#0a6e44', label: 'On budget' },
+  warn: { bg: '#fcf2e2', text: '#854F0B', label: 'Near limit' },
+  over: { bg: '#fbeae6', text: '#a23015', label: 'Over budget' },
 }
 
 export default function BudgetClient({
@@ -157,7 +157,7 @@ export default function BudgetClient({
                 <Upload size={13} /> Import CSV / XLSX
               </button>
               <button onClick={() => setAdding(true)}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded text-xs font-semibold text-white bg-[#1e3a5f] hover:bg-[#253f6a]">
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded text-xs font-semibold text-white bg-[#1a1d23] hover:bg-[#253f6a]">
                 <Plus size={13} /> Add Element
               </button>
             </div>
@@ -167,17 +167,17 @@ export default function BudgetClient({
       <ViewerBanner role={role} />
 
       {/* Summary strip */}
-      <div className="bg-[#1e3a5f] px-6 py-2.5 flex items-center gap-6 flex-shrink-0 flex-wrap">
+      <div className="bg-[#1a1d23] px-6 py-2.5 flex items-center gap-6 flex-shrink-0 flex-wrap">
         {[
-          { label: 'Contract Sum',      val: fmt(adjustedSum),    col: '#ccd4ee' },
-          { label: 'Original Budget',   val: fmt(originalBudget), col: '#ccd4ee' },
+          { label: 'Contract Sum',      val: fmt(adjustedSum),    col: '#9aa3b2' },
+          { label: 'Original Budget',   val: fmt(originalBudget), col: '#9aa3b2' },
           { label: 'Total Element Budget', val: fmt(totalBudget), col: '#DEE5B5' },
           { label: 'Total EFC',         val: fmt(totalEFC),       col: '#FAEEDA' },
           { label: 'Budget Variance',   val: fmt(variance),       col: variance >= 0 ? '#DEE5B5' : '#FECACA' },
-          { label: 'Cost to Date',      val: fmt(totalCTD),       col: '#ccd4ee' },
+          { label: 'Cost to Date',      val: fmt(totalCTD),       col: '#9aa3b2' },
         ].map(k => (
           <div key={k.label} className="flex-shrink-0">
-            <div className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: 'rgba(168,196,224,0.55)' }}>{k.label}</div>
+            <div className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: '#6f7787' }}>{k.label}</div>
             <div className="text-sm font-bold tabular-nums" style={{ color: k.col }}>{k.val}</div>
           </div>
         ))}
@@ -204,7 +204,7 @@ export default function BudgetClient({
                 <button
                   onClick={() => fileRef.current?.click()}
                   disabled={saving}
-                  className="px-4 py-1.5 rounded text-xs font-semibold text-white bg-[#1e3a5f] hover:bg-[#253f6a] disabled:opacity-50">
+                  className="px-4 py-1.5 rounded text-xs font-semibold text-white bg-[#1a1d23] hover:bg-[#253f6a] disabled:opacity-50">
                   {saving ? 'Uploading…' : 'Choose file'}
                 </button>
                 <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" className="hidden"
@@ -255,11 +255,11 @@ export default function BudgetClient({
                 <td style={{ padding: '3px 6px' }}>
                   <div className="flex gap-1">
                     <button onClick={addRow} disabled={saving || !newName.trim()}
-                      style={{ background: '#456919', color: '#fff', border: 'none', borderRadius: 5, padding: '4px 10px', fontSize: 12, cursor: 'pointer', opacity: !newName.trim() ? 0.5 : 1 }}>
+                      style={{ background: '#0a8a54', color: '#fff', border: 'none', borderRadius: 5, padding: '4px 10px', fontSize: 12, cursor: 'pointer', opacity: !newName.trim() ? 0.5 : 1 }}>
                       Add
                     </button>
                     <button onClick={() => setAdding(false)}
-                      style={{ background: '#f3f4f6', border: 'none', borderRadius: 5, padding: '4px 8px', fontSize: 12, cursor: 'pointer' }}>
+                      style={{ background: '#f1f2f5', border: 'none', borderRadius: 5, padding: '4px 8px', fontSize: 12, cursor: 'pointer' }}>
                       ✕
                     </button>
                   </div>
@@ -290,12 +290,12 @@ export default function BudgetClient({
                     />
                   </td>
                   <td>
-                    <div className="ss-cell-ro ss-cell-ro-r" style={{ color: isOver ? '#991B1B' : '#1e3a5f', fontWeight: 700 }}>
+                    <div className="ss-cell-ro ss-cell-ro-r" style={{ color: isOver ? '#a23015' : '#1a1d23', fontWeight: 700 }}>
                       {r.efc ? fmt(r.efc) : '—'}
                     </div>
                   </td>
                   <td>
-                    <div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#565e74' }}>
+                    <div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#5b626e' }}>
                       {r.totalCTD ? fmt(r.totalCTD) : '—'}
                     </div>
                   </td>
@@ -305,19 +305,19 @@ export default function BudgetClient({
                     </div>
                   </td>
                   <td>
-                    <div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#565e74' }}>
+                    <div className="ss-cell-ro ss-cell-ro-r" style={{ color: '#5b626e' }}>
                       {r.uncommitted ? fmt(r.uncommitted) : '—'}
                     </div>
                   </td>
                   <td>
                     <div className="ss-cell-ro ss-cell-ro-r font-bold"
-                      style={{ color: varAmt >= 0 ? '#27500A' : '#991B1B' }}>
+                      style={{ color: varAmt >= 0 ? '#0a6e44' : '#a23015' }}>
                       {budget > 0 ? fmt(varAmt) : '—'}
                     </div>
                   </td>
                   <td>
                     <div className="ss-cell-ro ss-cell-ro-r text-[11px]"
-                      style={{ color: varPct !== null && varPct >= 0 ? '#27500A' : '#991B1B' }}>
+                      style={{ color: varPct !== null && varPct >= 0 ? '#0a6e44' : '#a23015' }}>
                       {varPct !== null ? pct(varPct) : '—'}
                     </div>
                   </td>
@@ -344,30 +344,30 @@ export default function BudgetClient({
 
           {/* Totals footer */}
           <tfoot>
-            <tr style={{ background: '#f0f4fa', borderTop: '2px solid #1e3a5f' }}>
-              <td colSpan={2} style={{ padding: '7px 12px', fontWeight: 700, fontSize: 11, color: '#1e3a5f', textTransform: 'uppercase' }}>
+            <tr style={{ background: '#fbfbfc', borderTop: '2px solid #1a1d23' }}>
+              <td colSpan={2} style={{ padding: '7px 12px', fontWeight: 700, fontSize: 11, color: '#1a1d23', textTransform: 'uppercase' }}>
                 Total ({rows.length} elements)
               </td>
-              <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#1e3a5f' }}>
+              <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#1a1d23' }}>
                 {fmt(totalBudget)}
               </td>
-              <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#1e3a5f' }}>
+              <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#1a1d23' }}>
                 {fmt(totalEFC)}
               </td>
-              <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#565e74' }}>
+              <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#5b626e' }}>
                 {fmt(totalCTD)}
               </td>
               <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#856c0b' }}>
                 {fmt(rows.reduce((s, r) => s + r.committed, 0))}
               </td>
-              <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#565e74' }}>
+              <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: '#5b626e' }}>
                 {fmt(rows.reduce((s, r) => s + r.uncommitted, 0))}
               </td>
               <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
-                <span style={{ color: variance >= 0 ? '#27500A' : '#991B1B' }}>{fmt(variance)}</span>
+                <span style={{ color: variance >= 0 ? '#0a6e44' : '#a23015' }}>{fmt(variance)}</span>
               </td>
               <td style={{ padding: '7px 8px', textAlign: 'right', fontWeight: 700, fontSize: 11 }}>
-                <span style={{ color: variance >= 0 ? '#27500A' : '#991B1B' }}>
+                <span style={{ color: variance >= 0 ? '#0a6e44' : '#a23015' }}>
                   {totalBudget > 0 ? pct(variance / totalBudget) : '—'}
                 </span>
               </td>
@@ -392,7 +392,7 @@ export default function BudgetClient({
               <div>
                 <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">From element</label>
                 <select value={adjFrom} onChange={e => setAdjFrom(e.target.value)}
-                  style={{ border: '0.5px solid #d1d5db', borderRadius: 6, padding: '6px 10px', fontSize: 12, background: '#FEF2F2', color: '#991B1B', cursor: 'pointer', minWidth: 200 }}>
+                  style={{ border: '0.5px solid #aeb4bf', borderRadius: 6, padding: '6px 10px', fontSize: 12, background: '#FEF2F2', color: '#a23015', cursor: 'pointer', minWidth: 200 }}>
                   <option value="">Select…</option>
                   {rows.map(r => <option key={r.id} value={r.id}>{r.name} ({fmt(getBudget(r.id))})</option>)}
                 </select>
@@ -400,7 +400,7 @@ export default function BudgetClient({
               <div>
                 <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">To element</label>
                 <select value={adjTo} onChange={e => setAdjTo(e.target.value)}
-                  style={{ border: '0.5px solid #d1d5db', borderRadius: 6, padding: '6px 10px', fontSize: 12, background: '#F0FCE0', color: '#27500A', cursor: 'pointer', minWidth: 200 }}>
+                  style={{ border: '0.5px solid #aeb4bf', borderRadius: 6, padding: '6px 10px', fontSize: 12, background: '#F0FCE0', color: '#0a6e44', cursor: 'pointer', minWidth: 200 }}>
                   <option value="">Select…</option>
                   {rows.filter(r => r.id !== adjFrom).map(r => <option key={r.id} value={r.id}>{r.name} ({fmt(getBudget(r.id))})</option>)}
                 </select>
@@ -409,13 +409,13 @@ export default function BudgetClient({
                 <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Amount (€)</label>
                 <input type="number" value={adjAmount} onChange={e => setAdjAmount(Number(e.target.value))}
                   placeholder="0"
-                  style={{ border: '0.5px solid #d1d5db', borderRadius: 6, padding: '6px 10px', fontSize: 12, width: 130, textAlign: 'right', background: '#FFFFC7' }} />
+                  style={{ border: '0.5px solid #aeb4bf', borderRadius: 6, padding: '6px 10px', fontSize: 12, width: 130, textAlign: 'right', background: '#eef2ff' }} />
               </div>
               <button
                 onClick={applyAdjustment}
                 disabled={!adjFrom || !adjTo || !adjAmount || adjAmount <= 0}
                 style={{
-                  background: '#1e3a5f', color: '#fff', border: 'none', borderRadius: 6,
+                  background: '#1a1d23', color: '#fff', border: 'none', borderRadius: 6,
                   padding: '7px 16px', fontSize: 12, fontWeight: 600, cursor: 'pointer',
                   opacity: (!adjFrom || !adjTo || !adjAmount) ? 0.5 : 1,
                 }}>
