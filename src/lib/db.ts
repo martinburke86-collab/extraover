@@ -116,6 +116,39 @@ export async function initDB() {
       FOREIGN KEY (parent_id) REFERENCES forecast_lines(id)
     );
 
+    CREATE TABLE IF NOT EXISTS subcontractors (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      retention_pct REAL DEFAULT 3,
+      rct_rate REAL DEFAULT 20,
+      tax_clearance_expiry TEXT,
+      insurance_expiry TEXT,
+      final_account_status TEXT DEFAULT 'Open',
+      final_account_value REAL,
+      notes TEXT,
+      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+      UNIQUE(project_id, name)
+    );
+
+    CREATE TABLE IF NOT EXISTS sub_certs (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL,
+      subcontractor_id TEXT NOT NULL,
+      cert_no INTEGER NOT NULL,
+      cert_date TEXT,
+      gross_cumulative REAL DEFAULT 0,
+      retention_pct REAL DEFAULT 3,
+      rct_rate REAL DEFAULT 20,
+      cost_code_id TEXT,
+      variation_id TEXT,
+      status TEXT DEFAULT 'Certified',
+      paid_date TEXT,
+      notes TEXT,
+      FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+      FOREIGN KEY (subcontractor_id) REFERENCES subcontractors(id) ON DELETE CASCADE
+    );
+
     CREATE TABLE IF NOT EXISTS value_periods (
       id TEXT PRIMARY KEY,
       project_id TEXT NOT NULL,

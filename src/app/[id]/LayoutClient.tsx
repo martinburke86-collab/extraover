@@ -23,6 +23,7 @@ const NAV = [
   { href: 'forecast',      label: 'Forecast',        icon: 'trending_up',      section: 'Commercial' },
   { href: 'cost-to-date',  label: 'Cost to Date',    icon: 'receipt_long',     section: 'Cost ledger' },
   { href: 'committed',     label: 'Committed',       icon: 'shopping_cart',    section: 'Cost ledger' },
+  { href: 'subcontractors', label: 'Subcontractors',  icon: 'handshake',        section: 'Cost ledger' },
   { href: 's-curve',       label: 'Cashflow',        icon: 'show_chart',       section: 'Cost ledger' },
   { href: 'cost-codes',    label: 'Cost Codes',      icon: 'tag',              section: 'Cost ledger' },
   { href: 'audit',         label: 'Audit Log',       icon: 'history',          section: 'Governance' },
@@ -218,7 +219,7 @@ function SidebarContents({
         )}
 
         <div className="text-[10px] text-slate-400 text-center pb-0.5 select-none">
-          ExtraOver v41
+          ExtraOver v42
         </div>
       </div>
     </div>

@@ -39,8 +39,26 @@ export default async function DashboardPage({ params }: { params: { id: string }
     tradeMethod:  prelimsTrade ? prelimsTrade.forecastMethod : null,
   }
 
+  const subsCheckR = await db.execute({
+    sql: `SELECT s.name, s.tax_clearance_expiry,
+                 COALESCE(MAX(c.gross_cumulative), 0) as certified,
+                 COALESCE((SELECT SUM(total) FROM committed_lines cl WHERE cl.project_id = s.project_id AND cl.supplier = s.name), 0) as order_value
+          FROM subcontractors s
+          LEFT JOIN sub_certs c ON c.subcontractor_id = s.id
+          WHERE s.project_id=? GROUP BY s.id`,
+    args: [params.id],
+  })
+  const today = new Date().toISOString().slice(0, 10)
+  const subs = (subsCheckR.rows as any[]).map(r => ({
+    name: String(r.name),
+    certified: Number(r.certified) || 0,
+    orderValue: Number(r.order_value) || 0,
+    overCertified: (Number(r.order_value) || 0) > 0 && (Number(r.certified) || 0) > (Number(r.order_value) || 0) + 1,
+    taxExpired: !!r.tax_clearance_expiry && String(r.tax_clearance_expiry) < today,
+  }))
+
   const healthIssues = runHealthChecks(kpis, trades, params.id,
-    { gifa, lockedPeriods, variationCount, variationsCoded, prelims })
+    { gifa, lockedPeriods, variationCount, variationsCoded, prelims, subs })
 
   // All locked period snapshots for trend chart — ordered oldest first
   const trendR = await db.execute({

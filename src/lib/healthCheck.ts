@@ -18,6 +18,7 @@ export function runHealthChecks(
     gifa?: number; lockedPeriods?: number; variationCount?: number
     variationsCoded?: VariationCodedSummary[]
     prelims?: { detailBudget: number; detailPFC: number; tradeMethod: string | null }
+    subs?: { name: string; overCertified: boolean; taxExpired: boolean; certified: number; orderValue: number }[]
   }
 ): HealthIssue[] {
   const issues: HealthIssue[] = []
@@ -176,6 +177,27 @@ export function runHealthChecks(
       title: 'Preliminaries element is not driven by the prelims sheet',
       detail: `The prelims detail projects €${Math.round(extras.prelims.detailPFC).toLocaleString('en-IE')} final cost, but the Preliminaries element uses the '${extras.prelims.tradeMethod}' forecast method, so the two can diverge. Set the element's forecast method to 'prelims' so the detail sheet is the single source.`,
       href: 'prelims',
+    })
+  }
+
+  // Subcontractor register cross-checks
+  const subs = extras?.subs ?? []
+  const overCert = subs.filter(x => x.overCertified)
+  if (overCert.length > 0) {
+    issues.push({
+      id: 'subs-over-certified', severity: 'error',
+      title: `Certified beyond order value on ${overCert.length} subcontractor account${overCert.length > 1 ? 's' : ''}`,
+      detail: overCert.slice(0, 3).map(x => `${x.name} (certified €${Math.round(x.certified).toLocaleString('en-IE')} vs order €${Math.round(x.orderValue).toLocaleString('en-IE')})`).join(', ') + '. Raise a variation to the order or correct the cert.',
+      href: 'subcontractors',
+    })
+  }
+  const taxExpired = subs.filter(x => x.taxExpired && x.certified > 0)
+  if (taxExpired.length > 0) {
+    issues.push({
+      id: 'subs-tax-expired', severity: 'warning',
+      title: `Tax clearance expired on ${taxExpired.length} active subcontractor${taxExpired.length > 1 ? 's' : ''}`,
+      detail: taxExpired.slice(0, 4).map(x => x.name).join(', ') + '. Payments are blocked until clearance is updated on the register.',
+      href: 'subcontractors',
     })
   }
 

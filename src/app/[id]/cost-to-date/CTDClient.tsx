@@ -16,8 +16,9 @@ type Line = {
 }
 type CC = { code: string; description: string; trade: string; category: string }
 type VO = { id: string; ref: string; description: string }
+type AccrualSuggestion = { costCodeId: string; code: string; suppliers: string[]; certified: number; posted: number; suggested: number }
 
-export default function CTDClient({ lines, costCodes, variations, projectId }: { lines: Line[]; costCodes: CC[]; variations: VO[]; projectId: string }) {
+export default function CTDClient({ lines, costCodes, variations, accrualSuggestions = [], projectId }: { lines: Line[]; costCodes: CC[]; variations: VO[]; accrualSuggestions?: AccrualSuggestion[]; projectId: string }) {
   const router = useRouter()
   const [, startTransition] = useTransition()
   const { toast } = useToast()
@@ -185,6 +186,29 @@ export default function CTDClient({ lines, costCodes, variations, projectId }: {
       </div>
 
       {/* Grid */}
+      {accrualSuggestions.length > 0 && (
+        <div style={{ background: '#eef2ff', borderBottom: '1px solid #d6e0ff', padding: '8px 20px', flexShrink: 0 }}>
+          <div style={{ fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em',
+            color: '#1a45c0', fontFamily: "'IBM Plex Mono', monospace", marginBottom: 4 }}>
+            Suggested accruals — sub certified less posted
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {accrualSuggestions.map(sg => {
+              const line = lines.find(l => l.cost_code_id === sg.costCodeId)
+              return (
+                <button key={sg.costCodeId}
+                  title={`${sg.suppliers.join(', ')} certified ${sg.certified.toLocaleString('en-IE')} less posted ${sg.posted.toLocaleString('en-IE')}. Click to set as the accrual on ${sg.code}.`}
+                  onClick={() => { if (line) saveCell(line.id, 'accruals', sg.suggested) }}
+                  disabled={!line}
+                  style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 7, cursor: line ? 'pointer' : 'not-allowed',
+                    background: '#fff', color: '#1a45c0', border: '1px solid #d6e0ff', opacity: line ? 1 : 0.5 }}>
+                  {sg.code} · €{Math.round(sg.suggested).toLocaleString('en-IE')}{!line ? ' (no cost line yet)' : ''}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
       <div className="flex-1 overflow-auto scrollbar-thin">
         <table className="ss-table" onKeyDown={gridNav}>
           <thead>

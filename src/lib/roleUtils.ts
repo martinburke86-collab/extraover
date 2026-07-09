@@ -21,5 +21,5 @@ export function navVisibleForRole(href: string, role: Role): boolean {
 // Pages blocked entirely for viewers (server redirects to dashboard)
 export const VIEWER_BLOCKED = new Set([
   'trade', 'value', 'prelims', 'forecast', 'budget',
-  'cost-to-date', 'committed', 'settings', 'cost-codes', 'checks', 'audit',
+  'cost-to-date', 'committed', 'subcontractors', 'settings', 'cost-codes', 'checks', 'audit',
 ])

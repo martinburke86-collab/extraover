@@ -37,6 +37,7 @@ export interface DashboardKPIs {
   prevCashPosition: number; prevOverUnder: number
   approvedVarsIncome: number; submittedVarsIncome: number; totalVarsCostEst: number
   revisedStart: string | null; revisedFinish: string | null
+  employerRetention: number; subRetentionHeld: number
 }
 
 export interface VariationCodedSummary {
@@ -261,6 +262,17 @@ export async function getDashboardKPIs(projectId: string): Promise<DashboardKPIs
     totalVarsCostEst += Number(r.cost_est) || 0
   }
 
+
+  // Retention position: what the employer holds against us vs what we hold against subs
+  const employerRetention = (Number(vp?.cumul_certified) || 0) * (Number(p.retention_pct ?? 3)) / 100
+  const subRetR = await db.execute({
+    sql: `SELECT s.retention_pct as pct, MAX(c.gross_cumulative) as gross
+          FROM sub_certs c JOIN subcontractors s ON c.subcontractor_id = s.id
+          WHERE c.project_id=? GROUP BY c.subcontractor_id`,
+    args: [projectId],
+  })
+  const subRetentionHeld = (subRetR.rows as any[]).reduce(
+    (t, r) => t + (Number(r.gross) || 0) * (Number(r.pct) || 0) / 100, 0)
   return {
     projectName, contractSum, approvedVars, adjustedSum, originalBudget, originalMargin,
     efc, forecastMargin, forecastMarginPct, savingsOverrun,
@@ -275,6 +287,8 @@ export async function getDashboardKPIs(projectId: string): Promise<DashboardKPIs
     approvedVarsIncome, submittedVarsIncome, totalVarsCostEst,
     revisedStart:  p.revised_start  ? String(p.revised_start)  : null,
     revisedFinish: p.revised_finish ? String(p.revised_finish) : null,
+    employerRetention,
+    subRetentionHeld,
   }
 }
 

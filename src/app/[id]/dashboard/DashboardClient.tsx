@@ -444,6 +444,10 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
                     <DataRow label="Total Claimed"          curr={kpis.totalClaimed}   prev={kpis.prevTotalClaimed} />
                     <DataRow label="Cumul. Certified"       curr={kpis.cumulCertified}  bold />
                     <SubHdr label="WIP / Cash Position" />
+                    <DataRow label="Retention held by employer" curr={kpis.employerRetention} />
+                    <DataRow label="Retention held vs subs"     curr={-kpis.subRetentionHeld} />
+                    <DataRow label="Net retention position"     curr={kpis.employerRetention - kpis.subRetentionHeld} bold
+                      accent={kpis.employerRetention - kpis.subRetentionHeld >= 0 ? 'profit' : 'loss'} />
                     <DataRow label="Revenue Received"       curr={kpis.revenueReceived} />
                     <DataRow label="Total Paid"             curr={kpis.totalPaid} />
                     <DataRow label="Cash Position"          curr={cashPos} prev={kpis.prevCashPosition} bold accent={cashPos >= 0 ? 'profit' : 'loss'} />
