@@ -619,6 +619,12 @@ export default function SCurveClient({
           })
           .filter(p => p.monthlyCost > 0 || p.forecastCost || p.forecastIncome)
 
+        // Bridge the actual → forecast junction so the lines meet instead of gapping
+        if (histPoints.length && fPoints.length) {
+          const last = histPoints[histPoints.length - 1]
+          last.forecastCost   = last.actualCost
+          last.forecastIncome = last.actualClaimed
+        }
         const chartData = [...histPoints, ...fPoints]
 
         const fmtM = (n: number) =>

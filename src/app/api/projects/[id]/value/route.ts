@@ -55,3 +55,31 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
   return NextResponse.json({ ok: true })
 }
+
+// Retention settings live on the project (they govern every period)
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  await initDB()
+  const b = await req.json()
+  const session = await getSession()
+  const userName = session?.name ?? 'Unknown'
+
+  const prevR = await db.execute({
+    sql: `SELECT retention_pct, defects_months FROM projects WHERE id=?`, args: [params.id] })
+  const prev = prevR.rows[0] as any
+
+  const pct = Math.max(0, Math.min(10, Number(b.retentionPct)))
+  const months = Math.max(0, Math.min(36, Math.round(Number(b.defectsMonths))))
+
+  await db.execute({
+    sql: `UPDATE projects SET retention_pct=?, defects_months=? WHERE id=?`,
+    args: [pct, months, params.id],
+  })
+
+  if (prev) {
+    await auditChanges(params.id, 'Value / Claims', 'Retention settings', [
+      { field: 'Retention %',    old: String(prev.retention_pct ?? 3),   next: String(pct) },
+      { field: 'Defects period', old: `${prev.defects_months ?? 12} mo`, next: `${months} mo` },
+    ], userName)
+  }
+  return NextResponse.json({ ok: true })
+}

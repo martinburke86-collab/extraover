@@ -1,5 +1,5 @@
 'use client'
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { fmt, clx } from '@/lib/utils'
 import { PageHeader } from '@/components/ui'
@@ -94,6 +94,21 @@ export default function PeriodsClient({
   const sorted = [...periods].reverse()
   const currentPeriod = periods.find(p => p.isCurrent)
 
+  type GateIssue = { id: string; severity: 'error' | 'warning' | 'info'; title: string; detail?: string; href?: string }
+  const [gateIssues, setGateIssues] = useState<GateIssue[] | null>(null)
+  const [gateOverride, setGateOverride] = useState(false)
+
+  useEffect(() => {
+    if (!showRollForm) { setGateIssues(null); setGateOverride(false); return }
+    fetch(`/api/projects/${projectId}/dashboard`)
+      .then(r => r.json())
+      .then(d => setGateIssues((d.healthIssues || []).filter((i: GateIssue) => i.severity !== 'info')))
+      .catch(() => setGateIssues([]))
+  }, [showRollForm])  // eslint-disable-line react-hooks/exhaustive-deps
+
+  const gateErrors = (gateIssues ?? []).filter(i => i.severity === 'error')
+  const gateBlocked = gateErrors.length > 0 && !gateOverride
+
   async function lockAndRoll() {
     setRolling(true)
     try {
@@ -165,7 +180,7 @@ export default function PeriodsClient({
           </div>
           <button
             onClick={lockAndRoll}
-            disabled={rolling || !newLabel.trim()}
+            disabled={rolling || !newLabel.trim() || gateBlocked}
             className="bg-[#0a8a54] text-white px-4 py-1.5 rounded text-sm font-medium disabled:opacity-40 hover:bg-[#3a5715]">
             {rolling ? 'Locking…' : 'Confirm lock & roll'}
           </button>
@@ -173,6 +188,45 @@ export default function PeriodsClient({
             className="text-sm text-on-surface-variant hover:text-on-surface">
             Cancel
           </button>
+        </div>
+      )}
+
+      {/* Pre-lock checklist — locking is the audit spine, so gate it */}
+      {showRollForm && (
+        <div className="border-b border-[#e7e9ee] bg-white px-6 py-3 flex-shrink-0">
+          <div className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-[#8b93a1] mb-2"
+            style={{ fontFamily: "'IBM Plex Mono', monospace" }}>
+            Ready to lock?
+          </div>
+          {gateIssues === null ? (
+            <div className="text-xs text-[#8b93a1]">Running checks…</div>
+          ) : gateIssues.length === 0 ? (
+            <div className="text-xs font-semibold" style={{ color: '#0a6e44' }}>
+              ✓ All checks passed — this period is clean to lock.
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {gateIssues.map(i => (
+                <div key={i.id} className="flex items-start gap-2 text-xs">
+                  <span style={{ color: i.severity === 'error' ? '#a23015' : '#b6740a', fontWeight: 700, flexShrink: 0 }}>
+                    {i.severity === 'error' ? '✕' : '⚠'}
+                  </span>
+                  <span className="text-[#1a1d23]">
+                    <strong>{i.title}.</strong>{' '}
+                    {i.href && (
+                      <a href={`/${projectId}/${i.href}`} className="underline" style={{ color: '#1c4ed8' }}>Fix →</a>
+                    )}
+                  </span>
+                </div>
+              ))}
+              {gateErrors.length > 0 && (
+                <label className="flex items-center gap-2 text-xs text-[#5b626e] pt-1.5 cursor-pointer select-none">
+                  <input type="checkbox" checked={gateOverride} onChange={e => setGateOverride(e.target.checked)} />
+                  Lock anyway — I understand the snapshot will preserve these issues
+                </label>
+              )}
+            </div>
+          )}
         </div>
       )}
 

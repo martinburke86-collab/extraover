@@ -56,6 +56,7 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
   const [filter, setFilter] = useState<Filter>('all')
   const [expandedFlags, setExpandedFlags] = useState(false)
   const [sort, setSort] = useState<'name' | 'margin' | 'efc' | 'flags'>('name')
+  const [view, setView] = useState<'table' | 'cards'>('table')
   const [sortDir, setSortDir] = useState<1 | -1>(1)
 
   function setSort2(col: typeof sort) {
@@ -204,6 +205,81 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
           </div>
         )}
 
+        {/* View toggle */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
+          <div style={{ display: 'inline-flex', background: '#f1f2f5', borderRadius: 9999, padding: 3 }}>
+            {(['table', 'cards'] as const).map(m => (
+              <button key={m} onClick={() => setView(m)}
+                style={{ fontSize: 11, fontWeight: 600, padding: '4px 14px', borderRadius: 9999, border: 'none',
+                  cursor: 'pointer', textTransform: 'capitalize',
+                  background: view === m ? '#fff' : 'transparent',
+                  color: view === m ? '#1a1d23' : '#5b626e',
+                  boxShadow: view === m ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }}>
+                {m}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Card view */}
+        {view === 'cards' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14, marginBottom: 20 }}>
+            {filtered.map(s2 => {
+              const hasData = s2.efc > 0 || s2.totalCtd > 0
+              const status = rag(s2.forecastPct, hasData)
+              const rc = RAG_COLOURS[status]
+              return (
+                <div key={s2.id} onClick={() => router.push(`/${s2.id}/dashboard`)}
+                  style={{ background: '#fff', border: '1px solid #e7e9ee', borderRadius: 12, padding: '16px 16px 14px',
+                    cursor: 'pointer', transition: 'box-shadow 0.15s, transform 0.15s' }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(26,29,35,0.08)' }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1d23', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s2.name}</div>
+                      <div style={{ fontSize: 10.5, color: '#8b93a1', fontFamily: "'IBM Plex Mono', monospace", marginTop: 2 }}>
+                        {s2.code} · {s2.client || '\u2013'}
+                      </div>
+                    </div>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10, fontWeight: 700,
+                      padding: '3px 9px', borderRadius: 9999, background: '#fbfbfc', border: '1px solid #eef0f3',
+                      color: rc.text, whiteSpace: 'nowrap' }}>
+                      <Dot status={status} /> {rc.label}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.015em', color: '#1a1d23', margin: '10px 0 2px' }}>
+                    {fmt(s2.adjustedSum || s2.contractSum)}
+                  </div>
+                  <div style={{ fontSize: 10.5, color: '#8b93a1', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
+                    Adjusted contract sum
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8,
+                    borderTop: '1px solid #f1f2f5', paddingTop: 10 }}>
+                    {[
+                      { k: 'Margin', v: `${(s2.forecastPct * 100).toFixed(1)}%`,
+                        c: s2.forecastMargin >= 0 ? '#0a6e44' : '#a23015' },
+                      { k: 'CTD', v: s2.totalCtd > 0 ? fmt(s2.totalCtd) : '\u2013', c: '#1a1d23' },
+                      { k: 'Cash', v: s2.cashPosition !== 0 ? fmt(s2.cashPosition) : '\u2013',
+                        c: s2.cashPosition >= 0 ? '#1a1d23' : '#a23015' },
+                    ].map(m => (
+                      <div key={m.k}>
+                        <div style={{ fontSize: 9.5, color: '#8b93a1', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{m.k}</div>
+                        <div style={{ fontSize: 12.5, fontWeight: 700, color: m.c, fontVariantNumeric: 'tabular-nums', marginTop: 2 }}>{m.v}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {s2.issueCount > 0 && (
+                    <div style={{ marginTop: 10, fontSize: 10.5, fontWeight: 600,
+                      color: s2.errorCount > 0 ? '#a23015' : '#b6740a' }}>
+                      ⚑ {s2.issueCount} flag{s2.issueCount !== 1 ? 's' : ''}{s2.errorCount > 0 ? ` · ${s2.errorCount} critical` : ''}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+
         {/* Filter + table */}
         <div style={{ background: '#fff', border: '0.5px solid #e7e9ee', borderRadius: 10, overflow: 'hidden' }}>
 
@@ -228,7 +304,7 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
           </div>
 
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900, display: view === 'cards' ? 'none' : undefined }}>
               <thead>
                 <tr>
                   <SortTh col="name"   label="Project" />

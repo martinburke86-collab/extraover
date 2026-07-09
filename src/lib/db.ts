@@ -276,6 +276,8 @@ export function cuid(): string {
 // Run lightweight column migrations on every cold start
 export async function runMigrations() {
   const cols = [
+    `ALTER TABLE projects ADD COLUMN retention_pct REAL DEFAULT 3`,
+    `ALTER TABLE projects ADD COLUMN defects_months INTEGER DEFAULT 12`,
     `ALTER TABLE cost_lines ADD COLUMN variation_id TEXT`,
     `ALTER TABLE committed_lines ADD COLUMN variation_id TEXT`,
     `ALTER TABLE forecast_lines ADD COLUMN variation_id TEXT`,

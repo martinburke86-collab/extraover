@@ -29,6 +29,17 @@ export default function ValueClient({ vp, proj, projectId }: Props) {
   })
   const [tick, setTick] = useState(0)
   const [status, setStatus] = useState<'idle'|'saving'|'saved'>('idle')
+  const [retPct, setRetPct] = useState<number>(Number(proj?.retention_pct ?? 3))
+  const [defMonths, setDefMonths] = useState<number>(Number(proj?.defects_months ?? 12))
+
+  async function saveRetentionSettings(pct: number, months: number) {
+    setRetPct(pct); setDefMonths(months)
+    await fetch(`/api/projects/${projectId}/value`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ retentionPct: pct, defectsMonths: months }),
+    })
+  }
 
   function setVal(key: Exclude<keyof typeof vals.current, 'app_ref'>, v: number) {
     vals.current[key] = v
@@ -185,6 +196,72 @@ export default function ValueClient({ vp, proj, projectId }: Props) {
           Click into any yellow cell to edit. Tab / Enter / Arrow keys to navigate. Click Save Changes to persist.
         </p>
       </div>
+
+      {/* ── Retention ──────────────────────────────────────────────────── */}
+      {(() => {
+        const held = Math.max(0, v.cumul_certified * retPct / 100)
+        const moiety = held / 2
+        const pc = proj?.revised_finish ? new Date(String(proj.revised_finish)) : null
+        const eod = pc ? new Date(new Date(pc).setMonth(pc.getMonth() + defMonths)) : null
+        const now = new Date()
+        const fmtD = (d: Date | null) => d
+          ? d.toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: 'numeric' })
+          : 'set completion date in Settings'
+        const Row = ({ label, amount, date, due }: { label: string; amount: number; date: Date | null; due: boolean }) => (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '9px 14px', borderBottom: '1px solid #f1f2f5', fontSize: 12 }}>
+            <div>
+              <div style={{ fontWeight: 600, color: '#1a1d23' }}>{label}</div>
+              <div style={{ fontSize: 11, color: '#8b93a1', fontFamily: "'IBM Plex Mono', monospace" }}>{fmtD(date)}</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {due && amount > 0 && (
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 7,
+                  background: '#e7f6ee', color: '#0a6e44', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Due for release
+                </span>
+              )}
+              <span style={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums',
+                color: due ? '#0a6e44' : '#b6740a' }}>{fmt(amount)}</span>
+            </div>
+          </div>
+        )
+        return (
+          <div style={{ background: '#fff', border: '1px solid #e7e9ee', borderRadius: 12, marginTop: 16, overflow: 'hidden', maxWidth: 560 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '10px 14px', background: '#fbfbfc', borderBottom: '1px solid #e7e9ee' }}>
+              <span style={{ fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em',
+                color: '#8b93a1', fontFamily: "'IBM Plex Mono', monospace" }}>Retention</span>
+              <div style={{ display: 'flex', gap: 14, alignItems: 'center', fontSize: 11, color: '#5b626e' }}>
+                <label style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+                  Rate
+                  <input type="number" step="0.5" min={0} max={10} value={retPct}
+                    onChange={e => saveRetentionSettings(Number(e.target.value) || 0, defMonths)}
+                    style={{ width: 48, border: '1px solid #e7e9ee', borderRadius: 6, padding: '2px 6px',
+                      fontSize: 11, textAlign: 'right', background: '#eef2ff' }} />%
+                </label>
+                <label style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+                  Defects
+                  <input type="number" min={0} max={36} value={defMonths}
+                    onChange={e => saveRetentionSettings(retPct, Number(e.target.value) || 0)}
+                    style={{ width: 42, border: '1px solid #e7e9ee', borderRadius: 6, padding: '2px 6px',
+                      fontSize: 11, textAlign: 'right', background: '#eef2ff' }} /> mo
+                </label>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px',
+              borderBottom: '1px solid #f1f2f5', fontSize: 12 }}>
+              <span style={{ color: '#5b626e' }}>Retention held to date ({retPct}% of certified)</span>
+              <span style={{ fontWeight: 700, color: '#b6740a', fontVariantNumeric: 'tabular-nums' }}>{fmt(held)}</span>
+            </div>
+            <Row label="First moiety · practical completion" amount={moiety} date={pc}  due={!!pc  && now >= pc} />
+            <Row label="Second moiety · end of defects"      amount={moiety} date={eod} due={!!eod && now >= eod} />
+            <div style={{ padding: '8px 14px', fontSize: 11, color: '#8b93a1' }}>
+              Net certified after retention: <strong style={{ color: '#1a1d23' }}>{fmt(v.cumul_certified - held)}</strong>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
