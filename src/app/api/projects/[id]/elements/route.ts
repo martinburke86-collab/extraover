@@ -83,7 +83,23 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     }
   }
 
-  return NextResponse.json({
+  // Ensure every element has at least one cost code so CTD/Committed entry works immediately
+  const codeless = await db.execute({
+    sql: `SELECT t.name, t.code_prefix FROM trades t
+          WHERE t.project_id=? AND NOT EXISTS
+            (SELECT 1 FROM cost_codes cc WHERE cc.project_id=t.project_id AND cc.trade=t.name)`,
+    args: [params.id],
+  })
+  for (const t of codeless.rows as any[]) {
+    const prefix = (t.code_prefix && String(t.code_prefix).trim())
+      || String(t.name).replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase() || 'GEN'
+    await db.execute({
+      sql: `INSERT INTO cost_codes VALUES (?,?,?,?,?,?,?)`,
+      args: [cuid(), params.id, `${prefix}-GEN`, `${t.name} general`, t.name, 'Subcontractor', null],
+    })
+  }
+
+    return NextResponse.json({
     ok: true,
     inserted: inserted.length,
     updated:  updated.length,

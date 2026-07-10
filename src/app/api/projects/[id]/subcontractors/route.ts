@@ -41,7 +41,9 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     const latest = certs.length ? certs[certs.length - 1] : null
     const certifiedCum = latest ? Number(latest.gross_cumulative) || 0 : 0
     const retentionHeld = certifiedCum * (Number(sub.retention_pct) || 0) / 100
-    const orderValue = orderMap[String(sub.name)] || 0
+    // Convention A: committed lines decay as invoiced, so the standing order value
+    // lives on the account (snapshotted at import, editable). Live sum is the fallback.
+    const orderValue = sub.order_value != null ? Number(sub.order_value) : (orderMap[String(sub.name)] || 0)
     const today = new Date().toISOString().slice(0, 10)
     return {
       ...sub,
@@ -72,10 +74,17 @@ export async function POST(req: Request, { params }: { params: { id: string } })
               AND supplier NOT IN (SELECT name FROM subcontractors WHERE project_id=?)`,
       args: [params.id, params.id],
     })
+    // Snapshot the current committed sum as the standing order value at import time
+    const sumsR = await db.execute({
+      sql: `SELECT supplier, SUM(total) as v FROM committed_lines
+            WHERE project_id=? GROUP BY supplier`,
+      args: [params.id],
+    })
+    const sums = Object.fromEntries((sumsR.rows as any[]).map(r => [String(r.supplier), Number(r.v) || 0]))
     for (const r of unregR.rows as any[]) {
       await db.execute({
-        sql: `INSERT INTO subcontractors (id, project_id, name) VALUES (?,?,?)`,
-        args: [cuid(), params.id, String(r.supplier)],
+        sql: `INSERT INTO subcontractors (id, project_id, name, order_value) VALUES (?,?,?,?)`,
+        args: [cuid(), params.id, String(r.supplier), sums[String(r.supplier)] ?? null],
       })
     }
     await auditChanges(params.id, 'Subcontractors', 'Register', [
@@ -110,12 +119,13 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
   await db.execute({
     sql: `UPDATE subcontractors SET retention_pct=?, rct_rate=?, tax_clearance_expiry=?, insurance_expiry=?,
-          final_account_status=?, final_account_value=?, notes=? WHERE id=? AND project_id=?`,
+          final_account_status=?, final_account_value=?, order_value=?, notes=? WHERE id=? AND project_id=?`,
     args: [b.retentionPct ?? o.retention_pct, b.rctRate ?? o.rct_rate,
            b.taxClearanceExpiry === undefined ? o.tax_clearance_expiry : (b.taxClearanceExpiry || null),
            b.insuranceExpiry === undefined ? o.insurance_expiry : (b.insuranceExpiry || null),
            b.finalAccountStatus ?? o.final_account_status,
            b.finalAccountValue === undefined ? o.final_account_value : b.finalAccountValue,
+           b.orderValue === undefined ? o.order_value : (b.orderValue || null),
            b.notes === undefined ? o.notes : b.notes,
            b.subId, params.id],
   })
@@ -125,6 +135,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     changes.push({ field: `${o.name} retention %`, old: String(o.retention_pct), next: String(b.retentionPct) })
   if (b.rctRate !== undefined && Number(b.rctRate) !== Number(o.rct_rate))
     changes.push({ field: `${o.name} RCT rate`, old: `${o.rct_rate}%`, next: `${b.rctRate}%` })
+  if (b.orderValue !== undefined && Number(b.orderValue) !== Number(o.order_value))
+    changes.push({ field: `${o.name} order value`, old: String(o.order_value ?? '\u2013'), next: String(b.orderValue) })
   if (b.finalAccountStatus !== undefined && b.finalAccountStatus !== o.final_account_status)
     changes.push({ field: `${o.name} final account`, old: String(o.final_account_status), next: String(b.finalAccountStatus) })
   if (changes.length) await auditChanges(params.id, 'Subcontractors', String(o.name), changes, userName)

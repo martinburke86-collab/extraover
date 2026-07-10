@@ -254,6 +254,14 @@ export default function SubcontractorsClient({ projectId, costCodes, variations,
                             style={{ border: '1px solid #e7e9ee', borderRadius: 6, padding: '2px 6px', fontSize: 11 }} />
                         </label>
                         <label style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+                          Order value
+                          <input type="number" min={0} defaultValue={sub.order_value || ''}
+                            onBlur={e => patchSub(sub.id, { orderValue: Number(e.target.value) || null })}
+                            title="Standing order / subcontract value. Held here because Committed decays as costs are invoiced."
+                            style={{ width: 90, border: '1px solid #e7e9ee', borderRadius: 6, padding: '2px 6px',
+                              fontSize: 11, textAlign: 'right', background: '#eef2ff' }} />
+                        </label>
+                        <label style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
                           Final account
                           <select defaultValue={sub.final_account_status}
                             onChange={e => patchSub(sub.id, { finalAccountStatus: e.target.value })}

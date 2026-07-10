@@ -126,6 +126,7 @@ export async function initDB() {
       insurance_expiry TEXT,
       final_account_status TEXT DEFAULT 'Open',
       final_account_value REAL,
+      order_value REAL,
       notes TEXT,
       FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
       UNIQUE(project_id, name)
@@ -309,6 +310,7 @@ export function cuid(): string {
 // Run lightweight column migrations on every cold start
 export async function runMigrations() {
   const cols = [
+    `ALTER TABLE subcontractors ADD COLUMN order_value REAL`,
     `ALTER TABLE projects ADD COLUMN retention_pct REAL DEFAULT 3`,
     `ALTER TABLE projects ADD COLUMN defects_months INTEGER DEFAULT 12`,
     `ALTER TABLE cost_lines ADD COLUMN variation_id TEXT`,

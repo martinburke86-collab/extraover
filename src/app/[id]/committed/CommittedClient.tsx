@@ -117,7 +117,7 @@ export default function CommittedClient({ lines, costCodes, variations, projectI
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <PageHeader title="Committed Costs Register" subtitle="Orders, subcontracts & commitments"
+      <PageHeader title="Committed Costs Register" subtitle="Remaining commitment \u2014 reduce each line as costs are invoiced. EFC = Cost to Date + Committed + Uncommitted"
         actions={
           <div className="flex items-center gap-2">
             <button onClick={() => setShowUpload(true)}
