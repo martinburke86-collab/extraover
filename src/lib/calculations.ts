@@ -211,7 +211,16 @@ export async function getDashboardKPIs(projectId: string): Promise<DashboardKPIs
 
   const projectName    = String(p.name || "")
   const contractSum    = Number(p.contract_sum)    || 0
-  const approvedVars   = Number(p.approved_vars)   || 0
+  // Single source of truth: once the variations register is in use, it drives
+  // approved vars; the settings field is only a fallback for register-less projects.
+  const varAgg = await db.execute({
+    sql: `SELECT COUNT(*) as n,
+                 SUM(CASE WHEN status='Approved' THEN income_value ELSE 0 END) as appr
+          FROM variations WHERE project_id=?`,
+    args: [projectId],
+  })
+  const va = varAgg.rows[0] as any
+  const approvedVars = Number(va?.n) > 0 ? (Number(va?.appr) || 0) : (Number(p.approved_vars) || 0)
   const originalBudget = Number(p.original_budget) || 0
   const originalMargin = Number(p.original_margin) || 0
   const adjustedSum    = contractSum + approvedVars

@@ -486,13 +486,13 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
                   <div>
                     <h4 className="text-[9px] font-black text-tertiary uppercase tracking-widest mb-2">Profit positions</h4>
                     <div className="space-y-1.5">
-                      {trades.filter(t => t.projectedPL > 0).slice(0, 4).map(t => (
+                      {trades.filter(t => t.efc > 0 && t.budget - t.efc > 0).slice(0, 4).map(t => (
                         <div key={t.trade} className="flex items-center justify-between p-2 rounded-sm" style={{ background: '#F0FCE0' }}>
                           <span className="text-[11px] font-bold uppercase truncate mr-2">{t.trade}</span>
-                          <span className="text-[11px] font-black tabular-nums text-tertiary flex-shrink-0">+{fmt(t.projectedPL)}</span>
+                          <span className="text-[11px] font-black tabular-nums text-tertiary flex-shrink-0">+{fmt(t.budget - t.efc)}</span>
                         </div>
                       ))}
-                      {trades.filter(t => t.projectedPL > 0).length === 0 && (
+                      {trades.filter(t => t.efc > 0 && t.budget - t.efc > 0).length === 0 && (
                         <p className="text-[10px] text-on-surface-variant text-center py-2">No profit positions</p>
                       )}
                     </div>
@@ -500,13 +500,13 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
                   <div>
                     <h4 className="text-[9px] font-black text-error uppercase tracking-widest mb-2">Overrun positions</h4>
                     <div className="space-y-1.5">
-                      {trades.filter(t => t.projectedPL < 0).slice(0, 4).map(t => (
+                      {trades.filter(t => t.efc > 0 && t.budget - t.efc < 0).slice(0, 4).map(t => (
                         <div key={t.trade} className="flex items-center justify-between p-2 rounded-sm" style={{ background: '#fbeae6' }}>
                           <span className="text-[11px] font-bold uppercase truncate mr-2">{t.trade}</span>
-                          <span className="text-[11px] font-black tabular-nums text-error flex-shrink-0">{fmt(t.projectedPL)}</span>
+                          <span className="text-[11px] font-black tabular-nums text-error flex-shrink-0">{fmt(t.budget - t.efc)}</span>
                         </div>
                       ))}
-                      {trades.filter(t => t.projectedPL < 0).length === 0 && (
+                      {trades.filter(t => t.efc > 0 && t.budget - t.efc < 0).length === 0 && (
                         <p className="text-[10px] text-on-surface-variant text-center py-2">No overruns</p>
                       )}
                     </div>
