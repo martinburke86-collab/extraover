@@ -57,7 +57,7 @@ export async function POST(req: Request) {
   const periodId = cuid()
   const label = b.reportPeriod || new Date().toLocaleDateString('en-IE',{month:'long',year:'numeric'})
   await db.execute({
-    sql: `INSERT INTO report_periods VALUES (?,?,?,?,1,NULL)`,
+    sql: `INSERT INTO report_periods (id, project_id, label, period_date, is_current, locked_at) VALUES (?,?,?,?,1,NULL)`,
     args: [periodId, id, label, new Date().toISOString().slice(0,10)],
   })
 

@@ -83,7 +83,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
     await db.execute({ sql: `DELETE FROM period_snapshots WHERE period_id=?`, args: [currentPeriodId] })
     await db.execute({
-      sql: `INSERT INTO period_snapshots VALUES (?,?,?,?,?,?,?,?,?)`,
+      sql: `INSERT INTO period_snapshots (id, period_id, efc, forecast_margin, total_ctd, total_claimed, cash_position, over_under_claim, trade_pl) VALUES (?,?,?,?,?,?,?,?,?)`,
       args: [cuid(), currentPeriodId, kpis.efc, kpis.forecastMargin, kpis.actualsTotal,
              kpis.totalClaimed, kpis.cashPosition, kpis.overUnderClaim, JSON.stringify(tradePL)],
     })
@@ -99,7 +99,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const newId = cuid()
   const dateStr = newDate || new Date().toISOString().slice(0, 10)
   await db.execute({
-    sql: `INSERT INTO report_periods VALUES (?,?,?,?,1,NULL)`,
+    sql: `INSERT INTO report_periods (id, project_id, label, period_date, is_current, locked_at) VALUES (?,?,?,?,1,NULL)`,
     args: [newId, params.id, newLabel || 'New Period', dateStr],
   })
 

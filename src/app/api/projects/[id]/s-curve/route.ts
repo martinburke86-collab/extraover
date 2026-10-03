@@ -22,7 +22,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i]
     await db.execute({
-      sql: `INSERT INTO s_curve_rows VALUES (?,?,?,?,?,?,?,?)`,
+      sql: `INSERT INTO s_curve_rows (id, project_id, month_label, month_date, sort_order, cumul_claimed, cumul_certified, cumul_cost) VALUES (?,?,?,?,?,?,?,?)`,
       args: [r.id || cuid(), params.id, r.month_label, r.month_date || new Date().toISOString().slice(0,10),
              i, r.cumul_claimed || 0, r.cumul_certified || 0, r.cumul_cost || 0],
     })

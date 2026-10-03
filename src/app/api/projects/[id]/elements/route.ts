@@ -99,7 +99,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     const prefix = (t.code_prefix && String(t.code_prefix).trim())
       || String(t.name).replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase() || 'GEN'
     await db.execute({
-      sql: `INSERT INTO cost_codes VALUES (?,?,?,?,?,?,?)`,
+      sql: `INSERT INTO cost_codes (id, project_id, code, description, trade, category, notes) VALUES (?,?,?,?,?,?,?)`,
       args: [cuid(), params.id, `${prefix}-GEN`, `${t.name} general`, t.name, 'Subcontractor', null],
     })
   }

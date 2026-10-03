@@ -10,6 +10,19 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   await initDB()
   const b = await req.json()
 
+  // The Terminology panel saves on its own, sending only { terminology }
+  if (b.name === undefined && b.terminology !== undefined) {
+    const prev = await db.execute({ sql: `SELECT terminology FROM projects WHERE id=?`, args: [params.id] })
+    await db.execute({
+      sql: `UPDATE projects SET terminology=?, updated_at=datetime('now') WHERE id=?`,
+      args: [b.terminology, params.id],
+    })
+    await auditChanges(params.id, 'Settings', 'Terminology', [
+      { field: 'Terminology', old: String((prev.rows[0] as any)?.terminology ?? 'Default'), next: String(b.terminology) },
+    ], guard.session.name)
+    return NextResponse.json({ ok: true })
+  }
+
   const old = await db.execute({
     sql: `SELECT name, contract_sum, approved_vars, original_budget, original_margin, gifa FROM projects WHERE id=?`,
     args: [params.id],

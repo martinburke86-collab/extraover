@@ -20,7 +20,7 @@ async function seed() {
 
   const projectId = cuid()
   await db.execute({
-    sql: `INSERT INTO projects VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'),datetime('now'))`,
+    sql: `INSERT INTO projects (id, name, code, client, contract_type, prepared_by, contract_sum, approved_vars, original_budget, original_margin, contract_start, contract_finish, revised_start, revised_finish, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'),datetime('now'))`,
     args: [projectId, 'New Project', 'PRJ-001', '',
       '', '', 0, 0, 0, 0,
       '2026-07-03', '2027-08-18', '2026-07-03', '2027-09-30'],
@@ -28,7 +28,7 @@ async function seed() {
 
   const periodId = cuid()
   await db.execute({
-    sql: `INSERT INTO report_periods VALUES (?,?,?,?,1,NULL)`,
+    sql: `INSERT INTO report_periods (id, project_id, label, period_date, is_current, locked_at) VALUES (?,?,?,?,1,NULL)`,
     args: [periodId, projectId, 'March 2026', '2026-03-31'],
   })
 
@@ -300,7 +300,7 @@ async function seed() {
     const id = cuid()
     codeIdMap[code] = id
     await db.execute({
-      sql: `INSERT INTO cost_codes VALUES (?,?,?,?,?,?,NULL)`,
+      sql: `INSERT INTO cost_codes (id, project_id, code, description, trade, category, notes) VALUES (?,?,?,?,?,?,NULL)`,
       args: [id, projectId, code, desc, trade, cat],
     })
   }
@@ -496,7 +496,7 @@ async function seed() {
 
   for (const [ref,desc,status,ds,da,income,costEst,costAct,notes] of variationsList) {
     await db.execute({
-      sql: 'INSERT INTO variations VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+      sql: 'INSERT INTO variations (id, project_id, ref, description, status, date_submitted, date_approved, income_value, cost_estimate, cost_actual, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
       args: [cuid(), projectId, ref, desc, status, ds, da, income, costEst, costAct, notes],
     })
   }
@@ -519,7 +519,7 @@ async function seed() {
   for (let i = 0; i < prelimItems.length; i++) {
     const [section,code,desc,budget,ctd,committed,qty,unit,rate,util,sw,fw,notes] = prelimItems[i]
     await db.execute({
-      sql: 'INSERT INTO prelim_items VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      sql: 'INSERT INTO prelim_items (id, project_id, section, cost_code, description, budget, ctd, committed, qty, unit, rate, utilisation_pct, start_week, finish_week, sort_order, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
       args: [cuid(), projectId, section, code, desc, budget, ctd, committed, qty, unit, rate, util, sw, fw, i, notes],
     })
   }
@@ -527,7 +527,7 @@ async function seed() {
   // Value period with real data
   await db.execute({ sql: 'DELETE FROM value_periods WHERE project_id=?', args: [projectId] })
   await db.execute({
-    sql: 'INSERT INTO value_periods VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+    sql: 'INSERT INTO value_periods (id, project_id, period_id, cumul_claimed, cumul_certified, front_loading, unapproved_claims, other_adjustments, revenue_received, total_paid, risk_value, opportunity_value) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
     args: [cuid(), projectId, periodId,
       4250000,  // cumul_claimed
       3980000,  // cumul_certified
@@ -563,14 +563,14 @@ async function seed() {
   for (let i = 0; i < sCurveData.length; i++) {
     const [label, date, planned, cumulPlanned, cumulActual] = sCurveData[i]
     await db.execute({
-      sql: 'INSERT INTO s_curve_rows VALUES (?,?,?,?,?,?,?,?)',
+      sql: 'INSERT INTO s_curve_rows (id, project_id, month_label, month_date, sort_order, cumul_claimed, cumul_certified, cumul_cost) VALUES (?,?,?,?,?,?,?,?)',
       args: [cuid(), projectId, label, date, i, cumulPlanned, i < 13 ? cumulActual : null, i < 13 ? cumulActual * 0.95 : null],
     })
   }
 
   // Value Period — seed a blank one
   await db.execute({
-    sql: `INSERT INTO value_periods VALUES (?,?,?,0,0,0,0,0,0,0,0,0)`,
+    sql: `INSERT INTO value_periods (id, project_id, period_id, cumul_claimed, cumul_certified, front_loading, unapproved_claims, other_adjustments, revenue_received, total_paid, risk_value, opportunity_value) VALUES (?,?,?,0,0,0,0,0,0,0,0,0)`,
     args: [cuid(), projectId, periodId],
   })
 
@@ -591,7 +591,7 @@ async function seed() {
   for (let i = 0; i < blankPrelims.length; i++) {
     const [section, code, desc, unit] = blankPrelims[i]
     await db.execute({
-      sql: `INSERT INTO prelim_items VALUES (?,?,?,?,?,0,0,0,1,?,0,100,1,52,?,NULL)`,
+      sql: `INSERT INTO prelim_items (id, project_id, section, cost_code, description, budget, ctd, committed, qty, unit, rate, utilisation_pct, start_week, finish_week, sort_order, notes) VALUES (?,?,?,?,?,0,0,0,1,?,0,100,1,52,?,NULL)`,
       args: [cuid(), projectId, section, code, desc, unit, i],
     })
   }
@@ -626,10 +626,10 @@ async function seed() {
     'Fit Out & Finishes','External Works','Prelims & Management',
   ]
   for (let i = 0; i < globalElements.length; i++) {
-    await db.execute({ sql: `INSERT INTO global_elements VALUES (?,?,?)`, args: [cuid(), globalElements[i], i] })
+    await db.execute({ sql: `INSERT INTO global_elements (id, name, sort_order) VALUES (?,?,?)`, args: [cuid(), globalElements[i], i] })
   }
   for (let i = 0; i < globalTradesList.length; i++) {
-    await db.execute({ sql: `INSERT INTO global_trades VALUES (?,?,?)`, args: [cuid(), globalTradesList[i], i] })
+    await db.execute({ sql: `INSERT INTO global_trades (id, name, sort_order) VALUES (?,?,?)`, args: [cuid(), globalTradesList[i], i] })
   }
 
   console.log('✅ Database seeded successfully')

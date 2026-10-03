@@ -73,7 +73,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const nextOrder = (Number((maxOrd.rows[0] as any)?.m) || 0) + 1
 
   await db.execute({
-    sql: `INSERT INTO breakdowns VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    sql: `INSERT INTO breakdowns (id, parent_id, parent_type, parent_field, sort_order, description, qty, unit, rate, amount, cost_code, trade, element, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     args: [id, b.parentId, b.parentType, b.parentField, nextOrder,
            b.description || null, b.qty ?? 1, b.unit || 'nr',
            b.rate || 0, amount, b.cost_code || null, b.trade || null,

@@ -24,7 +24,7 @@ and value, so treat every change as a production change.
 - `src/lib/healthCheck.ts` reconciliation checks (dashboard, pre-lock gate)
 - `src/lib/audit.ts` `writeAudit` / `auditChanges` / `auditMoney`
 - `src/lib/pageAuth.ts` (pages) and `apiAuth.ts` (API routes) enforce owner /
-  editor / viewer roles via `roles.ts`. `authz.ts` is legacy next-auth, unused
+  editor / viewer roles via `roles.ts`.
 - `src/components/ui.tsx` shared primitives (PageHeader, Panel, KpiCard, Btn...)
 - `src/app/[id]/LayoutClient.tsx` sidebar, including the version label
 
@@ -79,7 +79,7 @@ for them, and add a health check when two sources can drift.
 ### 5. Release discipline
 Every release that goes to main:
 - Bumps the sidebar label in `src/app/[id]/LayoutClient.tsx` (currently
-  `ExtraOver v46`) to the next number.
+  `ExtraOver v47`) to the next number.
 - Adds `RELEASE_NOTES_vXX.md` at the repo root (format below).
 - Uses a commit subject of the form `vXX: short summary, comma separated`.
 
