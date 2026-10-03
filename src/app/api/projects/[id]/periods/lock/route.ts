@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
 import { getDashboardKPIs, getTradeSummaries } from '@/lib/calculations'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export async function POST(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const [kpis, trades] = await Promise.all([
     getDashboardKPIs(params.id),

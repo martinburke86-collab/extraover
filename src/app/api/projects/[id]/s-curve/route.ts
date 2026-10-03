@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'viewer')
+  if (!guard.ok) return guard.res
   await initDB()
   const r = await db.execute({
     sql: `SELECT * FROM s_curve_rows WHERE project_id=? ORDER BY sort_order`,
@@ -11,6 +14,8 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 }
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const { rows } = await req.json()
   await db.execute({ sql: `DELETE FROM s_curve_rows WHERE project_id=?`, args: [params.id] })

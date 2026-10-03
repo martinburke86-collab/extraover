@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 // The standard prelims template based on Revised_1.xlsx
 // Section codes PR100-PR900, subsections, and all line items
@@ -260,6 +261,8 @@ const TEMPLATE: Array<{
 ]
 
 export async function POST(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
 
   // Check if prelims already exist — don't overwrite

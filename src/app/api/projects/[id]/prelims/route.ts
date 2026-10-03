@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
 import { getPrelimItems } from '@/lib/calculations'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'viewer')
+  if (!guard.ok) return guard.res
   await initDB()
   const [items, projR] = await Promise.all([
     getPrelimItems(params.id),
@@ -21,6 +24,8 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 }
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const b = await req.json()
   const id = cuid()
@@ -39,6 +44,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 }
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const b = await req.json()
   await db.execute({
@@ -55,6 +62,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const { id } = await req.json()
   await db.execute({ sql: 'DELETE FROM prelim_items WHERE id=? AND project_id=?', args: [id, params.id] })

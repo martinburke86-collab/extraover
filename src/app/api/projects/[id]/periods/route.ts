@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
 import { getDashboardKPIs, getTradeSummaries } from '@/lib/calculations'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export const dynamic = 'force-dynamic'
 
 // GET — all periods + snapshots for a project
 export async function GET(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'viewer')
+  if (!guard.ok) return guard.res
   await initDB()
 
   const periodsR = await db.execute({
@@ -56,6 +59,8 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 
 // POST — lock current period and roll to next
 export async function POST(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const body = await req.json()
   const { newLabel, newDate } = body

@@ -2,8 +2,11 @@ import { getSession } from '@/lib/getSession'
 import { NextResponse } from 'next/server'
 import { db, initDB } from '@/lib/db'
 import { auditChanges, auditMoney } from '@/lib/audit'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'owner')
+  if (!guard.ok) return guard.res
   await initDB()
   const b = await req.json()
 

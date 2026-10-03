@@ -2,8 +2,11 @@ import { getSession } from '@/lib/getSession'
 import { NextResponse } from 'next/server'
 import { db, initDB } from '@/lib/db'
 import { auditChanges, writeAudit, auditMoney } from '@/lib/audit'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'viewer')
+  if (!guard.ok) return guard.res
   await initDB()
   const result = await db.execute({
     sql: `SELECT * FROM trades WHERE project_id = ? ORDER BY sort_order`,
@@ -13,6 +16,8 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 }
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const { tradeId, valueCertified, varsNotAgreed, adjustments,
           forecastMethod, forecastHardKey, budget, name } = await req.json()

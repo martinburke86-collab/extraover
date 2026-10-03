@@ -2,8 +2,11 @@ import { getSession } from '@/lib/getSession'
 import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
 import { writeAudit, auditChanges, auditMoney } from '@/lib/audit'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'viewer')
+  if (!guard.ok) return guard.res
   await initDB()
   const r = await db.execute({
     sql: `SELECT * FROM variations WHERE project_id=? ORDER BY ref`,
@@ -42,6 +45,8 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 }
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const b = await req.json()
 
@@ -85,6 +90,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 }
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const b = await req.json()
 
@@ -124,6 +131,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const { id } = await req.json()
   const old = await db.execute({

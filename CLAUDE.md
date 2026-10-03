@@ -23,7 +23,8 @@ and value, so treat every change as a production change.
 - `src/lib/calculations.ts` trade summaries and dashboard KPI engine
 - `src/lib/healthCheck.ts` reconciliation checks (dashboard, pre-lock gate)
 - `src/lib/audit.ts` `writeAudit` / `auditChanges` / `auditMoney`
-- `src/lib/pageAuth.ts`, `roles.ts`, `authz.ts` owner / editor / viewer roles
+- `src/lib/pageAuth.ts` (pages) and `apiAuth.ts` (API routes) enforce owner /
+  editor / viewer roles via `roles.ts`. `authz.ts` is legacy next-auth, unused
 - `src/components/ui.tsx` shared primitives (PageHeader, Panel, KpiCard, Btn...)
 - `src/app/[id]/LayoutClient.tsx` sidebar, including the version label
 
@@ -78,7 +79,7 @@ for them, and add a health check when two sources can drift.
 ### 5. Release discipline
 Every release that goes to main:
 - Bumps the sidebar label in `src/app/[id]/LayoutClient.tsx` (currently
-  `ExtraOver v45`) to the next number.
+  `ExtraOver v46`) to the next number.
 - Adds `RELEASE_NOTES_vXX.md` at the repo root (format below).
 - Uses a commit subject of the form `vXX: short summary, comma separated`.
 
@@ -100,7 +101,11 @@ Every release that goes to main:
 ## Other conventions
 
 - Audit every money or settings change with `writeAudit` / `auditChanges`.
-- Enforce permissions server-side in API routes; viewers are read-only.
+- Middleware skips `/api/*`, so every API handler must open with a guard:
+  `const guard = await requireProjectApi(params.id, 'viewer' | 'editor' |
+  'owner'); if (!guard.ok) return guard.res`. GET is viewer, writes are
+  editor, settings and project delete are owner. Scope every row lookup by
+  `project_id` so a member of one project cannot touch another's rows.
 - Compliance and integrity gates live on the server (e.g. expired tax
   clearance blocks certifying or paying a sub), not just in the UI.
 - When a calculation or join changes, reconcile the dashboard against a

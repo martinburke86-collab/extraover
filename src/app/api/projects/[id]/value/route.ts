@@ -2,8 +2,11 @@ import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
 import { getSession } from '@/lib/getSession'
 import { auditChanges, auditMoney } from '@/lib/audit'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const body    = await req.json()
   const session = await getSession()
@@ -58,6 +61,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 // Retention settings live on the project (they govern every period)
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const b = await req.json()
   const session = await getSession()

@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
+import { requireUserApi, requireGlobalOwnerApi } from '@/lib/apiAuth'
 
 export async function GET() {
+  const guard = await requireUserApi()
+  if (!guard.ok) return guard.res
   await initDB()
   const r = await db.execute('SELECT * FROM global_elements ORDER BY sort_order, name')
   return NextResponse.json(r.rows)
 }
 
 export async function POST(req: Request) {
+  const guard = await requireGlobalOwnerApi()
+  if (!guard.ok) return guard.res
   await initDB()
   const { name } = await req.json()
   const maxOrd = await db.execute('SELECT MAX(sort_order) as m FROM global_elements')
@@ -18,6 +23,8 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const guard = await requireGlobalOwnerApi()
+  if (!guard.ok) return guard.res
   await initDB()
   const { id } = await req.json()
   await db.execute({ sql: `DELETE FROM global_elements WHERE id=?`, args: [id] })
@@ -25,6 +32,8 @@ export async function DELETE(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+  const guard = await requireGlobalOwnerApi()
+  if (!guard.ok) return guard.res
   await initDB()
   const { id, name } = await req.json()
   await db.execute({ sql: `UPDATE global_elements SET name=? WHERE id=?`, args: [name.trim(), id] })

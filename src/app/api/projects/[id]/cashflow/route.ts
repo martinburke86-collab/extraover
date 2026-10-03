@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'viewer')
+  if (!guard.ok) return guard.res
   await initDB()
   const [bandsR, overridesR, incomeR] = await Promise.all([
     db.execute({ sql: 'SELECT * FROM cashflow_bands WHERE project_id=? ORDER BY trade_name', args: [params.id] }),
@@ -13,6 +16,8 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 
 // PUT — upsert a band (start/finish/shape for a trade)
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const { tradeName, startDate, finishDate, sCurveShape = 3 } = await req.json()
   const existing = await db.execute({
@@ -35,6 +40,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 // PATCH — upsert or delete a monthly cell amount (trade override OR income item)
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const body = await req.json()
 

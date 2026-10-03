@@ -3,6 +3,7 @@ import { initDB, db } from '@/lib/db'
 import { getDashboardKPIs, getTradeSummaries, getPrelimItems } from '@/lib/calculations'
 // @ts-ignore
 import ExcelJS from 'exceljs'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 const C = {
   navy:'FF1e3a5f', navyMid:'FF2d4f7a', navyLt:'FFdae2fd',
@@ -75,6 +76,8 @@ function grandTotalRow(ws:any,row:number,mergeEnd:string,vals:[string,number|nul
 }
 
 export async function GET(_:Request,{params}:{params:{id:string}}) {
+  const guard = await requireProjectApi(params.id, 'viewer')
+  if (!guard.ok) return guard.res
   await initDB()
   const pid=params.id
 

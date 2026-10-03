@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
 import * as XLSX from 'xlsx'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 // GET — list all trades for this project
 export async function GET(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'viewer')
+  if (!guard.ok) return guard.res
   await initDB()
   const r = await db.execute({
     sql: 'SELECT * FROM trades WHERE project_id=? ORDER BY sort_order',
@@ -14,6 +17,8 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 
 // POST — upload CSV/XLSX to add/replace elements (trades)
 export async function POST(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const formData  = await req.formData()
   const file      = formData.get('file') as File
@@ -110,6 +115,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
 // PATCH — update a single trade's budget
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const { tradeId, budget, name, sortOrder } = await req.json()
 
@@ -138,6 +145,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
 // DELETE — remove a trade element
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const { tradeId } = await req.json()
   await db.execute({

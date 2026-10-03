@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
 import * as XLSX from 'xlsx'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 type ImportType = 'cost-codes' | 'committed' | 'forecast' | 'prelims'
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const pid = params.id
 

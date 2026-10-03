@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
-import { getSession } from '@/lib/getSession'
+import { requireUserApi, requireProjectApi } from '@/lib/apiAuth'
 
 export async function GET() {
+  const guard = await requireUserApi()
+  if (!guard.ok) return guard.res
   await initDB()
-  const r = await db.execute('SELECT id, name, code FROM projects ORDER BY created_at DESC')
+  // Global owners see every project, everyone else only their assigned ones
+  const r = guard.session.globalRole === 'owner'
+    ? await db.execute('SELECT id, name, code FROM projects ORDER BY created_at DESC')
+    : await db.execute({
+        sql: `SELECT p.id, p.name, p.code FROM projects p
+              JOIN user_projects up ON up.project_id = p.id
+              WHERE up.user_id=? ORDER BY p.created_at DESC`,
+        args: [guard.session.userId],
+      })
   return NextResponse.json(r.rows)
 }
 
@@ -12,13 +22,17 @@ export async function DELETE(req: Request) {
   await initDB()
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+  const guard = await requireProjectApi(String(id), 'owner')
+  if (!guard.ok) return guard.res
   await db.execute({ sql: `DELETE FROM projects WHERE id=?`, args: [id] })
   return NextResponse.json({ ok: true })
 }
 
 export async function POST(req: Request) {
+  const guard = await requireUserApi()
+  if (!guard.ok) return guard.res
   await initDB()
-  const session = await getSession()
+  const session = guard.session
   const b = await req.json()
   const id = cuid()
 
