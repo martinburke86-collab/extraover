@@ -1,9 +1,11 @@
 import { initDB, db } from '@/lib/db'
 import PeriodsClient from './PeriodsClient'
 import { getDashboardKPIs } from '@/lib/calculations'
+import { requireProjectRole } from '@/lib/pageAuth'
 export const dynamic = 'force-dynamic'
 
 export default async function PeriodsPage({ params }: { params: { id: string } }) {
+  const role = await requireProjectRole(params.id, 'viewer')
   await initDB()
 
   const periodsR = await db.execute({
@@ -48,5 +50,5 @@ export default async function PeriodsPage({ params }: { params: { id: string } }
     } catch {}
   }
 
-  return <PeriodsClient periods={periods} liveKpis={liveKpis} projectId={params.id} />
+  return <PeriodsClient periods={periods} liveKpis={liveKpis} projectId={params.id} canLock={role !== 'viewer'} />
 }

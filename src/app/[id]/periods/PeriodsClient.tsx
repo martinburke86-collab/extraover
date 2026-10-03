@@ -69,10 +69,12 @@ export default function PeriodsClient({
   periods,
   liveKpis,
   projectId,
+  canLock,
 }: {
   periods: Period[]
   liveKpis: LiveKpis | null
   projectId: string
+  canLock: boolean
 }) {
   const router = useRouter()
   const [, startTransition] = useTransition()
@@ -150,7 +152,7 @@ export default function PeriodsClient({
         subtitle="Month-on-month CVR comparison · lock periods to preserve snapshots"
         actions={
           <div className="flex items-center gap-2">
-            {!showRollForm && (
+            {canLock && !showRollForm && (
               <button
                 onClick={() => setShowRollForm(true)}
                 className="bg-[#1a1d23] text-white px-4 py-2 rounded text-sm flex items-center gap-1.5 hover:bg-[#16304f] font-medium">

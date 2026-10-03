@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   const maxOrd = await db.execute('SELECT MAX(sort_order) as m FROM global_trades')
   const nextOrder = (Number((maxOrd.rows[0] as any)?.m) || 0) + 1
   const id = cuid()
-  await db.execute({ sql: `INSERT INTO global_trades VALUES (?,?,?)`, args: [id, name.trim(), nextOrder] })
+  await db.execute({ sql: `INSERT INTO global_trades (id, name, sort_order) VALUES (?,?,?)`, args: [id, name.trim(), nextOrder] })
   return NextResponse.json({ id })
 }
 

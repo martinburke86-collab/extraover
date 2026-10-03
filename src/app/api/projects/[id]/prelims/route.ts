@@ -34,7 +34,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   })
   const nextOrder = (Number((maxOrd.rows[0] as any)?.m) || 0) + 1
   await db.execute({
-    sql: `INSERT INTO prelim_items VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+    sql: `INSERT INTO prelim_items (id, project_id, section, cost_code, description, budget, ctd, committed, qty, unit, rate, utilisation_pct, start_week, finish_week, sort_order, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     args: [id, params.id, b.section || 'General', b.cost_code || null, b.description,
       b.budget || 0, b.ctd || 0, b.committed || 0,
       b.qty ?? 1, b.unit || 'Weeks', b.rate || 0, b.utilisation_pct ?? 100,

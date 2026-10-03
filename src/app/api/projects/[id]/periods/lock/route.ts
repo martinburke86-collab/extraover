@@ -26,7 +26,7 @@ export async function POST(_: Request, { params }: { params: { id: string } }) {
   if (!periodId) {
     periodId = cuid()
     await db.execute({
-      sql: `INSERT INTO report_periods VALUES (?,?,?,datetime('now'),1,NULL)`,
+      sql: `INSERT INTO report_periods (id, project_id, label, period_date, is_current, locked_at) VALUES (?,?,?,datetime('now'),1,NULL)`,
       args: [periodId, params.id, 'Current Period'],
     })
   }
@@ -34,7 +34,7 @@ export async function POST(_: Request, { params }: { params: { id: string } }) {
   // Delete existing snapshot for this period and re-create
   await db.execute({ sql: `DELETE FROM period_snapshots WHERE period_id=?`, args: [periodId] })
   await db.execute({
-    sql: `INSERT INTO period_snapshots VALUES (?,?,?,?,?,?,?,?,?)`,
+    sql: `INSERT INTO period_snapshots (id, period_id, efc, forecast_margin, total_ctd, total_claimed, cash_position, over_under_claim, trade_pl) VALUES (?,?,?,?,?,?,?,?,?)`,
     args: [cuid(), periodId, kpis.efc, kpis.forecastMargin, kpis.actualsTotal,
            kpis.totalClaimed, kpis.cashPosition, kpis.overUnderClaim,
            JSON.stringify(tradePL)],

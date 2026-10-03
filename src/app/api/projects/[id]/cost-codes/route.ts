@@ -20,7 +20,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const body = await req.json()
   const id = cuid()
   await db.execute({
-    sql: `INSERT INTO cost_codes VALUES (?,?,?,?,?,?,?)`,
+    sql: `INSERT INTO cost_codes (id, project_id, code, description, trade, category, notes) VALUES (?,?,?,?,?,?,?)`,
     args: [id, params.id, body.code, body.description, body.trade, body.category, body.notes ?? null],
   })
   return NextResponse.json({ id })

@@ -60,7 +60,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
       try {
         await db.execute({
-          sql:  `INSERT INTO cost_codes VALUES (?,?,?,?,?,?,?)
+          sql:  `INSERT INTO cost_codes (id, project_id, code, description, trade, category, notes) VALUES (?,?,?,?,?,?,?)
                  ON CONFLICT(project_id, code) DO UPDATE SET
                    description=excluded.description,
                    trade=excluded.trade,
@@ -196,7 +196,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
       try {
         await db.execute({
-          sql:  `INSERT INTO prelim_items VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+          sql:  `INSERT INTO prelim_items (id, project_id, section, cost_code, description, budget, ctd, committed, qty, unit, rate, utilisation_pct, start_week, finish_week, sort_order, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
           args: [cuid(), pid, section, code, desc,
                  budget, ctd, committed,
                  qty, unit, rate, util,
