@@ -2,8 +2,11 @@ import { NextResponse } from 'next/server'
 import { initDB, db } from '@/lib/db'
 import { getDashboardKPIs, getTradeSummaries, getVariationCodedSummaries, getPrelimItems } from '@/lib/calculations'
 import { runHealthChecks } from '@/lib/healthCheck'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'viewer')
+  if (!guard.ok) return guard.res
   await initDB()
   const [kpis, trades] = await Promise.all([
     getDashboardKPIs(params.id),

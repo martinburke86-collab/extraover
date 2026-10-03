@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { db, initDB } from '@/lib/db'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export async function PATCH(req: Request, { params }: { params: { id: string; codeId: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const b = await req.json()
   await db.execute({
@@ -12,6 +15,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string; co
 }
 
 export async function DELETE(_: Request, { params }: { params: { id: string; codeId: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   await db.execute({
     sql: `DELETE FROM cost_codes WHERE id=? AND project_id=?`,

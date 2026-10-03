@@ -161,7 +161,7 @@ function TradeBudgets({ projectId }: { projectId: string }) {
 }
 import { useRouter } from 'next/navigation'
 
-export default function SettingsClient({ project: p, trades, projectId }: { project: any; trades: any[]; projectId: string }) {
+export default function SettingsClient({ project: p, trades, projectId, canEditGlobal }: { project: any; trades: any[]; projectId: string; canEditGlobal: boolean }) {
   const router = useRouter()
   const [, startTransition] = useTransition()
   const [saving,      setSaving]      = useState(false)
@@ -437,6 +437,7 @@ export default function SettingsClient({ project: p, trades, projectId }: { proj
           </div>
 
           {/* Global Settings */}
+          {canEditGlobal && (
           <div className="bg-white rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
             <div className="px-5 py-3 font-bold text-sm bg-primary text-on-primary px-5 py-3 font-black text-xs uppercase tracking-widest">GLOBAL SETTINGS — Elements, Trades & Cost Codes</div>
             <div className="p-5">
@@ -447,6 +448,7 @@ export default function SettingsClient({ project: p, trades, projectId }: { proj
               </div>
             </div>
           </div>
+          )}
 
           {/* Lock Period instructions */}
           <div className="bg-[#FFF2CC] border border-[#b6740a] rounded-xl p-5">

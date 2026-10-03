@@ -5,10 +5,13 @@ import { getDashboardKPIs, getTradeSummaries, getPrelimItems } from '@/lib/calcu
 import { renderToBuffer } from '@react-pdf/renderer'
 import { createElement } from 'react'
 import { CVRReport } from '@/lib/pdfReport'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'viewer')
+  if (!guard.ok) return guard.res
   await initDB()
 
   const [kpis, trades, prelims] = await Promise.all([

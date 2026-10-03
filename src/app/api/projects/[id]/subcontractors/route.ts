@@ -2,9 +2,12 @@ import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
 import { getSession } from '@/lib/getSession'
 import { auditChanges } from '@/lib/audit'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 // GET — subcontractor accounts with aggregates, plus unregistered suppliers
 export async function GET(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'viewer')
+  if (!guard.ok) return guard.res
   await initDB()
   const [subsR, certsR, ordersR, unregR] = await Promise.all([
     db.execute({ sql: `SELECT * FROM subcontractors WHERE project_id=? ORDER BY name`, args: [params.id] }),
@@ -62,6 +65,8 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 
 // POST — create account(s). body: {name, ...fields} or {importAll: true}
 export async function POST(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const b = await req.json()
   const session = await getSession()
@@ -108,6 +113,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
 // PATCH — update account fields
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const b = await req.json()
   const session = await getSession()

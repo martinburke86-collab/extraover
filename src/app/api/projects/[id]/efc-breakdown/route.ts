@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { db, initDB } from '@/lib/db'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'viewer')
+  if (!guard.ok) return guard.res
   await initDB()
   const pid = params.id
 

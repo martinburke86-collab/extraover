@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { db, initDB, cuid } from '@/lib/db'
 import { getSession } from '@/lib/getSession'
 import { auditChanges, auditMoney } from '@/lib/audit'
+import { requireProjectApi } from '@/lib/apiAuth'
 
 // The compliance gate: paying or certifying a sub with expired tax clearance is blocked;
 // expired insurance is allowed but flagged in the response.
@@ -24,6 +25,8 @@ async function complianceCheck(subId: string, projectId: string) {
 
 // POST — create a cert
 export async function POST(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const b = await req.json()
   const session = await getSession()
@@ -64,6 +67,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
 // PATCH — update a cert (mark paid runs the gate again) or delete
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireProjectApi(params.id, 'editor')
+  if (!guard.ok) return guard.res
   await initDB()
   const b = await req.json()
   const session = await getSession()
