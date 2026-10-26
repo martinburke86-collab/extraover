@@ -33,6 +33,19 @@ element still falls back to budget remaining.
 - Info: Preliminaries cost on codes with no prelims sheet item.
 - Info: priced prelims items with no cost code, so nothing can be linked.
 
+## Prelims template now carries cost codes
+Every item in the standard prelims template has its own cost code, numbered
+within its stage (PR101 to PR128 for Management and Staff, PR201 onwards for
+Site Establishment, through to PR935), so costs posted to Cost to Date link
+straight to the item. Loading the template also adds those codes to the cost
+code register under the Preliminaries element (staff as Labour, plant as
+Plant, access and security as Subcontractor, the rest as Indirect). Codes the
+project already has are left exactly as they are. The load dialog now says
+233 items; it said 155.
+
+Projects that loaded the template before v50 keep their items without codes
+(no rows are rewritten); the info check lists them so the QS can code them.
+
 ## Fixed: loading the prelims template showed nothing until reload
 "Load standard template" added the 155 items but the sheet stayed empty until
 the page was reloaded. The sheet now refreshes from the server.
@@ -51,13 +64,14 @@ post it. Projects that entered both (or only on Cost to Date) are unchanged.
   EFC 7,531,400, margin 552,040), no health issues
 - 20 check API and UI run for the sheet, health checks and legacy import;
   real browser: cost code change relinks without reload, template loads
+- Template, 12 checks: every item coded and unique, codes registered under
+  Preliminaries (or a Preliminaries trade name when the element is absent),
+  an existing code left untouched, cost posted to a template code links
 - Permission matrix (111), v47 fixes (24), demo (54) and owner smoke test
   unchanged; `npm run build` and `tsc --noEmit` clean
 - Not yet reconciled against the Riverbank test pack, which is not in the
   repository: run it before release
 
 ## Deferred
-- Standard 155-item prelims template has no cost codes, so its items show
-  nothing to date until the QS codes them (flagged by the new info check)
 - EFC Breakdown page computes its own per-code figures and does not follow
   any trade's forecast method, Preliminaries included

@@ -75,7 +75,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
   const [showUpload, setShowUpload] = useState(false)
 
   async function loadTemplate() {
-    if (!confirm('Load the standard PR100–PR900 prelims template?\n\nThis will add 155 standard items (Management, Site Establishment, Security, Safety, Plant, etc.) to this project.')) return
+    if (!confirm('Load the standard PR100–PR900 prelims template?\n\nThis will add 233 standard items (Management, Site Establishment, Security, Safety, Plant, etc.) to this project, each with its own PR cost code, and add those codes to the cost code register.')) return
     setTplLoad(true)
     await fetch(`/api/projects/${projectId}/prelims-template`, { method: 'POST' })
     setTplLoad(false)
