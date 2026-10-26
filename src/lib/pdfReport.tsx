@@ -2,6 +2,7 @@
 import React from 'react'
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import type { DashboardKPIs, TradeSummary, PrelimItem } from './calculations'
+import { marginRag, marginRagSub, MARGIN_RAG } from './utils'
 
 // ── Colours ───────────────────────────────────────────────────────────────────
 const NAVY   = '#1a1d23'
@@ -150,6 +151,7 @@ function CoverPage({ project, kpis, period, generated }: any) {
   const adj = kpis.contractSum + kpis.approvedVars
   const marginPct = adj ? (kpis.forecastMargin / adj * 100).toFixed(1) : '0.0'
   const isProfit  = kpis.forecastMargin >= 0
+  const status    = MARGIN_RAG[marginRag(adj ? kpis.forecastMargin / adj : 0, kpis.originalMargin, adj)].label
 
   return (
     <Page size="A4" style={s.page}>
@@ -182,6 +184,7 @@ function CoverPage({ project, kpis, period, generated }: any) {
               <Text style={[s.coverKpiVal, { color: isProfit ? '#34d399' : '#ff9a9a' }]}>
                 {marginPct}%
               </Text>
+              <Text style={[s.coverKpiLbl, { marginTop: 4, marginBottom: 0 }]}>{status.toUpperCase()}</Text>
             </View>
           </View>
         </View>
@@ -237,7 +240,8 @@ function SummaryPage({ project, kpis, period, generated }: any) {
           <KpiBox label="Forecast margin"  value={money(kpis.forecastMargin)}
             color={kpis.forecastMargin >= 0 ? OLIVE : RED} />
           <KpiBox label="Margin %"         value={pct(fmPct)}
-            color={fmPct >= 0 ? OLIVE : RED} />
+            sub={marginRagSub(fmPct, kpis.originalMargin, adj)}
+            color={MARGIN_RAG[marginRag(fmPct, kpis.originalMargin, adj)].colour} />
           <KpiBox label="Savings / (overrun)" value={money(kpis.savingsOverrun)}
             color={kpis.savingsOverrun >= 0 ? OLIVE : RED} />
           <KpiBox label="Financial progress"  value={pct(kpis.financialPct)}

@@ -4,6 +4,7 @@ import { getDashboardKPIs, getTradeSummaries, getPrelimItems } from '@/lib/calcu
 // @ts-ignore
 import ExcelJS from 'exceljs'
 import { requireProjectApi } from '@/lib/apiAuth'
+import { marginRag, MARGIN_RAG } from '@/lib/utils'
 
 const C = {
   navy:'FF1e3a5f', navyMid:'FF2d4f7a', navyLt:'FFdae2fd',
@@ -134,7 +135,8 @@ export async function GET(_:Request,{params}:{params:{id:string}}) {
   const fmPct=adjSum?fcMargin/adjSum:0
   const cashPos=kpis.revenueReceived-kpis.totalPaid
   const overUnder=kpis.totalClaimed-kpis.actualsTotal
-  const ragBg=fmPct>=0.08?C.posGreen:fmPct>=0.03?C.goldLt:C.redLt
+  const rag=marginRag(fmPct,kpis.originalMargin,adjSum)
+  const ragBg={green:C.posGreen,amber:C.goldLt,red:C.redLt}[rag]
 
   // ══════════════════════════════════════════════════
   // 1. DASHBOARD
@@ -159,7 +161,7 @@ export async function GET(_:Request,{params}:{params:{id:string}}) {
       {cols:'B:C',label:'ADJUSTED CONTRACT SUM',val:adjSum,fmt:CURR0,bg:C.surfLow,vc:C.black},
       {cols:'D:E',label:'ESTIMATED FINAL COST',val:kpis.efc,fmt:CURR0,bg:C.surfLow,vc:C.black},
       {cols:'F:G',label:'FORECAST MARGIN',val:fcMargin,fmt:CURR0,bg:ragBg,vc:fcMargin>=0?C.positive:C.negative},
-      {cols:'H:I',label:'MARGIN %',val:fmPct,fmt:PCT,bg:ragBg,vc:fcMargin>=0?C.positive:C.negative},
+      {cols:'H:I',label:`MARGIN %, ${MARGIN_RAG[rag].label.toUpperCase()}`,val:fmPct,fmt:PCT,bg:ragBg,vc:fcMargin>=0?C.positive:C.negative},
       {cols:'J:K',label:'FINANCIAL % COMPLETE',val:kpis.financialPct,fmt:PCT,bg:C.surfLow,vc:C.black},
       {cols:'L:M',label:'OVER / (UNDER) CLAIM',val:overUnder,fmt:CURR0,bg:overUnder>0?C.redLt:C.surfLow,vc:overUnder>0?C.negative:C.black},
     ]

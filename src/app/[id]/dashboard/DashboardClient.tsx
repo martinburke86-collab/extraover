@@ -1,5 +1,5 @@
 'use client'
-import { fmt, pct, clx } from '@/lib/utils'
+import { fmt, pct, clx, marginRag, marginRagSub } from '@/lib/utils'
 import type { DashboardKPIs, TradeSummary } from '@/lib/calculations'
 import type { HealthIssue } from '@/lib/healthCheck'
 import { PageHeader, Panel, SectionTitle, KpiCard, MovCell, RagChip } from '@/components/ui'
@@ -56,7 +56,7 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
   const savingsOverrun = forecastMargin - kpis.originalMargin
   const cashPos        = kpis.revenueReceived - kpis.totalPaid
   const overUnder      = kpis.totalClaimed - kpis.actualsTotal
-  const rag: 'green' | 'amber' | 'red' = fmPct >= 0.08 ? 'green' : fmPct >= 0.03 ? 'amber' : 'red'
+  const rag            = marginRag(fmPct, kpis.originalMargin, adjustedSum)
 
   const hasTrend = trendData.length > 1
 
@@ -132,9 +132,9 @@ export default function DashboardClient({ kpis, trades, projectId, healthIssues,
           <KpiCard
             label="Forecast Margin"
             value={`${fmt(forecastMargin)} · ${pct(fmPct)}`}
-            accent={rag === 'green' ? 'profit' : rag === 'red' ? 'loss' : 'default'}
-            trend={rag === 'green' ? 'up' : 'down'}
-            sub={rag === 'green' ? 'On Track' : 'At Risk'} />
+            accent={rag === 'green' ? 'profit' : rag === 'red' ? 'loss' : 'warning'}
+            trend={rag === 'green' ? 'up' : rag === 'red' ? 'down' : 'neutral'}
+            sub={marginRagSub(fmPct, kpis.originalMargin, adjustedSum)} />
           <KpiCard label="Financial % Complete" value={pct(kpis.financialPct)} sub={`${fmt(kpis.actualsTotal)} spent`} />
           <KpiCard
             label="Over / (Under) Claim"
