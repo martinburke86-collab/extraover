@@ -267,13 +267,12 @@ export async function createDemoProject(ownerUserId: string | null, userName = '
   }
   for (const t of TRADES) if (t.method) await run(`UPDATE trades SET forecast_method=? WHERE id=?`, [t.method, tradeId[t.name]])
 
-  // ── Prelims sheet, derived from the Cost to Date and Committed lines ────
+  // ── Prelims sheet: remaining cost per item (cost is linked from ledgers) ─
   const setPrelims = async (at: 'prior' | 'now') => {
     for (const p of PRELIMS) {
-      const ctd = ctdTotal[p.code]?.[at] ?? 0
-      const order = orders.find(o => o.code === p.code)
-      const committed = order ? remaining(order, at) : 0
-      const fields = [p.section, p.desc, prelimBudget(p), ctd, committed, 1, p.lump ? 'nr' : 'Weeks',
+      // To Date and Committed are linked in from the ledgers by cost code, so the
+      // sheet stores only what the QS reviews: rate, utilisation and weeks
+      const fields = [p.section, p.desc, prelimBudget(p), 0, 0, 1, p.lump ? 'nr' : 'Weeks',
                       p.lump ? p.lump.toComplete : p.rate, p.lump ? 100 : (p.util ?? 100), 1, TOTAL_WEEKS]
       const upd = await run(`UPDATE prelim_items SET section=?, description=?, budget=?, ctd=?, committed=?, qty=?, unit=?, rate=?,
                                utilisation_pct=?, start_week=?, finish_week=? WHERE project_id=? AND cost_code=?`, [...fields, id, p.code])

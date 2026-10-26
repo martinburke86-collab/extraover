@@ -1,5 +1,5 @@
 'use client'
-import { useState, useTransition, useMemo } from 'react'
+import { useState, useTransition, useMemo, useEffect } from 'react'
 import { fmt, pct, clx } from '@/lib/utils'
 import { PageHeader } from '@/components/ui'
 import { Plus, Trash2, ChevronDown, ChevronRight, Upload } from 'lucide-react'
@@ -61,6 +61,9 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
   const router      = useRouter()
   const [, start]   = useTransition()
   const [items, setItems]         = useState<PrelimItem[]>(initial)
+  // After router.refresh() the server sends fresh items (linked To Date and
+  // Committed, newly loaded template rows); take them as the new truth
+  useEffect(() => { setItems(initial) }, [initial])
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const [adding, setAdding]       = useState(false)
   const [templateLoading, setTplLoad] = useState(false)
@@ -97,11 +100,14 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
     setCollapsed(p => { const n = new Set(Array.from(p)); n.has(s) ? n.delete(s) : n.add(s); return n })
   }
 
-  function saveItem(item: PrelimItem) {
-    // Fire and forget — no setSaving, no router.refresh per keystroke
+  function saveItem(item: PrelimItem, relink = false) {
+    // Fire and forget, no setSaving, no router.refresh per keystroke
     fetch(`/api/projects/${projectId}/prelims`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(item),
-    }).catch(() => {/* silent — toast on delete/add errors only */})
+    })
+      // A new cost code changes which ledger costs are linked in, so reload them
+      .then(() => { if (relink) start(() => router.refresh()) })
+      .catch(() => {/* silent, toast on delete/add errors only */})
   }
 
   function upd(id: string, field: keyof PrelimItem, value: any) {
@@ -112,7 +118,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
     setItems(prev => {
       const next = prev.map(it => it.id === id ? { ...it, [field]: value } : it)
       const item = next.find(it => it.id === id)
-      if (item) saveItem(item)
+      if (item) saveItem(item, field === 'cost_code')
       return next
     })
   }
@@ -242,8 +248,8 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
               <TH bg="#4c525d" top={32}>Description</TH>
               <TH bg="#4c525d" right top={32}>Budget</TH>
               <TH bg="#4c525d" right top={32}>Notes</TH>
-              <TH bg="#8B0000" right top={32}>CTD</TH>
-              <TH bg="#8B0000" right top={32}>Committed</TH>
+              <TH bg="#8B0000" right top={32}>CTD (linked)</TH>
+              <TH bg="#8B0000" right top={32}>Committed (linked)</TH>
               <TH bg="#8B0000" right top={32}>Total Costs</TH>
               <TH bg="#2d6a1c" right top={32}>Util %</TH>
               <TH bg="#2d6a1c" right top={32}>Qty</TH>
@@ -287,18 +293,8 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                   <input type="text" className="border rounded px-1.5 py-0.5 text-xs w-28 focus:outline-none"
                     onChange={e => setNewItem(p => ({...p, notes: e.target.value}))} placeholder="Notes…" />
                 </td>
-                <td className="px-2 py-1.5">
-                  <input type="text" className="no-spin border rounded px-1.5 py-0.5 text-xs w-24 text-right focus:outline-none"
-                    style={{ background: '#eef2ff' }}
-                    onChange={e => setNewItem(p => ({...p, ctd: parseFloat(e.target.value.replace(/,/g,''))||0}))} />
-                </td>
-                <td className="px-2 py-1.5">
-                  <input type="text" className="no-spin border rounded px-1.5 py-0.5 text-xs w-24 text-right focus:outline-none"
-                    style={{ background: '#eef2ff' }}
-                    onChange={e => setNewItem(p => ({...p, committed: parseFloat(e.target.value.replace(/,/g,''))||0}))} />
-                </td>
-                <td className="px-3 py-1.5 text-right tabular-nums text-gray-500">
-                  {fmt((newItem.ctd||0)+(newItem.committed||0))}
+                <td colSpan={3} className="px-3 py-1.5 text-right text-[11px] text-on-surface-variant">
+                  Linked from the ledgers by cost code
                 </td>
                 <td className="px-2 py-1.5">
                   <input type="number" value={newItem.utilisation_pct??100} min={0} max={100}
@@ -410,7 +406,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                         <CostCodeInput projectId={projectId} value={item.description} field="description"
                           onSelect={cc => {
                             setItems(prev => prev.map(it => it.id === item.id ? { ...it, cost_code: cc.code, description: cc.description } : it))
-                            saveItem({ ...item, cost_code: cc.code, description: cc.description })
+                            saveItem({ ...item, cost_code: cc.code, description: cc.description }, true)
                           }}
                           onKeyDown={tableNav}
                           className="border border-gray-200 rounded px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
@@ -429,14 +425,14 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                           className="border border-gray-100 rounded px-1.5 py-0.5 text-xs w-28 text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300" />
                       </td>
 
-                      {/* CTD */}
-                      <td data-col={5} className="px-2 py-1">
-                        <GridInput value={item.ctd} onSave={v => updAndSave(item.id, 'ctd', v)} className="grid-input-sm w-24" />
+                      {/* CTD and Committed: linked from the ledgers on the item's cost code (read-only) */}
+                      <td className="px-3 py-1.5 text-right tabular-nums text-xs text-on-surface"
+                        title={item.cost_code ? `Linked from Cost to Date on code ${item.cost_code}` : 'No cost code, so no cost can be linked'}>
+                        {item.ctd ? item.ctd.toLocaleString('en-IE', { minimumFractionDigits: 2 }) : '–'}
                       </td>
-
-                      {/* Committed */}
-                      <td data-col={6} className="px-2 py-1">
-                        <GridInput value={item.committed} onSave={v => updAndSave(item.id, 'committed', v)} className="grid-input-sm w-24" />
+                      <td className="px-3 py-1.5 text-right tabular-nums text-xs text-on-surface"
+                        title={item.cost_code ? `Linked from Committed on code ${item.cost_code}` : 'No cost code, so no cost can be linked'}>
+                        {item.committed ? item.committed.toLocaleString('en-IE', { minimumFractionDigits: 2 }) : '–'}
                       </td>
 
                       {/* Total Costs (read-only) */}
@@ -553,7 +549,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
 
       <div className="flex-shrink-0 bg-white border-t px-6 py-2 flex items-center gap-6 text-[10px] text-gray-400">
         <span>Click a cell to edit · Tab/↑↓←→ to navigate · Enter to move down</span>
-        <span>Uncommitted = Qty × Rate × Remaining Weeks × Util%&nbsp;&nbsp;|&nbsp;&nbsp;Proj Final Cost = CTD + Committed + Uncommitted</span>
+        <span>CTD and Committed are linked from Cost to Date and Committed lines on each item&apos;s cost code&nbsp;&nbsp;|&nbsp;&nbsp;Uncommitted = Qty × Rate × Remaining Weeks × Util%&nbsp;&nbsp;|&nbsp;&nbsp;Proj Final Cost = CTD + Committed + Uncommitted</span>
       </div>
 
       {showUpload && (

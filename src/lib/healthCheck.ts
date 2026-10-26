@@ -1,4 +1,4 @@
-import type { DashboardKPIs, TradeSummary, VariationCodedSummary } from './calculations'
+import type { DashboardKPIs, TradeSummary, VariationCodedSummary, PrelimItem } from './calculations'
 
 export type Severity = 'error' | 'warning' | 'info'
 
@@ -10,6 +10,28 @@ export interface HealthIssue {
   href?:    string   // relative path within project, e.g. 'settings'
 }
 
+export interface PrelimsCheckInputs {
+  detailBudget: number; detailPFC: number; tradeMethod: string | null
+  enteredNotPosted: number   // typed on the sheet but not in the ledgers
+  unallocated: number        // Preliminaries ledger cost with no sheet item
+  uncodedPriced: number      // priced items with no cost code to link
+}
+
+// Shared by the dashboard page and API so both run the same prelims checks
+export function prelimsCheckInputs(items: PrelimItem[], trades: TradeSummary[]): PrelimsCheckInputs {
+  const trade = trades.find(t => t.trade.toLowerCase().startsWith('prelim'))
+  const linked = items.reduce((s, i) => s + i.ctd + i.committed, 0)
+  return {
+    detailBudget: items.reduce((s, i) => s + i.budget, 0),
+    detailPFC:    items.reduce((s, i) => s + i.projected_final_cost, 0),
+    tradeMethod:  trade ? trade.forecastMethod : null,
+    enteredNotPosted: items.reduce((s, i) =>
+      s + Math.max(0, i.entered_ctd - i.ctd) + Math.max(0, i.entered_committed - i.committed), 0),
+    unallocated: trade && trade.forecastMethod === 'prelims' ? Math.max(0, trade.totalCTD + trade.committed - linked) : 0,
+    uncodedPriced: items.filter(i => !i.cost_code && i.rate > 0).length,
+  }
+}
+
 export function runHealthChecks(
   kpis: DashboardKPIs,
   trades: TradeSummary[],
@@ -17,7 +39,7 @@ export function runHealthChecks(
   extras?: {
     gifa?: number; lockedPeriods?: number; variationCount?: number
     variationsCoded?: VariationCodedSummary[]
-    prelims?: { detailBudget: number; detailPFC: number; tradeMethod: string | null }
+    prelims?: PrelimsCheckInputs
     subs?: { name: string; overCertified: boolean; taxExpired: boolean; certified: number; orderValue: number }[]
   }
 ): HealthIssue[] {
@@ -176,6 +198,34 @@ export function runHealthChecks(
       id: 'prelims-not-linked', severity: 'warning',
       title: 'Preliminaries element is not driven by the prelims sheet',
       detail: `The prelims detail projects €${Math.round(extras.prelims.detailPFC).toLocaleString('en-IE')} final cost, but the Preliminaries element uses the '${extras.prelims.tradeMethod}' forecast method, so the two can diverge. Set the element's forecast method to 'prelims' so the detail sheet is the single source.`,
+      href: 'prelims',
+    })
+  }
+
+  // Prelims sheet links To Date and Committed in from the ledgers
+  const pre = extras?.prelims
+  const eur = (n: number) => `€${Math.round(n).toLocaleString('en-IE')}`
+  if (pre && pre.enteredNotPosted >= 1) {
+    issues.push({
+      id: 'prelims-entered-not-posted', severity: 'warning',
+      title: 'Prelims costs typed on the sheet are not on Cost to Date',
+      detail: `${eur(pre.enteredNotPosted)} of To Date or Committed was typed on the prelims sheet but is not on Cost to Date or Committed for those items' cost codes, so it is not in the forecast. The prelims sheet now links these figures in from the ledgers: post the costs to each item's cost code.`,
+      href: 'cost-to-date',
+    })
+  }
+  if (pre && pre.unallocated >= 1) {
+    issues.push({
+      id: 'prelims-unallocated', severity: 'info',
+      title: 'Preliminaries cost on codes with no prelims sheet item',
+      detail: `${eur(pre.unallocated)} of Preliminaries cost to date and committed is on cost codes that no prelims sheet item uses. It is included in the forecast, but the sheet cannot review its remaining cost. Add an item with that cost code.`,
+      href: 'prelims',
+    })
+  }
+  if (pre && pre.uncodedPriced > 0) {
+    issues.push({
+      id: 'prelims-uncoded', severity: 'info',
+      title: `${pre.uncodedPriced} priced prelims item${pre.uncodedPriced > 1 ? 's have' : ' has'} no cost code`,
+      detail: 'Cost to date and committed are linked to prelims items by cost code, so these items will always show nothing spent. Give each a cost code that matches the one costs are posted to.',
       href: 'prelims',
     })
   }

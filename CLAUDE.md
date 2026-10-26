@@ -43,8 +43,10 @@ Never change this formula and never reintroduce full-order-value logic that
 double counts invoiced cost. Anything needing a full order value (sub
 register, over-certification check) uses the standing `order_value` on the
 subcontractor account, falling back to the committed sum only when unset.
-The only EFC override is the Preliminaries trade on the `prelims` method,
-where EFC comes from the prelims sheet.
+There are no EFC overrides. Preliminaries on the `prelims` method uses the
+same formula: its Uncommitted is the prelims sheet's remaining cost (rate x
+weeks left x utilisation), and the sheet's To Date and Committed are linked
+read-only from the ledgers by each item's cost code, never typed.
 
 ### 2. Named-column INSERTs and ALTER-only migrations
 - Never write positional `INSERT INTO table VALUES (...)` on `cost_lines`,
@@ -82,7 +84,7 @@ for them, and add a health check when two sources can drift.
 ### 5. Release discipline
 Every release that goes to main:
 - Bumps the sidebar label in `src/app/[id]/LayoutClient.tsx` (currently
-  `ExtraOver v48`) to the next number.
+  `ExtraOver v50`) to the next number.
 - Adds `RELEASE_NOTES_vXX.md` at the repo root (format below).
 - Uses a commit subject of the form `vXX: short summary, comma separated`.
 

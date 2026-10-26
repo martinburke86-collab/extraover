@@ -36,7 +36,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   await db.execute({
     sql: `INSERT INTO prelim_items (id, project_id, section, cost_code, description, budget, ctd, committed, qty, unit, rate, utilisation_pct, start_week, finish_week, sort_order, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     args: [id, params.id, b.section || 'General', b.cost_code || null, b.description,
-      b.budget || 0, b.ctd || 0, b.committed || 0,
+      b.budget || 0, 0, 0,
       b.qty ?? 1, b.unit || 'Weeks', b.rate || 0, b.utilisation_pct ?? 100,
       b.start_week || 1, b.finish_week || 1, nextOrder, b.notes || null],
   })
@@ -49,11 +49,12 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   await initDB()
   const b = await req.json()
   await db.execute({
-    sql: `UPDATE prelim_items SET section=?,cost_code=?,description=?,budget=?,ctd=?,committed=?,
+    // ctd and committed are linked in from the ledgers, never written from the sheet
+    sql: `UPDATE prelim_items SET section=?,cost_code=?,description=?,budget=?,
             qty=?,unit=?,rate=?,utilisation_pct=?,start_week=?,finish_week=?,notes=?
           WHERE id=? AND project_id=?`,
     args: [b.section, b.cost_code || null, b.description,
-      b.budget || 0, b.ctd || 0, b.committed || 0,
+      b.budget || 0,
       b.qty ?? 1, b.unit || 'Weeks', b.rate || 0, b.utilisation_pct ?? 100,
       b.start_week || 1, b.finish_week || 1, b.notes || null,
       b.id, params.id],

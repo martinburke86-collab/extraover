@@ -9,6 +9,9 @@ export interface PrelimItem {
   amount: number              // projected uncommitted remaining spend
   projected_final_cost: number  // ctd + committed + amount
   vs_budget: number           // budget - pfc
+  // ctd and committed above are LINKED from the ledgers on cost_code; these are
+  // whatever was once typed on the sheet, kept only so health checks can flag it
+  entered_ctd: number; entered_committed: number
 }
 
 export interface TradeSummary {
@@ -69,39 +72,66 @@ function weeksFromDate(revisedStart: string | null): number {
 }
 
 // ── Prelim items with computed columns ───────────────────────────────────
+// To Date and Committed are linked in from Cost to Date and Committed lines on
+// the item's cost code (enter once, in the ledgers). Where several items share
+// a code, that code's totals are split by item budget (equally if no budgets),
+// so the items always add back to the ledger. The QS's input on the sheet is
+// the remaining cost: rate, utilisation and weeks.
 export async function getPrelimItems(projectId: string): Promise<PrelimItem[]> {
   const projR = await db.execute({ sql: 'SELECT revised_start FROM projects WHERE id=?', args: [projectId] })
   const weeksElapsed = weeksFromDate((projR.rows[0] as any)?.revised_start)
 
-  const result = await db.execute({
-    sql: 'SELECT * FROM prelim_items WHERE project_id=? ORDER BY sort_order',
-    args: [projectId],
-  })
+  const [result, ctdR, comR] = await Promise.all([
+    db.execute({ sql: 'SELECT * FROM prelim_items WHERE project_id=? ORDER BY sort_order', args: [projectId] }),
+    db.execute({
+      sql: `SELECT cc.code, SUM(cl.posted_cost + cl.accruals + cl.sub_recon) AS amt
+            FROM cost_lines cl JOIN cost_codes cc ON cl.cost_code_id=cc.id
+            WHERE cl.project_id=? GROUP BY cc.code`,
+      args: [projectId],
+    }),
+    db.execute({
+      sql: `SELECT cc.code, SUM(c.total) AS amt
+            FROM committed_lines c JOIN cost_codes cc ON c.cost_code_id=cc.id
+            WHERE c.project_id=? GROUP BY cc.code`,
+      args: [projectId],
+    }),
+  ])
+  const ledgerCtd = Object.fromEntries((ctdR.rows as any[]).map(r => [String(r.code), Number(r.amt) || 0]))
+  const ledgerCom = Object.fromEntries((comR.rows as any[]).map(r => [String(r.code), Number(r.amt) || 0]))
 
-  return result.rows.map(r => {
-    const item = r as any
-    const amount = calcPrelimAmount(item, weeksElapsed)
-    const pfc    = Number(item.ctd) + Number(item.committed) + amount
+  const rows = result.rows as any[]
+  const byCode: Record<string, any[]> = {}
+  for (const r of rows) if (r.cost_code) (byCode[String(r.cost_code)] ||= []).push(r)
+  const share = (item: any): number => {
+    if (!item.cost_code) return 0
+    const group = byCode[String(item.cost_code)]
+    const total = group.reduce((t, g) => t + (Number(g.budget) || 0), 0)
+    return total > 0 ? (Number(item.budget) || 0) / total : 1 / group.length
+  }
+
+  return rows.map(item => {
+    const code      = item.cost_code ? String(item.cost_code) : null
+    const ctd       = code ? (ledgerCtd[code] || 0) * share(item) : 0
+    const committed = code ? (ledgerCom[code] || 0) * share(item) : 0
+    const amount    = calcPrelimAmount(item, weeksElapsed)
+    const pfc       = ctd + committed + amount
     return {
       id: item.id, section: item.section, cost_code: item.cost_code,
       description: item.description,
-      budget: Number(item.budget), ctd: Number(item.ctd), committed: Number(item.committed),
+      budget: Number(item.budget), ctd, committed,
       qty: Number(item.qty), unit: item.unit, rate: Number(item.rate),
       utilisation_pct: Number(item.utilisation_pct),
       start_week: Number(item.start_week), finish_week: Number(item.finish_week),
       sort_order: Number(item.sort_order), notes: item.notes,
       amount, projected_final_cost: pfc,
       vs_budget: Number(item.budget) ? Number(item.budget) - pfc : 0,
+      entered_ctd: Number(item.ctd) || 0, entered_committed: Number(item.committed) || 0,
     }
   })
 }
 
 // ── Trade summaries with full EFC breakdown ──────────────────────────────
 export async function getTradeSummaries(projectId: string): Promise<TradeSummary[]> {
-  const projR = await db.execute({ sql: 'SELECT * FROM projects WHERE id=?', args: [projectId] })
-  const proj  = projR.rows[0] as any
-  const weeksElapsed = weeksFromDate(proj?.revised_start)
-
   const tradesR = await db.execute({
     sql: 'SELECT * FROM trades WHERE project_id=? ORDER BY sort_order', args: [projectId],
   })
@@ -136,13 +166,11 @@ export async function getTradeSummaries(projectId: string): Promise<TradeSummary
     args: [projectId],
   })
 
-  // Prelims EFC (for trades using 'prelims' method)
-  const prelimsR = await db.execute({
-    sql: 'SELECT * FROM prelim_items WHERE project_id=?', args: [projectId],
-  })
-  const totalPrelimEfc = (prelimsR.rows as any[]).reduce((sum, item) => {
-    return sum + Number(item.ctd) + Number(item.committed) + calcPrelimAmount(item, weeksElapsed)
-  }, 0)
+  // Prelims sheet: remaining cost to complete, reviewed by the QS against the
+  // programme. Cost to date and committed come from the ledgers like any trade.
+  const prelimItems   = await getPrelimItems(projectId)
+  const prelimsToGo   = prelimItems.reduce((sum, i) => sum + i.amount, 0)
+  const prelimsPriced = prelimItems.some(i => i.rate > 0)
 
   const ctdMap:  Record<string, { posted: number; accruals: number; subRecon: number }> = {}
   const commMap: Record<string, number> = {}
@@ -165,15 +193,10 @@ export async function getTradeSummaries(projectId: string): Promise<TradeSummary
     const tradeBudget = Number((t as any).budget) || 0  // set per-trade in Settings / CVR Trade
 
     let uncommitted = 0
-    let efcOverride: number | null = null
     if (method === 'prelims') {
-      // Prelims EFC = sum of all prelim items (each item: CTD + committed + amount)
-      // If prelim items are all zero (not yet filled in), fall back to budget remaining
-      if (totalPrelimEfc > 0) {
-        efcOverride = totalPrelimEfc
-      } else {
-        uncommitted = Math.max(0, tradeBudget - totalCTD - committed)
-      }
+      // Uncommitted = remaining cost on the prelims sheet. Until the sheet is
+      // priced (no rates yet), fall back to budget remaining.
+      uncommitted = prelimsPriced ? prelimsToGo : Math.max(0, tradeBudget - totalCTD - committed)
     } else if (method === 'forecast_sheet') {
       uncommitted = Math.max(0, (fcstMap[trade] || 0) - totalCTD - committed)
     } else if (method === 'hard_key' && hardKey !== null) {
@@ -183,7 +206,7 @@ export async function getTradeSummaries(projectId: string): Promise<TradeSummary
       uncommitted = Math.max(0, tradeBudget - totalCTD - committed)
     }
 
-    const efc         = efcOverride !== null ? efcOverride : (totalCTD + committed + uncommitted)
+    const efc         = totalCTD + committed + uncommitted
     const projectedPL = fv - efc
 
     return {

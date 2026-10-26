@@ -1,6 +1,6 @@
 import { getDashboardKPIs, getTradeSummaries, getVariationCodedSummaries, getPrelimItems } from '@/lib/calculations'
 import { initDB, db } from '@/lib/db'
-import { runHealthChecks } from '@/lib/healthCheck'
+import { runHealthChecks, prelimsCheckInputs } from '@/lib/healthCheck'
 import DashboardClient from './DashboardClient'
 
 export const dynamic = 'force-dynamic'
@@ -32,12 +32,7 @@ export default async function DashboardPage({ params }: { params: { id: string }
   // Reconciliation extras: coded variation costs and prelims linkage
   const variationsCoded = await getVariationCodedSummaries(params.id)
   const prelimItems = await getPrelimItems(params.id)
-  const prelimsTrade = trades.find(t => t.trade.toLowerCase().startsWith('prelim'))
-  const prelims = {
-    detailBudget: prelimItems.reduce((s, i) => s + i.budget, 0),
-    detailPFC:    prelimItems.reduce((s, i) => s + i.projected_final_cost, 0),
-    tradeMethod:  prelimsTrade ? prelimsTrade.forecastMethod : null,
-  }
+  const prelims = prelimsCheckInputs(prelimItems, trades)
 
   const subsCheckR = await db.execute({
     sql: `SELECT s.name, s.tax_clearance_expiry,
