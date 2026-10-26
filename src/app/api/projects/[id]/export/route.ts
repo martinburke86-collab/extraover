@@ -76,6 +76,36 @@ function grandTotalRow(ws:any,row:number,mergeEnd:string,vals:[string,number|nul
   ws.getRow(row).height=16
 }
 
+
+// Plain ledger sheet: title bar, header row, one row per record, optional totals
+type Col = { h: string; w: number; key: string; fmt?: 'money' | 'pct' | 'int' }
+function tableSheet(wb: any, name: string, title: string, cols: Col[], rows: any[], totals?: string[]) {
+  const ws = wb.addWorksheet(name, { views: [{ state: 'frozen', ySplit: 2 }] })
+  cols.forEach((c, i) => ws.getColumn(i + 1).width = c.w)
+  hdrRow(ws, 1, cols.length, title)
+  const L = (i: number) => String.fromCharCode(65 + i)
+  cols.forEach((c, i) => sc(ws.getCell(`${L(i)}2`), c.h, C.navy, true, 8, C.white, '', c.fmt ? 'right' : 'left'))
+  ws.getRow(2).height = 15
+  let r = 3
+  for (const row of rows) {
+    cols.forEach((c, i) => {
+      const v = row[c.key]
+      const num = c.fmt && v != null && v !== '' && !isNaN(Number(v)) ? Number(v) : v
+      sc(ws.getCell(`${L(i)}${r}`), num ?? '', C.white, false, 9, C.black,
+         c.fmt === 'money' ? CURR2 : c.fmt === 'pct' ? PCT : c.fmt === 'int' ? '0' : undefined, c.fmt ? 'right' : 'left')
+    })
+    ws.getRow(r).height = 14; r++
+  }
+  if (totals && rows.length) {
+    cols.forEach((c, i) => {
+      const val = i === 0 ? `TOTAL (${rows.length})` : totals.includes(c.key) ? rows.reduce((t, x) => t + (Number(x[c.key]) || 0), 0) : ''
+      sc(ws.getCell(`${L(i)}${r}`), val, C.goldLt, true, 9, C.black, totals.includes(c.key) ? CURR2 : undefined, i === 0 ? 'left' : 'right', 'medium')
+    })
+  }
+  if (rows.length) ws.autoFilter = { from: 'A2', to: `${L(cols.length - 1)}${2 + rows.length}` }
+  return ws
+}
+
 export async function GET(_:Request,{params}:{params:{id:string}}) {
   const guard = await requireProjectApi(params.id, 'viewer')
   if (!guard.ok) return guard.res
@@ -532,6 +562,87 @@ export async function GET(_:Request,{params}:{params:{id:string}}) {
       ws.getRow(r).height=14; r++
     }
   }
+
+  // ── Subcontractors, Valuation, Period History, Audit Log ─────────────────
+  const [subRows, certRows, valueRow, periodRows, auditRows] = await Promise.all([
+    db.execute({ sql: `SELECT * FROM subcontractors WHERE project_id=? ORDER BY name`, args: [pid] }).then(r => r.rows as any[]),
+    db.execute({ sql: `SELECT sc.*, s.name AS sub_name, cc.code AS cost_code, v.ref AS vo_ref FROM sub_certs sc
+                       JOIN subcontractors s ON s.id=sc.subcontractor_id LEFT JOIN cost_codes cc ON cc.id=sc.cost_code_id
+                       LEFT JOIN variations v ON v.id=sc.variation_id WHERE sc.project_id=? ORDER BY s.name, sc.cert_no`, args: [pid] }).then(r => r.rows as any[]),
+    db.execute({ sql: `SELECT * FROM value_periods WHERE project_id=? ORDER BY rowid DESC LIMIT 1`, args: [pid] }).then(r => r.rows[0] as any),
+    db.execute({ sql: `SELECT rp.label, rp.period_date, rp.is_current, rp.locked_at, ps.efc, ps.forecast_margin, ps.total_ctd,
+                       ps.total_claimed, ps.cash_position, ps.over_under_claim FROM report_periods rp
+                       LEFT JOIN period_snapshots ps ON ps.period_id=rp.id WHERE rp.project_id=? ORDER BY rp.period_date`, args: [pid] }).then(r => r.rows as any[]),
+    db.execute({ sql: `SELECT * FROM audit_log WHERE project_id=? ORDER BY created_at DESC`, args: [pid] }).then(r => r.rows as any[]),
+  ])
+
+  {
+    // Same deduction cascade as the register: retention off the period gross, RCT on the balance
+    const prevGross: Record<string, number> = {}
+    const certs = certRows.map(c => {
+      const sid = String(c.subcontractor_id)
+      const cumul = Number(c.gross_cumulative) || 0
+      const period = cumul - (prevGross[sid] ?? 0); prevGross[sid] = cumul
+      const retention = period * (Number(c.retention_pct) || 0) / 100
+      const rct = (period - retention) * (Number(c.rct_rate) || 0) / 100
+      return { ...c, period, retention, rct, net: period - retention - rct }
+    })
+    const latest = (sid: string) => certs.filter(c => String(c.subcontractor_id) === sid).pop()
+    const accounts = subRows.map(s => {
+      const cumul = Number(latest(String(s.id))?.gross_cumulative) || 0
+      return { ...s, certified: cumul, retention_held: cumul * (Number(s.retention_pct) || 0) / 100,
+               pct: s.order_value ? cumul / Number(s.order_value) : null }
+    })
+    tableSheet(wb, 'Subcontractors', `SUBCONTRACTOR ACCOUNTS - ${projName}`, [
+      { h: 'Subcontractor', w: 30, key: 'name' }, { h: 'Order value', w: 15, key: 'order_value', fmt: 'money' },
+      { h: 'Certified (gross)', w: 16, key: 'certified', fmt: 'money' }, { h: '% certified', w: 11, key: 'pct', fmt: 'pct' },
+      { h: 'Retention %', w: 11, key: 'retention_pct', fmt: 'int' }, { h: 'Retention held', w: 15, key: 'retention_held', fmt: 'money' },
+      { h: 'RCT %', w: 8, key: 'rct_rate', fmt: 'int' }, { h: 'Tax clearance expiry', w: 18, key: 'tax_clearance_expiry' },
+      { h: 'Insurance expiry', w: 16, key: 'insurance_expiry' }, { h: 'Final account', w: 13, key: 'final_account_status' },
+      { h: 'Final account value', w: 17, key: 'final_account_value', fmt: 'money' }, { h: 'Notes', w: 30, key: 'notes' },
+    ], accounts, ['order_value', 'certified', 'retention_held'])
+    tableSheet(wb, 'Sub Certs', `SUBCONTRACTOR PAYMENT CERTIFICATES - ${projName}`, [
+      { h: 'Subcontractor', w: 30, key: 'sub_name' }, { h: 'Cert', w: 6, key: 'cert_no', fmt: 'int' }, { h: 'Date', w: 12, key: 'cert_date' },
+      { h: 'Cumulative gross', w: 16, key: 'gross_cumulative', fmt: 'money' }, { h: 'Period gross', w: 14, key: 'period', fmt: 'money' },
+      { h: 'Retention', w: 13, key: 'retention', fmt: 'money' }, { h: 'RCT', w: 12, key: 'rct', fmt: 'money' },
+      { h: 'Net payable', w: 14, key: 'net', fmt: 'money' }, { h: 'Cost code', w: 11, key: 'cost_code' }, { h: 'VO', w: 9, key: 'vo_ref' },
+      { h: 'Status', w: 11, key: 'status' }, { h: 'Paid', w: 12, key: 'paid_date' },
+    ], certs, ['period', 'retention', 'rct', 'net'])
+  }
+
+  {
+    const v = valueRow || {}
+    const lines = [
+      ['Application ref', v.app_ref ?? ''], ['Cumulative claimed', v.cumul_claimed], ['Cumulative certified', v.cumul_certified],
+      ['Front loading', v.front_loading], ['Unapproved claims', v.unapproved_claims], ['Other adjustments', v.other_adjustments],
+      ['Revenue received', v.revenue_received], ['Total paid', v.total_paid],
+      ['Cash position (received less paid)', (Number(v.revenue_received) || 0) - (Number(v.total_paid) || 0)],
+      ['Risk', v.risk_value], ['Opportunity', v.opportunity_value],
+      ['Employer retention %', proj?.retention_pct], ['Retention held by employer', (Number(v.cumul_certified) || 0) * (Number(proj?.retention_pct) || 0) / 100],
+      ['Defects period (months)', proj?.defects_months],
+    ].map(([label, value]) => ({ label, value }))
+    const ws = tableSheet(wb, 'Valuation', `VALUATION AND CASH - ${projName}`, [
+      { h: 'Item', w: 36, key: 'label' }, { h: 'Value', w: 18, key: 'value', fmt: 'money' },
+    ], lines)
+    // Rows start at 3: the application ref is text, retention % and defects months are not money
+    ws.getCell('B3').numFmt = '@'; ws.getCell('B3').alignment = { horizontal: 'right' }
+    ws.getCell('B14').numFmt = '0.0"%"'
+    ws.getCell('B16').numFmt = '0'
+  }
+
+  tableSheet(wb, 'Period History', `PERIOD HISTORY - ${projName}`, [
+    { h: 'Period', w: 18, key: 'label' }, { h: 'Period end', w: 12, key: 'period_date' },
+    { h: 'Status', w: 10, key: 'status' }, { h: 'EFC', w: 15, key: 'efc', fmt: 'money' },
+    { h: 'Forecast margin', w: 15, key: 'forecast_margin', fmt: 'money' }, { h: 'Cost to date', w: 15, key: 'total_ctd', fmt: 'money' },
+    { h: 'Claimed', w: 15, key: 'total_claimed', fmt: 'money' }, { h: 'Cash position', w: 15, key: 'cash_position', fmt: 'money' },
+    { h: 'Over / (under) claim', w: 17, key: 'over_under_claim', fmt: 'money' },
+  ], periodRows.map(p => ({ ...p, status: p.locked_at ? 'Locked' : p.is_current ? 'Current' : '' })))
+
+  tableSheet(wb, 'Audit Log', `AUDIT LOG - ${projName}`, [
+    { h: 'When', w: 18, key: 'created_at' }, { h: 'User', w: 18, key: 'user_name' }, { h: 'Area', w: 14, key: 'category' },
+    { h: 'Action', w: 10, key: 'action' }, { h: 'Record', w: 34, key: 'record_label' }, { h: 'Field', w: 18, key: 'field' },
+    { h: 'Old value', w: 18, key: 'old_value' }, { h: 'New value', w: 18, key: 'new_value' },
+  ], auditRows)
 
   const buf=await wb.xlsx.writeBuffer()
   const fn=`ExtraOver_${projName.replace(/[^a-z0-9]/gi,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`
