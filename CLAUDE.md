@@ -82,7 +82,7 @@ for them, and add a health check when two sources can drift.
 ### 5. Release discipline
 Every release that goes to main:
 - Bumps the sidebar label in `src/app/[id]/LayoutClient.tsx` (currently
-  `ExtraOver v48`) to the next number.
+  `ExtraOver v49`) to the next number.
 - Adds `RELEASE_NOTES_vXX.md` at the repo root (format below).
 - Uses a commit subject of the form `vXX: short summary, comma separated`.
 

@@ -1,7 +1,7 @@
 'use client'
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { fmt, clx } from '@/lib/utils'
+import { fmt, clx, marginRag, MARGIN_RAG, type MarginRag } from '@/lib/utils'
 import DemoProjectButton from '@/components/DemoProjectButton'
 
 type Issue = { id: string; severity: 'error' | 'warning' | 'info'; title: string; href?: string }
@@ -26,23 +26,24 @@ type ProjectSummary = {
   issues: Issue[]
 }
 
-type Filter = 'all' | 'risk' | 'profit' | 'flags'
+type Filter = 'all' | 'loss' | 'below' | 'ontrack' | 'flags'
 
-function rag(pct: number, hasData: boolean): 'green' | 'amber' | 'red' | 'none' {
-  if (!hasData) return 'amber'
-  if (pct >= 0.05) return 'green'
-  if (pct >= 0) return 'amber'
-  return 'red'
+type Status = MarginRag | 'none'
+
+// Shared margin rule from utils; 'none' until the project has an EFC
+function rag(p: ProjectSummary): Status {
+  if (!(p.efc > 0)) return 'none'
+  return marginRag(p.forecastPct, p.originalMargin, p.adjustedSum)
 }
 
-const RAG_COLOURS = {
-  green: { dot: '#3B6D11', text: '#0a6e44', label: 'On track' },
-  amber: { dot: '#BA7517', text: '#633806', label: 'Review' },
-  red:   { dot: '#A32D2D', text: '#791F1F', label: 'At risk' },
-  none:  { dot: '#888780', text: '#444441', label: 'No data' },
+const RAG_COLOURS: Record<Status, { dot: string; text: string; label: string }> = {
+  green: { dot: MARGIN_RAG.green.colour, text: MARGIN_RAG.green.text, label: MARGIN_RAG.green.label },
+  amber: { dot: MARGIN_RAG.amber.colour, text: MARGIN_RAG.amber.text, label: MARGIN_RAG.amber.label },
+  red:   { dot: MARGIN_RAG.red.colour,   text: MARGIN_RAG.red.text,   label: MARGIN_RAG.red.label },
+  none:  { dot: '#8b93a1',               text: '#5b626e',             label: 'No data' },
 }
 
-function Dot({ status }: { status: 'green' | 'amber' | 'red' | 'none' }) {
+function Dot({ status }: { status: Status }) {
   return (
     <span style={{
       width: 10, height: 10, borderRadius: '50%',
@@ -91,8 +92,9 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
   // Filter + sort
   const filtered = useMemo(() => {
     let list = [...summaries]
-    if (filter === 'risk')   list = list.filter(p => rag(p.forecastPct, p.efc > 0) === 'red')
-    if (filter === 'profit') list = list.filter(p => rag(p.forecastPct, p.efc > 0) === 'green')
+    if (filter === 'loss')    list = list.filter(p => rag(p) === 'red')
+    if (filter === 'below')   list = list.filter(p => rag(p) === 'amber')
+    if (filter === 'ontrack') list = list.filter(p => rag(p) === 'green')
     if (filter === 'flags')  list = list.filter(p => p.errorCount > 0)
     list.sort((a, b) => {
       let v = 0
@@ -155,8 +157,8 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
               sub: `${(weightedMarginPct * 100).toFixed(1)}% weighted avg`,
               col: totals.totalMargin >= 0 ? '#0a6e44' : '#791F1F' },
             { label: 'Projects in profit',val: `${totals.inProfit} / ${summaries.length}`,
-              sub: totals.atRisk > 0 ? `${totals.atRisk} at risk` : 'all in profit',
-              col: totals.atRisk > 0 ? '#633806' : '#0a6e44' },
+              sub: totals.atRisk > 0 ? `${totals.atRisk} forecasting a loss` : 'all in profit',
+              col: totals.atRisk > 0 ? MARGIN_RAG.red.text : MARGIN_RAG.green.text },
             { label: 'Red flags',         val: String(totals.totalFlags),
               sub: totals.totalErrors > 0 ? `${totals.totalErrors} critical` : 'no critical issues',
               col: totals.totalErrors > 0 ? '#791F1F' : '#0a6e44' },
@@ -227,8 +229,7 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
         {view === 'cards' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14, marginBottom: 20 }}>
             {filtered.map(s2 => {
-              const hasData = s2.efc > 0 || s2.totalCtd > 0
-              const status = rag(s2.forecastPct, hasData)
+              const status = rag(s2)
               const rc = RAG_COLOURS[status]
               return (
                 <div key={s2.id} onClick={() => router.push(`/${s2.id}/dashboard`)}
@@ -292,7 +293,7 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
               All projects
             </span>
             <div style={{ display: 'flex', gap: 5 }}>
-              {([['all', 'All'], ['risk', 'At risk'], ['profit', 'In profit'], ['flags', 'Critical flags']] as [Filter, string][]).map(([f, label]) => (
+              {([['all', 'All'], ['ontrack', MARGIN_RAG.green.label], ['below', MARGIN_RAG.amber.label], ['loss', MARGIN_RAG.red.label], ['flags', 'Critical flags']] as [Filter, string][]).map(([f, label]) => (
                 <button key={f} onClick={() => setFilter(f)}
                   style={{ fontSize: 11, padding: '4px 11px', borderRadius: 20, border: '0.5px solid',
                     borderColor: filter === f ? '#1a1d23' : '#aeb4bf',
@@ -333,7 +334,7 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
               </thead>
               <tbody>
                 {filtered.map((p, idx) => {
-                  const status = rag(p.forecastPct, p.efc > 0)
+                  const status = rag(p)
                   const cfg = RAG_COLOURS[status]
                   const hasFinancial = p.efc > 0 || p.contractSum > 0
                   return (

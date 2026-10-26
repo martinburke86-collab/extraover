@@ -1,4 +1,4 @@
-import { clx } from '@/lib/utils'
+import { clx, MARGIN_RAG, type MarginRag } from '@/lib/utils'
 
 // ── Page Header ───────────────────────────────────────────────────────────
 // White bar with thin bottom border — matches Stitch header pattern
@@ -61,7 +61,7 @@ export function KpiCard({ label, value, sub, trend, accent = 'default' }: {
     default: 'text-on-surface',
     profit:  'text-tertiary',
     loss:    'text-error',
-    warning: 'text-amber-600',
+    warning: 'text-caution',
   }
   const trendIcon: Record<string, string> = { up: 'trending_up', down: 'trending_down', neutral: 'trending_flat' }
   const trendColour: Record<string, string> = { up: 'text-tertiary', down: 'text-error', neutral: 'text-on-surface-variant' }
@@ -187,15 +187,15 @@ export function MovCell({ value, formatted }: { value: number; formatted: string
 }
 
 // ── Status RAG chip ───────────────────────────────────────────────────────
-export function RagChip({ status }: { status: 'green' | 'amber' | 'red' }) {
-  const cfg = {
-    green: { bg: 'bg-tertiary/10 border-tertiary/20 text-tertiary', label: 'On Track' },
-    amber: { bg: 'bg-amber-50 border-amber-200 text-amber-700',     label: 'At Risk'  },
-    red:   { bg: 'bg-error/10 border-error/20 text-error',          label: 'Critical' },
+export function RagChip({ status }: { status: MarginRag }) {
+  const bg = {
+    green: 'bg-tertiary/10 border-tertiary/20 text-tertiary',
+    amber: 'bg-caution-container border-caution/20 text-caution-dim',
+    red:   'bg-error/10 border-error/20 text-error',
   }
   return (
-    <span className={clx('px-2 py-0.5 text-[9px] font-black uppercase tracking-wide rounded-sm border', cfg[status].bg)}>
-      {cfg[status].label}
+    <span className={clx('px-2 py-0.5 text-[9px] font-black uppercase tracking-wide rounded-sm border', bg[status])}>
+      {MARGIN_RAG[status].label}
     </span>
   )
 }
