@@ -23,7 +23,7 @@ A full-stack web application for construction cost reporting — converted from 
 # 1. Install dependencies
 npm install
 
-# 2. Seed database with Barnaleen Solar demo data
+# 2. Optional: add the worked demo project (also available as a button in the app)
 npx tsx src/lib/seed.ts
 
 # 3. Run development server
@@ -53,7 +53,7 @@ The **Cost Codes** page is the master reference. Every line in Cost to Date, Com
 
 Uses [LibSQL](https://github.com/tursodatabase/libsql) (SQLite-compatible, file-based). Database file: `cvr.db` in the project root.
 
-To re-seed with demo data (Barnaleen Solar Substation):
+To add the worked demo project (Harbour View Apartments). It never deletes existing data; the same project is available from the "Add demo project" button on the portfolio and setup pages:
 ```bash
 npx tsx src/lib/seed.ts
 ```

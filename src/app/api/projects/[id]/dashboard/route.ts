@@ -45,7 +45,9 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     taxExpired: !!r.tax_clearance_expiry && String(r.tax_clearance_expiry) < today,
   }))
 
+  const projR = await db.execute({ sql: 'SELECT gifa FROM projects WHERE id=?', args: [params.id] })
   const healthIssues = runHealthChecks(kpis, trades, params.id, {
+    gifa: Number((projR.rows[0] as any)?.gifa) || 0,
     lockedPeriods: Number((lockedR.rows[0] as any)?.n) || 0,
     variationCount: Number((varsR.rows[0] as any)?.n) || 0,
     variationsCoded, prelims, subs,

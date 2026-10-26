@@ -2,6 +2,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import * as XLSX from 'xlsx'
+import DemoProjectButton from '@/components/DemoProjectButton'
 
 // ── BCIS SFCA 4th Edition elements ───────────────────────────────────────────
 const SECTIONS = [
@@ -557,6 +558,15 @@ export default function SetupWizard() {
             </div>
           </div>
 
+        </div>
+
+        {/* Demo project */}
+        <div className="mt-4 bg-surface-container-lowest rounded-xl border border-outline-variant/20 px-7 py-4 flex items-center justify-between gap-4">
+          <div>
+            <div className="text-xs font-bold text-on-surface">Want to look around first?</div>
+            <div className="text-xs text-on-surface-variant">Open a fully worked demo project. You can delete it from its Settings page at any time.</div>
+          </div>
+          <DemoProjectButton label="Explore demo project" className="shrink-0" />
         </div>
 
         {/* Existing projects link */}
