@@ -260,7 +260,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
         </div>
       </div>
 
-      {/* Pre-v49 figures typed on the sheet that are not on the lines */}
+      {/* Pre-v51 figures typed on the sheet that are not on the lines */}
       {sheetOnly.length > 0 && (
         <div className="flex-shrink-0 border-b px-6 py-2.5 flex items-center gap-4 text-xs" style={{ background: '#FEF3C7', color: '#92400e' }}>
           <div className="flex-1">

@@ -67,6 +67,11 @@ module.exports = {
         'error-container':           '#fbeae6',
         'on-error-container':        '#a23015',
 
+        // Caution (amber, caution only)
+        'caution':                   '#b6740a',
+        'caution-dim':               '#7F4500',
+        'caution-container':         '#fcf2e2',
+
         // Outline / borders
         'outline':                   '#e7e9ee',
         'outline-variant':           '#dfe2e7',

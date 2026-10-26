@@ -20,7 +20,7 @@ interface CodeTotals { trade: string; ctd: number; committed: number }
 // Figures that tie the prelims sheet to the Preliminaries element (health checks)
 export interface PrelimsReconciliation {
   detailBudget: number; detailPFC: number; tradeMethod: string | null
-  // Pre-v49 figures typed on the sheet that are not on the lines yet
+  // Pre-v51 figures typed on the sheet that are not on the lines yet
   sheetOnly: { code: string | null; description: string; ctd: number; committed: number; postable: boolean }[]
   // Preliminaries cost on codes with no sheet item, so nothing forecasts their remaining spend
   unlisted: { code: string; ctd: number; committed: number }[]
@@ -167,7 +167,7 @@ export async function getPrelimsReconciliation(projectId: string, trades: TradeS
   const prelimsTrade = findPrelimsTrade(trades)
   const cents = (n: number) => Math.round(n * 100) / 100
 
-  // Sheet-typed CTD / Committed (pre-v49) beyond what the lines on that code
+  // Sheet-typed CTD / Committed (pre-v51) beyond what the lines on that code
   // already hold. Grouped by code; uncoded items stand alone.
   const groups = new Map<string, { code: string | null; description: string; ctd: number; committed: number }>()
   for (const r of rows) {

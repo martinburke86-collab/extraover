@@ -180,7 +180,7 @@ export function runHealthChecks(
     })
   }
 
-  // Prelims sheet vs Cost to Date / Committed lines. Since v49 the lines are
+  // Prelims sheet vs Cost to Date / Committed lines. Since v51 the lines are
   // the single source; these catch the ways the two can still disagree.
   const eur = (n: number) => `€${Math.round(n).toLocaleString('en-IE')}`
   const codeList = (xs: { code: string | null; description?: string }[]) =>

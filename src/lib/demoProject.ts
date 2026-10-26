@@ -268,7 +268,7 @@ export async function createDemoProject(ownerUserId: string | null, userName = '
   for (const t of TRADES) if (t.method) await run(`UPDATE trades SET forecast_method=? WHERE id=?`, [t.method, tradeId[t.name]])
 
   // ── Prelims sheet: rates and budgets only. Its CTD and Committed are read
-  // from the Cost to Date and Committed lines on each code (v49), so the
+  // from the Cost to Date and Committed lines on each code (v51), so the
   // stored columns stay 0.
   const setPrelims = async () => {
     for (const p of PRELIMS) {

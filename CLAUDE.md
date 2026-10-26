@@ -26,6 +26,8 @@ and value, so treat every change as a production change.
 - `src/lib/projects.ts` `createProject()` used by the wizard and the demo;
   `demoProject.ts` builds the worked demo (button and `npx tsx src/lib/seed.ts`).
   Seeds and demos add data only, never delete
+- `src/lib/backup.ts` project backup (every row as JSON) and restore as a NEW
+  project. Add any new project table to its `TABLES` list, in FK order
 - `src/lib/pageAuth.ts` (pages) and `apiAuth.ts` (API routes) enforce owner /
   editor / viewer roles via `roles.ts`.
 - `src/components/ui.tsx` shared primitives (PageHeader, Panel, KpiCard, Btn...)
@@ -47,7 +49,7 @@ There is no EFC override. The Preliminaries trade on the `prelims` method
 takes only its Uncommitted from the prelims sheet; its Cost to Date and
 Committed are the lines on its codes like any other trade. The sheet's CTD
 and Committed columns are read-only, derived from the lines on each item's
-cost code (v49). Never write `prelim_items.ctd` / `committed` from input.
+cost code (v51). Never write `prelim_items.ctd` / `committed` from input.
 
 ### 2. Named-column INSERTs and ALTER-only migrations
 - Never write positional `INSERT INTO table VALUES (...)` on `cost_lines`,
@@ -85,7 +87,7 @@ for them, and add a health check when two sources can drift.
 ### 5. Release discipline
 Every release that goes to main:
 - Bumps the sidebar label in `src/app/[id]/LayoutClient.tsx` (currently
-  `ExtraOver v49`) to the next number.
+  `ExtraOver v51`) to the next number.
 - Adds `RELEASE_NOTES_vXX.md` at the repo root (format below).
 - Uses a commit subject of the form `vXX: short summary, comma separated`.
 

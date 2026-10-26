@@ -5,7 +5,7 @@ import { writeAudit, auditMoney } from '@/lib/audit'
 import { getSession } from '@/lib/getSession'
 import { requireProjectApi } from '@/lib/apiAuth'
 
-// Moves pre-v49 CTD / Committed typed on the prelims sheet onto Cost to Date
+// Moves pre-v51 CTD / Committed typed on the prelims sheet onto Cost to Date
 // and Committed lines, so the lines stay the single source. Only the amount
 // the lines on that code do not already hold is posted, so nothing is counted
 // twice. The sheet's stored figures on those codes are then cleared.
@@ -31,7 +31,7 @@ export async function POST(_: Request, { params }: { params: { id: string } }) {
   const codeRow: Record<string, any> = {}
   for (const r of codesR.rows as any[]) codeRow[String(r.code)] = r
 
-  const note = 'Moved from prelims sheet (v49)'
+  const note = 'Moved from prelims sheet (v51)'
   const stmts: { sql: string; args: any[] }[] = []
   for (const x of postable) {
     const cc = codeRow[x.code!]

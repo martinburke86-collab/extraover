@@ -108,6 +108,24 @@ function SidebarContents({
     } finally { setExporting(false) }
   }
 
+  const [backingUp, setBackingUp] = useState(false)
+  async function downloadBackup() {
+    setBackingUp(true)
+    try {
+      const res  = await fetch(`/api/projects/${params.id}/backup`)
+      if (!res.ok) throw new Error()
+      const blob = await res.blob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = res.headers.get('content-disposition')?.match(/filename="(.+)"/)?.[1] ?? 'ExtraOver_backup.json'
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      alert('The backup could not be downloaded. Please try again.')
+    } finally { setBackingUp(false) }
+  }
+
   async function exportPDF() {
     setExportingPDF(true)
     try {
@@ -189,6 +207,14 @@ function SidebarContents({
           <span>{exportingPDF ? 'Generating…' : '⬇ Export PDF Report'}</span>
         </button>
 
+        {role !== 'viewer' && (
+          <button onClick={downloadBackup} disabled={backingUp}
+            title="Every row of this project as a file you can keep. Restore it from the portfolio page as a new project."
+            className="w-full text-center text-[11px] font-medium text-primary hover:underline disabled:opacity-50">
+            {backingUp ? 'Preparing backup...' : 'Download project backup'}
+          </button>
+        )}
+
         <ProjectSwitcher />
 
         {/* User identity + role */}
@@ -219,7 +245,7 @@ function SidebarContents({
         )}
 
         <div className="text-[10px] text-slate-400 text-center pb-0.5 select-none">
-          ExtraOver v49
+          ExtraOver v51
         </div>
       </div>
     </div>
