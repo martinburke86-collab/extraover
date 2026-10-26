@@ -42,6 +42,7 @@ const TEMPLATES: Record<ImportType, { cols: string[]; notes: string[] }> = {
       'Util% is a number 0–100 (e.g. 50 = 50% utilisation)',
       'If Unit = Weeks: Amount = Qty × Rate × Remaining Weeks × Util%',
       'If Unit ≠ Weeks: Amount = Qty × Rate × Util%',
+      'CTD and Committed are read from the Cost to Date and Committed lines on each Code; values in those columns are ignored',
       'Existing blank rows are kept — imported rows are appended',
     ],
   },

@@ -1,16 +1,18 @@
 import { requireProjectRole } from '@/lib/pageAuth'
 import { initDB, db } from '@/lib/db'
-import { getPrelimItems } from '@/lib/calculations'
+import { getPrelimItems, getTradeSummaries, getPrelimsReconciliation } from '@/lib/calculations'
 import PrelimsClient from './PrelimsClient'
 export const dynamic = 'force-dynamic'
 
 export default async function PrelimsPage({ params }: { params: { id: string } }) {
   await requireProjectRole(params.id, 'editor')
   await initDB()
-  const [items, projR] = await Promise.all([
+  const [items, projR, trades] = await Promise.all([
     getPrelimItems(params.id),
     db.execute({ sql: 'SELECT * FROM projects WHERE id=?', args: [params.id] }),
+    getTradeSummaries(params.id),
   ])
+  const recon = await getPrelimsReconciliation(params.id, trades)
   const p = projR.rows[0] as any
   let weeksElapsed = 0, totalWeeks = 0
   if (p?.revised_start) {
@@ -28,6 +30,8 @@ export default async function PrelimsPage({ params }: { params: { id: string } }
       projectId={params.id}
       revisedStart={p?.revised_start ?? ''}
       revisedFinish={p?.revised_finish ?? ''}
+      sheetOnly={recon.sheetOnly}
+      unlisted={recon.unlisted}
     />
   )
 }

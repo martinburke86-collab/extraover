@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { initDB, db } from '@/lib/db'
-import { getDashboardKPIs, getTradeSummaries, getVariationCodedSummaries, getPrelimItems } from '@/lib/calculations'
+import { getDashboardKPIs, getTradeSummaries, getVariationCodedSummaries, getPrelimsReconciliation } from '@/lib/calculations'
 import { runHealthChecks } from '@/lib/healthCheck'
 import { requireProjectApi } from '@/lib/apiAuth'
 
@@ -18,13 +18,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
   const lockedR = await db.execute({
     sql: `SELECT COUNT(*) as n FROM report_periods WHERE project_id=? AND locked_at IS NOT NULL`, args: [params.id] })
   const variationsCoded = await getVariationCodedSummaries(params.id)
-  const prelimItems = await getPrelimItems(params.id)
-  const prelimsTrade = trades.find(t => t.trade.toLowerCase().startsWith('prelim'))
-  const prelims = {
-    detailBudget: prelimItems.reduce((s, i) => s + i.budget, 0),
-    detailPFC:    prelimItems.reduce((s, i) => s + i.projected_final_cost, 0),
-    tradeMethod:  prelimsTrade ? prelimsTrade.forecastMethod : null,
-  }
+  const prelims = await getPrelimsReconciliation(params.id, trades)
 
   const subsCheckR = await db.execute({
     sql: `SELECT s.name, s.tax_clearance_expiry,

@@ -172,6 +172,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     })
     let sortOrder = (Number((maxOrd.rows[0] as any)?.m) ?? -1) + 1
 
+    let ignoredCost = 0
     const VALID_UNITS = ['Weeks','weeks','nr','each','m','m2','m²','m3','m³','t','kg','Item','item','LS','ls','Months','months']
 
     for (let i = 0; i < norm.length; i++) {
@@ -182,8 +183,9 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       const section  = String(r.section ?? r.element ?? r.area ?? 'Other').trim()
       const code     = String(r.code ?? r.cost_code ?? '').trim() || null
       const budget   = Number(r.budget ?? '') || 0
-      const ctd      = Number(r.ctd ?? r.cost_to_date ?? '') || 0
-      const committed= Number(r.committed ?? '') || 0
+      // CTD / Committed columns are ignored: prelims cost comes from the
+      // Cost to Date and Committed lines on the item's cost code
+      if ((Number(r.ctd ?? r.cost_to_date ?? '') || 0) || (Number(r.committed ?? '') || 0)) ignoredCost++
       const qty      = Number(r.qty ?? r.quantity ?? 1) || 1
       const rawUnit  = String(r.unit ?? 'Weeks').trim()
       // Normalise unit — accept case-insensitive
@@ -198,7 +200,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         await db.execute({
           sql:  `INSERT INTO prelim_items (id, project_id, section, cost_code, description, budget, ctd, committed, qty, unit, rate, utilisation_pct, start_week, finish_week, sort_order, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
           args: [cuid(), pid, section, code, desc,
-                 budget, ctd, committed,
+                 budget, 0, 0,
                  qty, unit, rate, util,
                  startWk, finishWk, sortOrder++, notes],
         })
@@ -208,6 +210,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         skipped++
       }
     }
+    if (ignoredCost > 0) errors.unshift(`CTD and Committed ignored on ${ignoredCost} row${ignoredCost > 1 ? 's' : ''}: prelims cost to date and committed come from the Cost to Date and Committed lines on each item's cost code`)
   }
 
   return NextResponse.json({

@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/ui'
 import { Plus, Trash2, ChevronDown, ChevronRight, Upload } from 'lucide-react'
 import UploadModal from '@/components/UploadModal'
 import { useRouter } from 'next/navigation'
-import type { PrelimItem } from '@/lib/calculations'
+import type { PrelimItem, PrelimsReconciliation } from '@/lib/calculations'
 import { useGridNav } from '@/lib/tableUtils'
 import BreakdownCell from '@/components/BreakdownCell'
 import CostCodeInput from '@/components/CostCodeInput'
@@ -18,6 +18,8 @@ interface Props {
   projectId: string
   revisedStart: string
   revisedFinish: string
+  sheetOnly: PrelimsReconciliation['sheetOnly']
+  unlisted: PrelimsReconciliation['unlisted']
 }
 
 const SECTIONS = ['Site Management','Welfare & Offices','Establishment','Running Costs','Surveys','Bond & Insurance','Other']
@@ -57,7 +59,7 @@ function IntInput({ value, onSave, min, max, w = 'w-14' }: {
   )
 }
 
-export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks, projectId, revisedStart, revisedFinish }: Props) {
+export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks, projectId, revisedStart, revisedFinish, sheetOnly: initialSheetOnly, unlisted: initialUnlisted }: Props) {
   const router      = useRouter()
   const [, start]   = useTransition()
   const [items, setItems]         = useState<PrelimItem[]>(initial)
@@ -70,6 +72,32 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
   })
   const tableNav = useGridNav()
   const [showUpload, setShowUpload] = useState(false)
+  const [sheetOnly, setSheetOnly] = useState(initialSheetOnly)
+  const [unlisted, setUnlisted]   = useState(initialUnlisted)
+  const [posting, setPosting]     = useState(false)
+
+  // CTD and Committed are read from the lines on each item's cost code, so
+  // re-read them after anything that changes which lines an item picks up.
+  async function refreshDerived() {
+    const res = await fetch(`/api/projects/${projectId}/prelims`)
+    if (!res.ok) return
+    const data = await res.json()
+    const byId: Record<string, PrelimItem> = Object.fromEntries((data.items as PrelimItem[]).map(i => [i.id, i]))
+    setItems(prev => prev.map(it => byId[it.id] ? { ...it, ctd: byId[it.id].ctd, committed: byId[it.id].committed } : it))
+    setSheetOnly(data.sheetOnly)
+    setUnlisted(data.unlisted)
+  }
+
+  async function postSheetOnly() {
+    const ctd = sheetOnly.reduce((s, x) => s + x.ctd, 0)
+    const committed = sheetOnly.reduce((s, x) => s + x.committed, 0)
+    if (!confirm(`Post ${fmt(ctd)} cost to date and ${fmt(committed)} committed from this sheet onto the Cost to Date and Committed lines?\n\nOne line per cost code is added in the current period, noted "Moved from prelims sheet". The figures typed on the sheet are then cleared.`)) return
+    setPosting(true)
+    await fetch(`/api/projects/${projectId}/prelims/convert`, { method: 'POST' })
+    await refreshDerived()
+    setPosting(false)
+    start(() => router.refresh())
+  }
 
   async function loadTemplate() {
     if (!confirm('Load the standard PR100–PR900 prelims template?\n\nThis will add 155 standard items (Management, Site Establishment, Security, Safety, Plant, etc.) to this project.')) return
@@ -85,13 +113,16 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
     return map
   }, [items])
 
+  // Preliminaries cost on codes with no item still counts, so the total ties to the element EFC
+  const other = useMemo(() => unlisted.reduce((a, x) => ({ ctd: a.ctd + x.ctd, committed: a.committed + x.committed }),
+    { ctd: 0, committed: 0 }), [unlisted])
   const totals = useMemo(() => items.reduce((acc, it) => ({
     budget:    acc.budget    + it.budget,
     ctd:       acc.ctd       + it.ctd,
     committed: acc.committed + it.committed,
     amount:    acc.amount    + calcAmount(it, weeksElapsed),
     pfc:       acc.pfc       + calcPFC(it, weeksElapsed),
-  }), { budget:0, ctd:0, committed:0, amount:0, pfc:0 }), [items, weeksElapsed])
+  }), { budget:0, ctd: other.ctd, committed: other.committed, amount:0, pfc: other.ctd + other.committed }), [items, weeksElapsed, other])
 
   function toggleSection(s: string) {
     setCollapsed(p => { const n = new Set(Array.from(p)); n.has(s) ? n.delete(s) : n.add(s); return n })
@@ -99,9 +130,18 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
 
   function saveItem(item: PrelimItem) {
     // Fire and forget — no setSaving, no router.refresh per keystroke
-    fetch(`/api/projects/${projectId}/prelims`, {
+    return fetch(`/api/projects/${projectId}/prelims`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(item),
     }).catch(() => {/* silent — toast on delete/add errors only */})
+  }
+
+  // Code or budget changes move which lines an item picks up: save, then re-read
+  async function saveAndRefresh(id: string, patch: Partial<PrelimItem>) {
+    const item = items.find(it => it.id === id)
+    if (!item) return
+    setItems(prev => prev.map(it => it.id === id ? { ...it, ...patch } : it))
+    await saveItem({ ...item, ...patch })
+    await refreshDerived()
   }
 
   function upd(id: string, field: keyof PrelimItem, value: any) {
@@ -133,13 +173,14 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
     })
     const { id } = await res.json()
     setItems(p => [...p, {
-      ...newItem as PrelimItem, id,
+      ...newItem as PrelimItem, id, ctd: 0, committed: 0,
       amount: calcAmount(newItem, weeksElapsed),
       projected_final_cost: calcPFC(newItem, weeksElapsed),
       vs_budget: 0, sort_order: p.length,
     }])
     setAdding(false)
     setNewItem({ section:'Site Management', unit:'Weeks', qty:1, rate:0, utilisation_pct:100, start_week:1, finish_week:totalWeeks })
+    await refreshDerived()
     start(() => router.refresh())
   }
 
@@ -219,6 +260,26 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
         </div>
       </div>
 
+      {/* Pre-v49 figures typed on the sheet that are not on the lines */}
+      {sheetOnly.length > 0 && (
+        <div className="flex-shrink-0 border-b px-6 py-2.5 flex items-center gap-4 text-xs" style={{ background: '#FEF3C7', color: '#92400e' }}>
+          <div className="flex-1">
+            <span className="font-bold" style={{ color: '#b6740a' }}>
+              {fmt(sheetOnly.reduce((s, x) => s + x.ctd + x.committed, 0))} typed on this sheet is not on Cost to Date or Committed.
+            </span>{' '}
+            Cost to date and committed on this sheet now come from the lines on each cost code, so this amount is missing from the
+            dashboard until it is posted ({sheetOnly.slice(0, 5).map(x => x.code ?? `${x.description}, no code`).join('; ')}{sheetOnly.length > 5 ? ` +${sheetOnly.length - 5} more` : ''}).
+            {sheetOnly.some(x => !x.postable) && ' Items without a valid cost code need one before they can be posted.'}
+          </div>
+          {sheetOnly.some(x => x.postable) && (
+            <button onClick={postSheetOnly} disabled={posting}
+              className="flex-shrink-0 px-3 py-1.5 rounded text-xs font-semibold text-white bg-primary hover:bg-primary-dim disabled:opacity-50">
+              {posting ? 'Posting…' : 'Post to Cost to Date'}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Table */}
       <div className="flex-1 overflow-auto scrollbar-thin">
         <table className="w-full border-collapse text-xs" style={{ minWidth: 1200 }} onKeyDown={tableNav}>
@@ -287,18 +348,8 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                   <input type="text" className="border rounded px-1.5 py-0.5 text-xs w-28 focus:outline-none"
                     onChange={e => setNewItem(p => ({...p, notes: e.target.value}))} placeholder="Notes…" />
                 </td>
-                <td className="px-2 py-1.5">
-                  <input type="text" className="no-spin border rounded px-1.5 py-0.5 text-xs w-24 text-right focus:outline-none"
-                    style={{ background: '#eef2ff' }}
-                    onChange={e => setNewItem(p => ({...p, ctd: parseFloat(e.target.value.replace(/,/g,''))||0}))} />
-                </td>
-                <td className="px-2 py-1.5">
-                  <input type="text" className="no-spin border rounded px-1.5 py-0.5 text-xs w-24 text-right focus:outline-none"
-                    style={{ background: '#eef2ff' }}
-                    onChange={e => setNewItem(p => ({...p, committed: parseFloat(e.target.value.replace(/,/g,''))||0}))} />
-                </td>
-                <td className="px-3 py-1.5 text-right tabular-nums text-gray-500">
-                  {fmt((newItem.ctd||0)+(newItem.committed||0))}
+                <td colSpan={3} className="px-3 py-1.5 text-[10px] text-gray-400 text-center">
+                  From Cost to Date and Committed lines on the code
                 </td>
                 <td className="px-2 py-1.5">
                   <input type="number" value={newItem.utilisation_pct??100} min={0} max={100}
@@ -365,7 +416,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                   <td className="px-3 py-2 text-right tabular-nums text-xs font-bold" style={{ color: '#8B0000' }}>{fmt(secTot.ctd)}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-xs font-bold" style={{ color: '#8B0000' }}>{fmt(secTot.committed)}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-xs font-bold text-gray-600">{fmt(secTot.ctd+secTot.committed)}</td>
-                  <td colSpan={4} />
+                  <td colSpan={5} />
                   <td className="px-3 py-2 text-right tabular-nums text-xs font-bold" style={{ color: '#7F4500' }}>{fmt(secTot.amount)}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-xs font-bold" style={{ color: '#5b626e' }}>{fmt(secTot.pfc)}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-xs font-bold"
@@ -399,7 +450,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                       {/* Cost Code — bidirectional */}
                       <td data-col={1} className="px-2 py-1">
                         <CostCodeInput projectId={projectId} value={item.cost_code ?? ''} field="code"
-                          onSelect={cc => updAndSave(item.id, 'cost_code', cc.code)}
+                          onSelect={cc => saveAndRefresh(item.id, { cost_code: cc.code })}
                           onKeyDown={tableNav}
                           className="border border-gray-200 rounded px-1.5 py-0.5 text-xs w-24 font-mono focus:outline-none focus:ring-1 focus:ring-primary"
                           placeholder="Code…" />
@@ -408,18 +459,15 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                       {/* Description — bidirectional */}
                       <td data-col={2} className="px-2 py-1">
                         <CostCodeInput projectId={projectId} value={item.description} field="description"
-                          onSelect={cc => {
-                            setItems(prev => prev.map(it => it.id === item.id ? { ...it, cost_code: cc.code, description: cc.description } : it))
-                            saveItem({ ...item, cost_code: cc.code, description: cc.description })
-                          }}
+                          onSelect={cc => saveAndRefresh(item.id, { cost_code: cc.code, description: cc.description })}
                           onKeyDown={tableNav}
                           className="border border-gray-200 rounded px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
                           placeholder="Description…" />
                       </td>
 
-                      {/* Budget */}
+                      {/* Budget (also splits a shared cost code's lines between items) */}
                       <td data-col={3} className="px-2 py-1">
-                        <GridInput value={item.budget} onSave={v => updAndSave(item.id, 'budget', v)} className="grid-input-sm w-24" />
+                        <GridInput value={item.budget} onSave={v => saveAndRefresh(item.id, { budget: v })} className="grid-input-sm w-24" />
                       </td>
 
                       {/* Notes */}
@@ -429,14 +477,14 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
                           className="border border-gray-100 rounded px-1.5 py-0.5 text-xs w-28 text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300" />
                       </td>
 
-                      {/* CTD */}
-                      <td data-col={5} className="px-2 py-1">
-                        <GridInput value={item.ctd} onSave={v => updAndSave(item.id, 'ctd', v)} className="grid-input-sm w-24" />
+                      {/* CTD and Committed: read-only, from the lines on this cost code */}
+                      <td className="px-3 py-1.5 text-right tabular-nums text-xs text-gray-600"
+                        title="From Cost to Date lines on this cost code">
+                        {item.ctd ? item.ctd.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '–'}
                       </td>
-
-                      {/* Committed */}
-                      <td data-col={6} className="px-2 py-1">
-                        <GridInput value={item.committed} onSave={v => updAndSave(item.id, 'committed', v)} className="grid-input-sm w-24" />
+                      <td className="px-3 py-1.5 text-right tabular-nums text-xs text-gray-600"
+                        title="From Committed lines on this cost code">
+                        {item.committed ? item.committed.toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '–'}
                       </td>
 
                       {/* Total Costs (read-only) */}
@@ -526,6 +574,24 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
               ]
             })}
 
+            {/* Preliminaries codes with cost but no item on this sheet */}
+            {unlisted.length > 0 && (
+              <tr className="border-t border-gray-200" style={{ background: '#fbfbfc' }}>
+                <td colSpan={5} className="px-4 py-2 text-xs text-gray-600">
+                  Other Preliminaries codes, not on this sheet{' '}
+                  <span className="font-mono text-[10px] text-gray-400">
+                    {unlisted.slice(0, 6).map(x => x.code).join(', ')}{unlisted.length > 6 ? ` +${unlisted.length - 6}` : ''}
+                  </span>
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums text-xs text-gray-600">{fmt(other.ctd)}</td>
+                <td className="px-3 py-2 text-right tabular-nums text-xs text-gray-600">{fmt(other.committed)}</td>
+                <td className="px-3 py-2 text-right tabular-nums text-xs text-gray-600">{fmt(other.ctd + other.committed)}</td>
+                <td colSpan={6} />
+                <td className="px-3 py-2 text-right tabular-nums text-xs text-gray-600">{fmt(other.ctd + other.committed)}</td>
+                <td colSpan={2} />
+              </tr>
+            )}
+
             {/* Grand Total */}
             <tr className="bg-cvr-profit-lt font-bold border-t-2 border-amber-300">
               <td colSpan={5} className="px-4 py-2.5 text-xs" style={{ color: '#5b626e' }}>TOTAL PRELIMINARIES</td>
@@ -538,7 +604,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
               <td className="px-3 py-2.5 text-right tabular-nums text-xs text-gray-600">
                 {fmt(totals.ctd + totals.committed)}
               </td>
-              <td colSpan={4} />
+              <td colSpan={5} />
               <td className="px-3 py-2.5 text-right tabular-nums text-xs" style={{ color: '#7F4500' }}>{fmt(totals.amount)}</td>
               <td className="px-3 py-2.5 text-right tabular-nums text-xs" style={{ color: '#5b626e' }}>{fmt(totals.pfc)}</td>
               <td className="px-3 py-2.5 text-right tabular-nums text-xs"
@@ -553,7 +619,7 @@ export default function PrelimsClient({ items: initial, weeksElapsed, totalWeeks
 
       <div className="flex-shrink-0 bg-white border-t px-6 py-2 flex items-center gap-6 text-[10px] text-gray-400">
         <span>Click a cell to edit · Tab/↑↓←→ to navigate · Enter to move down</span>
-        <span>Uncommitted = Qty × Rate × Remaining Weeks × Util%&nbsp;&nbsp;|&nbsp;&nbsp;Proj Final Cost = CTD + Committed + Uncommitted</span>
+        <span>CTD and Committed from the lines on each cost code&nbsp;&nbsp;|&nbsp;&nbsp;Uncommitted = Qty × Rate × Remaining Weeks × Util%&nbsp;&nbsp;|&nbsp;&nbsp;Proj Final Cost = CTD + Committed + Uncommitted</span>
       </div>
 
       {showUpload && (
