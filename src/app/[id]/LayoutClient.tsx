@@ -245,7 +245,7 @@ function SidebarContents({
         )}
 
         <div className="text-[10px] text-slate-400 text-center pb-0.5 select-none">
-          ExtraOver v51
+          ExtraOver v52
         </div>
       </div>
     </div>
