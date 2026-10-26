@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { fmt, clx } from '@/lib/utils'
 import DemoProjectButton from '@/components/DemoProjectButton'
+import RestoreBackupButton from '@/components/RestoreBackupButton'
 
 type Issue = { id: string; severity: 'error' | 'warning' | 'info'; title: string; href?: string }
 
@@ -134,6 +135,7 @@ export default function PortfolioClient({ summaries }: { summaries: ProjectSumma
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>
             {summaries.length} project{summaries.length !== 1 ? 's' : ''} · {new Date().toLocaleDateString('en-IE', { month: 'long', year: 'numeric' })}
           </span>
+          <RestoreBackupButton />
           <DemoProjectButton />
           <button
             onClick={() => router.push('/setup')}
