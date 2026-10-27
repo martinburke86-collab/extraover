@@ -267,13 +267,12 @@ export async function createDemoProject(ownerUserId: string | null, userName = '
   }
   for (const t of TRADES) if (t.method) await run(`UPDATE trades SET forecast_method=? WHERE id=?`, [t.method, tradeId[t.name]])
 
-  // ── Prelims sheet, derived from the Cost to Date and Committed lines ────
-  const setPrelims = async (at: 'prior' | 'now') => {
+  // ── Prelims sheet: rates and budgets only. Its CTD and Committed are read
+  // from the Cost to Date and Committed lines on each code (v51), so the
+  // stored columns stay 0.
+  const setPrelims = async () => {
     for (const p of PRELIMS) {
-      const ctd = ctdTotal[p.code]?.[at] ?? 0
-      const order = orders.find(o => o.code === p.code)
-      const committed = order ? remaining(order, at) : 0
-      const fields = [p.section, p.desc, prelimBudget(p), ctd, committed, 1, p.lump ? 'nr' : 'Weeks',
+      const fields = [p.section, p.desc, prelimBudget(p), 0, 0, 1, p.lump ? 'nr' : 'Weeks',
                       p.lump ? p.lump.toComplete : p.rate, p.lump ? 100 : (p.util ?? 100), 1, TOTAL_WEEKS]
       const upd = await run(`UPDATE prelim_items SET section=?, description=?, budget=?, ctd=?, committed=?, qty=?, unit=?, rate=?,
                                utilisation_pct=?, start_week=?, finish_week=? WHERE project_id=? AND cost_code=?`, [...fields, id, p.code])
@@ -284,7 +283,7 @@ export async function createDemoProject(ownerUserId: string | null, userName = '
       }
     }
   }
-  await setPrelims('prior')
+  await setPrelims()
 
   // ── Value certified per element, and the valuation ──────────────────────
   const prelimPct = (at: 'prior' | 'now') => 100 * (WEEKS_ELAPSED - (at === 'prior' ? 4 : 0)) / TOTAL_WEEKS
@@ -331,7 +330,6 @@ export async function createDemoProject(ownerUserId: string | null, userName = '
   }
   for (const { p, now } of prelimCost) if (now) await addCost(currentPeriodId, p.code, now, 0)
   for (const o of orders) await run(`UPDATE committed_lines SET total=? WHERE id=?`, [remaining(o, 'now'), o.lineId])
-  await setPrelims('now')
   await setValue('now')
 
   // ── Subcontractor register with Irish deduction cascade ─────────────────

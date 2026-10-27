@@ -1,4 +1,4 @@
-import type { DashboardKPIs, TradeSummary, VariationCodedSummary } from './calculations'
+import type { DashboardKPIs, TradeSummary, VariationCodedSummary, PrelimsReconciliation } from './calculations'
 
 export type Severity = 'error' | 'warning' | 'info'
 
@@ -17,7 +17,7 @@ export function runHealthChecks(
   extras?: {
     gifa?: number; lockedPeriods?: number; variationCount?: number
     variationsCoded?: VariationCodedSummary[]
-    prelims?: { detailBudget: number; detailPFC: number; tradeMethod: string | null }
+    prelims?: PrelimsReconciliation
     subs?: { name: string; overCertified: boolean; taxExpired: boolean; certified: number; orderValue: number }[]
   }
 ): HealthIssue[] {
@@ -176,6 +176,49 @@ export function runHealthChecks(
       id: 'prelims-not-linked', severity: 'warning',
       title: 'Preliminaries element is not driven by the prelims sheet',
       detail: `The prelims detail projects €${Math.round(extras.prelims.detailPFC).toLocaleString('en-IE')} final cost, but the Preliminaries element uses the '${extras.prelims.tradeMethod}' forecast method, so the two can diverge. Set the element's forecast method to 'prelims' so the detail sheet is the single source.`,
+      href: 'prelims',
+    })
+  }
+
+  // Prelims sheet vs Cost to Date / Committed lines. Since v51 the lines are
+  // the single source; these catch the ways the two can still disagree.
+  const eur = (n: number) => `€${Math.round(n).toLocaleString('en-IE')}`
+  const codeList = (xs: { code: string | null; description?: string }[]) =>
+    xs.slice(0, 4).map(x => x.code ?? `'${x.description}' (no code)`).join(', ') + (xs.length > 4 ? ` +${xs.length - 4} more` : '')
+
+  const sheetOnly = extras?.prelims?.sheetOnly ?? []
+  if (sheetOnly.length > 0) {
+    const ctd = sheetOnly.reduce((s, x) => s + x.ctd, 0)
+    const committed = sheetOnly.reduce((s, x) => s + x.committed, 0)
+    const uncoded = sheetOnly.filter(x => !x.postable).length
+    issues.push({
+      id: 'prelims-sheet-only-cost', severity: 'error',
+      title: `${eur(ctd + committed)} of prelims cost is on the prelims sheet only`,
+      detail: `${codeList(sheetOnly)} ${sheetOnly.length > 1 ? 'hold' : 'holds'} ${eur(ctd)} cost to date and ${eur(committed)} committed typed on the prelims sheet that is not on the Cost to Date or Committed lines, so it is missing from Cost to Date and the Preliminaries EFC. Use 'Post to Cost to Date' on the prelims sheet to move it onto the lines.`
+        + (uncoded > 0 ? ` ${uncoded} item${uncoded > 1 ? 's need' : ' needs'} a valid cost code first.` : ''),
+      href: 'prelims',
+    })
+  }
+
+  const usesSheet = extras?.prelims?.tradeMethod === 'prelims'
+  const unlisted = extras?.prelims?.unlisted ?? []
+  if (usesSheet && unlisted.length > 0) {
+    const amt = unlisted.reduce((s, x) => s + x.ctd + x.committed, 0)
+    issues.push({
+      id: 'prelims-code-not-on-sheet', severity: 'warning',
+      title: `${eur(amt)} of Preliminaries cost is on codes with no prelims sheet item`,
+      detail: `${codeList(unlisted)} ${unlisted.length > 1 ? 'carry' : 'carries'} cost to date or committed on the Preliminaries element with no item on the prelims sheet, so nothing forecasts the remaining spend. Add an item for each code, or recode the lines.`,
+      href: 'prelims',
+    })
+  }
+
+  const otherElement = extras?.prelims?.otherElement ?? []
+  if (otherElement.length > 0) {
+    issues.push({
+      id: 'prelims-code-other-element', severity: 'warning',
+      title: `${otherElement.length} prelims sheet code${otherElement.length > 1 ? 's belong' : ' belongs'} to another element`,
+      detail: otherElement.slice(0, 4).map(x => `${x.code} (${x.trade}, ${eur(x.ctd + x.committed)})`).join(', ')
+        + `. ${otherElement.length > 1 ? 'Their' : 'Its'} cost shows on the prelims sheet but counts in the other element, so the sheet will not tie to the Preliminaries EFC. Correct the item's cost code or the code's element.`,
       href: 'prelims',
     })
   }
